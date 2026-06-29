@@ -1,0 +1,22 @@
+{
+  "name": "iseyc-civic-brain",
+  "version": "1.0.0",
+  "description": "ISEYC Civic Brain — Institutional AI Architect & Strategic Intelligence System",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.4.0"
+  },
+  "keywords": ["ISEYC", "civic", "Nigeria", "governance", "AI", "youth"],
+  "author": "mrzulqarnainnadabo",
+  "license": "MIT"
+}
