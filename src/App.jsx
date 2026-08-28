@@ -23,7 +23,7 @@ Capabilities: Grassroots Intelligence & Mobilization | Leadership Accountability
 
 Style: Institutional, visionary, professional, authoritative. Non-partisan. End major outputs with the slogan: "Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership."
 
-Context: June 2026. 13 months to 2027 elections. Kaduna South is active pilot zone. Kaduna PoC must be publishable by December 2026. Contact: iseycglobal@gmail.com | +234 803 698 4766 | www.iseyc.com.ng`;
+Context: August 2026. About 13 months to 2027 elections. Kaduna South is active pilot zone. Contact: iseycglobal@gmail.com | +234 803 698 4766 | www.iseyc.com.ng`;
 
 const QUICK_ACTIONS = [
   { icon: "\uD83D\uDDFA\uFE0F", label: "Kaduna Pilot Setup", prompt: "Generate a complete Kaduna South pilot ward setup plan for Phase 0 — ward selection criteria, Street Representative recruitment structure, and the baseline Community Needs Assessment framework." },
@@ -33,7 +33,7 @@ const QUICK_ACTIONS = [
   { icon: "\uD83D\uDCE1", label: "Media Strategy", prompt: "Build ISEYC's earned media strategy for July–December 2026 — NTA Kaduna, Daily Trust, Channels, Arise, social media — anchored to the Kaduna pilot and Accountability Tracker launches." },
   { icon: "\uD83D\uDE80", label: "National Scaling Plan", prompt: "Develop the national scaling roadmap from Kaduna South to Northwest to National, with state-by-state sequencing, replication criteria, and milestone gates." },
   { icon: "\uD83D\uDCCB", label: "Kaduna Civic Report", prompt: "Generate the full outline for the Kaduna Civic Report 2026 — the flagship evidence document for the Governor, NASS members, INEC, international partners, and donors." },
-  { icon: "\uD83C\uDFE2", label: "Department Briefs", prompt: "Generate a strategic brief for each of ISEYC's 5 departments — Education, Health & Wellbeing, Software & Technology, Graphic Design & Creativity, and Business & Investment — with Kaduna roles and Q3 2026 priorities." },
+  { icon: "\uD83C\uDFE2", label: "Department Briefs", prompt: "Generate a strategic brief for each of ISEYC's 5 departments — Education, Health & Wellbeing, Software & Technology, Graphic Design & Creativity, and Business & Investment — with Kaduna roles and Q3–Q4 2026 priorities." },
 ];
 
 const PILLARS = [
@@ -47,19 +47,19 @@ const PILLARS = [
 ];
 
 const PHASES = [
-  { label: "Phase 0 — Structural Setup", date: "Now – Jul 2026", active: true, desc: "Ward selection, Street Reps, baseline data" },
+  { label: "Phase 0 — Structural Setup", date: "Now – ongoing", active: true, desc: "Ward selection, Street Reps, baseline data" },
   { label: "Phase 1 — 7 Pillars Activation", date: "Jul – Sep 2026", active: false, desc: "One activity per pillar per ward per month" },
-  { label: "Phase 2 — Accountability Tracker", date: "Aug 2026", active: false, desc: "Kaduna Senator/Rep/Governor scorecards live" },
+  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Kaduna Senator/Rep/Governor scorecards live" },
   { label: "Phase 3 — Publish & Present", date: "Oct – Dec 2026", active: false, desc: "Kaduna Civic Report + 2027 Declaration" },
 ];
 
 const PRIORITIES = [
-  { task: "Finalize 3–5 pilot wards in Kaduna South", due: "Jun 28" },
-  { task: "Design Street Rep recruitment flyer", due: "Jun 30" },
-  { task: "Build Community Needs Assessment questionnaire", due: "Jun 30" },
-  { task: "Set up Ward Operations Dashboard (Google Sheets)", due: "Jun 30" },
-  { task: "Draft Accountability Scorecard criteria", due: "Jul 5" },
-  { task: "Write to NTA Kaduna — media partnership", due: "Jul 7" },
+  { task: "Finalize 3–5 pilot wards in Kaduna South", due: "Priority" },
+  { task: "Design Street Rep recruitment flyer", due: "Priority" },
+  { task: "Build Community Needs Assessment questionnaire", due: "Priority" },
+  { task: "Set up Ward Operations Dashboard", due: "Priority" },
+  { task: "Draft Accountability Scorecard criteria", due: "Next" },
+  { task: "Write to NTA Kaduna — media partnership", due: "Next" },
 ];
 
 function Logo({ size = 32 }) {
@@ -112,11 +112,22 @@ function fmt(text) {
   });
 }
 
+function friendlyError(errMsg, status) {
+  const m = (errMsg || "").toLowerCase();
+  if (m.includes("credit") || m.includes("balance") || m.includes("billing") || m.includes("quota")) {
+    return `**Provider credits low**\n\nThe AI provider is out of credits. Add Anthropic credits at console.anthropic.com, or set an **XAI_API_KEY** (Grok) in Vercel Environment Variables as backup.\n\nThen try again.`;
+  }
+  if (m.includes("api key") || m.includes("not configured")) {
+    return `**API key missing**\n\nSet ANTHROPIC_API_KEY and/or XAI_API_KEY in Vercel → Project → Settings → Environment Variables.`;
+  }
+  return `**API Error ${status || ""}:** ${errMsg}`;
+}
+
 export default function App() {
   const [tab, setTab] = useState("chat");
   const [msgs, setMsgs] = useState([{
     role: "assistant",
-    content: `# ISEYC Civic Brain — Activated\n\n**Institutional AI Architect & Strategic Intelligence System**\n\nFully operational. Calibrated to ISEYC's mission and Nigeria's governance realities.\n\n- **Pilot zone:** Kaduna South — Phase 0 (structural setup)\n- **HQ:** Abuja, FCT\n- **Sequence:** Kaduna → Northwest → National\n- **Window:** 13 months to 2027 elections — time to build is NOW\n\nUse the quick actions or ask me anything directly.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
+    content: `# ISEYC Civic Brain — Activated\n\n**Institutional AI Architect & Strategic Intelligence System**\n\nFully operational. Calibrated to ISEYC's mission and Nigeria's governance realities.\n\n- **Pilot zone:** Kaduna South — Phase 0 (structural setup)\n- **HQ:** Abuja, FCT\n- **Sequence:** Kaduna → Northwest → National\n- **Window:** ~13 months to 2027 elections — time to build is NOW\n\nUse the quick actions or ask me anything directly.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
   }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -145,12 +156,9 @@ export default function App() {
       });
 
       const raw = await res.text();
-      console.log("Proxy status:", res.status);
-      console.log("Proxy raw:", raw.slice(0, 400));
-
       let data;
       try { data = JSON.parse(raw); }
-      catch { 
+      catch {
         setDebugMsg(`Parse error (status ${res.status}): ${raw.slice(0, 200)}`);
         setMsgs(prev => [...prev, { role: "assistant", content: `**Error:** Could not parse server response. Status: ${res.status}` }]);
         return;
@@ -159,7 +167,7 @@ export default function App() {
       if (!res.ok) {
         const errMsg = data?.error || data?.details?.error?.message || JSON.stringify(data);
         setDebugMsg(`API error ${res.status}: ${errMsg}`);
-        setMsgs(prev => [...prev, { role: "assistant", content: `**API Error ${res.status}:** ${errMsg}` }]);
+        setMsgs(prev => [...prev, { role: "assistant", content: friendlyError(errMsg, res.status) }]);
         return;
       }
 
@@ -187,7 +195,6 @@ export default function App() {
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: `linear-gradient(160deg,#122812 0%,${FD} 50%,#050d05 100%)`, fontFamily: "Georgia,serif", overflow: "hidden" }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:${G}40;border-radius:2px}@keyframes dp{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}textarea{outline:none;font-family:Georgia,serif}textarea::placeholder{color:${MU}}.qa:hover{background:${F}!important;border-color:${G}60!important}.act:hover{background:${G}20!important}`}</style>
 
-      {/* HEADER */}
       <div style={{ background: `linear-gradient(90deg,${FD} 0%,${F} 50%,${FD} 100%)`, borderBottom: `2px solid ${G}`, height: 54, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Logo size={36} />
@@ -202,7 +209,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* TABS */}
       <div style={{ display: "flex", background: FD, borderBottom: `1px solid ${G}18`, padding: "0 12px", flexShrink: 0 }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "9px 13px", fontSize: 11, fontWeight: tab === t.id ? 700 : 400, color: tab === t.id ? G : MU, background: "none", border: "none", borderBottom: tab === t.id ? `2px solid ${G}` : "2px solid transparent", cursor: "pointer" }}>
@@ -211,7 +217,6 @@ export default function App() {
         ))}
       </div>
 
-      {/* CHAT */}
       {tab === "chat" && (
         <>
           <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px 0" }}>
@@ -236,7 +241,7 @@ export default function App() {
             )}
             {debugMsg && (
               <div style={{ background: "#1a0a0a", border: "1px solid #ef444430", borderRadius: 8, padding: "8px 12px", marginBottom: 12, fontSize: 10, color: "#ef4444", wordBreak: "break-all" }}>
-                🔍 Debug: {debugMsg}
+                Debug: {debugMsg}
               </div>
             )}
             <div ref={endRef} />
@@ -270,11 +275,10 @@ export default function App() {
         </>
       )}
 
-      {/* DASHBOARD */}
       {tab === "dashboard" && (
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 7, marginBottom: 10 }}>
-            {[{ v: "3–5", l: "Pilot Wards", s: "Kaduna South" }, { v: "13", l: "Months to 2027", s: "Electoral window" }, { v: "7", l: "Pillars", s: "Deploying Jul 2026" }].map((s, i) => (
+            {[{ v: "3–5", l: "Pilot Wards", s: "Kaduna South" }, { v: "13", l: "Months to 2027", s: "Electoral window" }, { v: "7", l: "Pillars", s: "Deploying" }].map((s, i) => (
               <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}22`, borderRadius: 9, padding: 11, textAlign: "center" }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: G, fontFamily: "Georgia,serif" }}>{s.v}</div>
                 <div style={{ fontSize: 10, color: CR, fontWeight: 600, marginTop: 1 }}>{s.l}</div>
@@ -284,7 +288,7 @@ export default function App() {
           </div>
 
           {[{
-            title: "🚀 National Scaling Sequence",
+            title: "National Scaling Sequence",
             content: ["Kaduna South Pilot (3–5 Wards)", "Kaduna State (All 3 Senatorial Zones)", "Northwest Zone (7 States)", "North Central + FCT Corridor", "National — All 36 States + FCT"].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
                 <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: i === 0 ? G : `${G}18`, border: `1px solid ${i === 0 ? G : G + "30"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: i === 0 ? FD : MU }}>{i + 1}</div>
@@ -293,7 +297,7 @@ export default function App() {
               </div>
             ))
           }, {
-            title: "📅 Kaduna Pilot Roadmap 2026",
+            title: "Kaduna Pilot Roadmap 2026",
             content: PHASES.map((p, i) => (
               <div key={i} style={{ display: "flex", gap: 9, marginBottom: 10 }}>
                 <div style={{ width: 7, height: 7, borderRadius: "50%", flexShrink: 0, marginTop: 4, background: p.active ? "#22c55e" : `${G}30`, boxShadow: p.active ? "0 0 5px #22c55e" : "none" }} />
@@ -301,7 +305,7 @@ export default function App() {
               </div>
             ))
           }, {
-            title: "⚡ Priority Actions — This Week",
+            title: "Priority Actions",
             content: PRIORITIES.map((p, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: i < PRIORITIES.length - 1 ? 7 : 0, paddingBottom: i < PRIORITIES.length - 1 ? 7 : 0, borderBottom: i < PRIORITIES.length - 1 ? `1px solid ${G}10` : "none" }}>
                 <div style={{ display: "flex", gap: 6, flex: 1 }}><span style={{ color: G }}>▸</span><span style={{ fontSize: 11, color: CR }}>{p.task}</span></div>
@@ -322,7 +326,6 @@ export default function App() {
         </div>
       )}
 
-      {/* PILLARS */}
       {tab === "pillars" && (
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
           <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap <strong style={{ color: G }}>Activate →</strong> for the full Kaduna deployment plan.</p>
