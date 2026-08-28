@@ -11,20 +11,34 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
+  const groqKey = process.env.GROQ_API_KEY;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const xaiKey = process.env.XAI_API_KEY;
 
-  // Try Anthropic first
+  // 1) Try free Groq first
+  if (groqKey) {
+    try {
+      const result = await callGroq(groqKey, messages, system);
+      if (result.ok) {
+        return res.status(200).json({
+          content: [{ type: 'text', text: result.text }],
+          provider: 'groq',
+          model: result.model,
+        });
+      }
+      // If Groq fails for non-credit reasons, still try others
+    } catch (err) {
+      console.error('Groq error:', err.message);
+    }
+  }
+
+  // 2) Anthropic
   if (anthropicKey) {
     try {
       const result = await callAnthropic(anthropicKey, messages, system);
       if (result.ok) {
-        return res.status(200).json({
-          ...result.data,
-          provider: 'anthropic',
-        });
+        return res.status(200).json({ ...result.data, provider: 'anthropic' });
       }
-      // If credits / billing error, fall through to xAI if available
       const msg = (result.error || '').toLowerCase();
       const isCreditError =
         msg.includes('credit') ||
@@ -35,27 +49,24 @@ export default async function handler(req, res) {
         result.status === 402 ||
         result.status === 429;
 
-      if (!isCreditError || !xaiKey) {
+      if (!isCreditError) {
         return res.status(result.status || 500).json({
           error: result.error || 'Anthropic API error',
           provider: 'anthropic',
           details: result.details,
         });
       }
-      // otherwise fall through to xAI
+      // credit error → fall through
     } catch (err) {
-      if (!xaiKey) {
-        return res.status(500).json({ error: 'Proxy error: ' + err.message, provider: 'anthropic' });
-      }
+      console.error('Anthropic error:', err.message);
     }
   }
 
-  // Fallback: xAI / Grok
+  // 3) xAI / Grok
   if (xaiKey) {
     try {
       const result = await callXAI(xaiKey, messages, system);
       if (result.ok) {
-        // Normalize to Anthropic-like shape so the frontend keeps working
         return res.status(200).json({
           content: [{ type: 'text', text: result.text }],
           provider: 'xai',
@@ -72,11 +83,62 @@ export default async function handler(req, res) {
     }
   }
 
-  // No keys configured
-  return res.status(500).json({
+  // Nothing worked
+  return res.status(402).json({
     error:
-      'No AI provider configured. Set ANTHROPIC_API_KEY and/or XAI_API_KEY in Vercel environment variables.',
+      'No working AI provider. Add a free GROQ_API_KEY from console.groq.com (recommended), or top up Anthropic / add XAI_API_KEY.',
   });
+}
+
+async function callGroq(apiKey, messages, system) {
+  const openAIMessages = [];
+  if (system && system.trim()) {
+    openAIMessages.push({ role: 'system', content: system.trim() });
+  }
+  for (const m of messages) {
+    openAIMessages.push({ role: m.role, content: m.content });
+  }
+
+  // Fast free model on Groq
+  const payload = {
+    model: 'llama-3.3-70b-versatile',
+    messages: openAIMessages,
+    max_tokens: 1024,
+    temperature: 0.7,
+  };
+
+  const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await upstream.text();
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return { ok: false, status: 500, error: 'Failed to parse Groq response', details: raw.slice(0, 200) };
+  }
+
+  if (!upstream.ok) {
+    return {
+      ok: false,
+      status: upstream.status,
+      error: data?.error?.message || data?.error || 'Groq API error',
+      details: data,
+    };
+  }
+
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) {
+    return { ok: false, status: 500, error: 'No text in Groq response', details: data };
+  }
+
+  return { ok: true, text, model: data.model || 'llama-3.3-70b-versatile' };
 }
 
 async function callAnthropic(apiKey, messages, system) {
@@ -123,7 +185,6 @@ async function callAnthropic(apiKey, messages, system) {
 }
 
 async function callXAI(apiKey, messages, system) {
-  // xAI uses OpenAI-compatible chat completions
   const openAIMessages = [];
   if (system && system.trim()) {
     openAIMessages.push({ role: 'system', content: system.trim() });
