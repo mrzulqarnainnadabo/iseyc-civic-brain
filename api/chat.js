@@ -4,7 +4,7 @@ const PROVIDERS = [
   {
     name: "groq",
     key: "GROQ_API_KEY",
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     endpoint: "https://api.groq.com/openai/v1/chat/completions",
   },
   {
@@ -77,6 +77,6 @@ export default async function handler(req, res) {
   }
 
   return res.status(402).json({
-    error: "No working AI provider. Add a free GROQ_API_KEY from console.groq.com (recommended), or top up Anthropic / add XAI_API_KEY.",
+    error: "No working AI provider. Check GROQ_API_KEY in Vercel, or configure Anthropic/XAI as a fallback.",
   });
 }
