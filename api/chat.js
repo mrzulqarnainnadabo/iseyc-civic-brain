@@ -86,7 +86,7 @@ export default async function handler(req, res) {
   // Nothing worked
   return res.status(402).json({
     error:
-      'No working AI provider. Add a free GROQ_API_KEY from console.groq.com (recommended), or top up Anthropic / add XAI_API_KEY.',
+      'No working AI provider. Check GROQ_API_KEY in Vercel, or configure Anthropic/XAI as a fallback.',
   });
 }
 
@@ -99,9 +99,8 @@ async function callGroq(apiKey, messages, system) {
     openAIMessages.push({ role: m.role, content: m.content });
   }
 
-  // Fast free model on Groq
   const payload = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages: openAIMessages,
     max_tokens: 1024,
     temperature: 0.7,
@@ -138,7 +137,7 @@ async function callGroq(apiKey, messages, system) {
     return { ok: false, status: 500, error: 'No text in Groq response', details: data };
   }
 
-  return { ok: true, text, model: data.model || 'llama-3.3-70b-versatile' };
+  return { ok: true, text, model: data.model || 'openai/gpt-oss-120b' };
 }
 
 async function callAnthropic(apiKey, messages, system) {
