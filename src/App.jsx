@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import RoutingWorkspace from "./RoutingWorkspace.jsx";
 
 const G = "#C9A84C";
 const GL = "#E2C068";
@@ -7,33 +8,15 @@ const F = "#1A3C1A";
 const FD = "#0a150a";
 const MU = "#6B7280";
 
-const SYSTEM_PROMPT = `You are ISEYC Civic Brain — the official Institutional AI Architect and Strategic Intelligence System for the Initiative for Sustainable Evolution for Youth and Community (ISEYC).
-
-ISEYC is a youth-led, non-partisan, national movement headquartered in Abuja, FCT. Grassroots pilot: Kaduna State → Northwest → National. National President: Comr. Zulqarnain.
-
-5 Departments: Education | Health & Wellbeing | Software & Technology | Graphic Design & Creativity | Business & Investment
-
-7 Responsibility Pillars: Community Safety & Emergency | Health Awareness | Youth Development & Education | Economic Linkages | Sanitation & Environment | Community Data & Intelligence | Community Voice
-
-4-tier delivery: Street Rep → Line Coordinator → Ward Coordinator → Central Leadership
-
-Governance: Presidential Council | Board of Trustees | Advisory Council
-
-Capabilities: Grassroots Intelligence & Mobilization | Leadership Accountability Tracker (non-partisan scorecards, monthly awards) | Departmental Support | National Scaling Strategy
-
-Style: Institutional, visionary, professional, authoritative. Non-partisan. End major outputs with the slogan: "Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership."
-
-Context: August 2026. About 13 months to 2027 elections. Kaduna South is active pilot zone. Contact: iseycglobal@gmail.com | +234 803 698 4766 | www.iseyc.com.ng`;
+const PRODUCT_BLURB = "Ask about published Civic Mandate records — not a survey of all Nigerians. Routing recommendations require human review and are never auto-sent.";
 
 const QUICK_ACTIONS = [
-  { icon: "\uD83D\uDDFA\uFE0F", label: "Kaduna Pilot Setup", prompt: "Generate a complete Kaduna South pilot ward setup plan for Phase 0 — ward selection criteria, Street Representative recruitment structure, and the baseline Community Needs Assessment framework." },
-  { icon: "\uD83D\uDCCA", label: "Accountability Scorecard", prompt: "Build the complete Leadership Accountability Scorecard framework for Kaduna — criteria, weightings, monthly tracking methodology, and the Senator/Rep/Governor of the Month award structure." },
-  { icon: "\uD83C\uDFDB\uFE0F", label: "7 Pillars Activation", prompt: "Give me a month-by-month activation plan for all 7 Responsibility Pillars across our Kaduna South pilot wards, with one documented, measurable activity per pillar per month." },
-  { icon: "\uD83D\uDCB0", label: "Funding Pipeline", prompt: "Identify the top 10 grant opportunities for ISEYC right now — EU, USAID, MacArthur, Ford, UNDP, OSIWA — with deadlines, fit assessment, and priority ranking." },
-  { icon: "\uD83D\uDCE1", label: "Media Strategy", prompt: "Build ISEYC's earned media strategy for July–December 2026 — NTA Kaduna, Daily Trust, Channels, Arise, social media — anchored to the Kaduna pilot and Accountability Tracker launches." },
-  { icon: "\uD83D\uDE80", label: "National Scaling Plan", prompt: "Develop the national scaling roadmap from Kaduna South to Northwest to National, with state-by-state sequencing, replication criteria, and milestone gates." },
-  { icon: "\uD83D\uDCCB", label: "Kaduna Civic Report", prompt: "Generate the full outline for the Kaduna Civic Report 2026 — the flagship evidence document for the Governor, NASS members, INEC, international partners, and donors." },
-  { icon: "\uD83C\uDFE2", label: "Department Briefs", prompt: "Generate a strategic brief for each of ISEYC's 5 departments — Education, Health & Wellbeing, Software & Technology, Graphic Design & Creativity, and Business & Investment — with Kaduna roles and Q3–Q4 2026 priorities." },
+  { icon: "📊", label: "Published snapshot", prompt: "Using only the current published Civic Mandate evidence, summarise published totals, states represented, top duties, and the main methodology limitations." },
+  { icon: "🗺️", label: "Coverage gaps", prompt: "From published Civic Mandate evidence only, which states and LGAs appear, and what does limited coverage mean?" },
+  { icon: "🏥", label: "Health in the record", prompt: "What do published Civic Mandate records show about Health-related demands? Separate what the record shows from what remains unknown." },
+  { icon: "🛡️", label: "Security in the record", prompt: "What do published Civic Mandate records show about Security-related demands? Do not invent institutional responses." },
+  { icon: "📝", label: "Research brief", prompt: "Draft a short research brief from published Civic Mandate evidence only. Label unsupported points as questions for research, not facts." },
+  { icon: "🔀", label: "Who might be responsible?", prompt: "Explain how ISEYC would approach routing a public-service demand to a responsible institution: what information is needed, why jurisdiction matters, and why recommendations are not automatic referrals." },
 ];
 
 const PILLARS = [
@@ -49,7 +32,7 @@ const PILLARS = [
 const PHASES = [
   { label: "Phase 0 — Structural Setup", date: "Now – ongoing", active: true, desc: "Ward selection, Street Reps, baseline data" },
   { label: "Phase 1 — 7 Pillars Activation", date: "Jul – Sep 2026", active: false, desc: "One activity per pillar per ward per month" },
-  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Kaduna Senator/Rep/Governor scorecards live" },
+  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Public-service accountability analysis (non-partisan; no candidate rankings)" },
   { label: "Phase 3 — Publish & Present", date: "Oct – Dec 2026", active: false, desc: "Kaduna Civic Report + 2027 Declaration" },
 ];
 
@@ -127,7 +110,7 @@ export default function App() {
   const [tab, setTab] = useState("chat");
   const [msgs, setMsgs] = useState([{
     role: "assistant",
-    content: `# ISEYC Civic Brain — Activated\n\n**Institutional AI Architect & Strategic Intelligence System**\n\nFully operational. Calibrated to ISEYC's mission and Nigeria's governance realities.\n\n- **Pilot zone:** Kaduna South — Phase 0 (structural setup)\n- **HQ:** Abuja, FCT\n- **Sequence:** Kaduna → Northwest → National\n- **Window:** ~13 months to 2027 elections — time to build is NOW\n\nUse the quick actions or ask me anything directly.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
+    content: `# ISEYC Civic Brain — Activated\n\n**Institutional AI Architect & Strategic Intelligence System**\n\nGrounded on published Civic Mandate records where available. Recommendations are not referrals.\n\n- **Pilot zone:** Kaduna South — Phase 0 (structural setup)\n- **HQ:** Abuja, FCT\n- **Sequence:** Kaduna → Northwest → National\n- **Window:** ~13 months to 2027 elections — time to build is NOW\n\nUse the quick actions or ask me anything directly.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
   }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -150,7 +133,7 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system: SYSTEM_PROMPT,
+          mode: "civic",
           messages: next.map(m => ({ role: m.role, content: m.content })),
         }),
       });
@@ -189,7 +172,7 @@ export default function App() {
   const onKey = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } };
   const onInput = e => { const el = e.target; el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; setInput(el.value); };
 
-  const TABS = [{ id: "chat", label: "Strategic Chat" }, { id: "dashboard", label: "Kaduna Dashboard" }, { id: "pillars", label: "7 Pillars" }];
+  const TABS = [{ id: "chat", label: "Civic Intelligence" }, { id: "routing", label: "Mandate Routing" }, { id: "dashboard", label: "Planning" }, { id: "pillars", label: "7 Pillars" }];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: `linear-gradient(160deg,#122812 0%,${FD} 50%,#050d05 100%)`, fontFamily: "Georgia,serif", overflow: "hidden" }}>
@@ -200,12 +183,12 @@ export default function App() {
           <Logo size={36} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: G }}>ISEYC Civic Brain</div>
-            <div style={{ fontSize: 8, color: GL, letterSpacing: 2, textTransform: "uppercase" }}>Institutional AI Intelligence System</div>
+            <div style={{ fontSize: 8, color: GL, letterSpacing: 2, textTransform: "uppercase" }}>Evidence-grounded civic intelligence</div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
-          <span style={{ fontSize: 8.5, color: MU, letterSpacing: 1, textTransform: "uppercase" }}>Operational · Kaduna</span>
+          <span style={{ fontSize: 8.5, color: MU, letterSpacing: 1, textTransform: "uppercase" }}>Published records · Non-partisan</span>
         </div>
       </div>
 
@@ -249,6 +232,7 @@ export default function App() {
 
           {msgs.length <= 1 && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "8px 12px" }}>
+              <p style={{ fontSize: 11, color: MU, marginBottom: 10, lineHeight: 1.5, gridColumn: "1 / -1" }}>{PRODUCT_BLURB}</p>
               {QUICK_ACTIONS.map((a, i) => (
                 <button key={i} className="qa" onClick={() => send(a.prompt)} style={{ background: `${F}55`, border: `1px solid ${G}25`, borderRadius: 8, padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, transition: "all 0.2s" }}>
                   <span style={{ fontSize: 14 }}>{a.icon}</span>
@@ -260,7 +244,7 @@ export default function App() {
 
           <div style={{ padding: "8px 12px 12px", borderTop: `1px solid ${G}15`, background: FD, flexShrink: 0 }}>
             <div style={{ display: "flex", gap: 7, alignItems: "flex-end" }}>
-              <textarea ref={taRef} value={input} onChange={onInput} onKeyDown={onKey} placeholder="Ask the Civic Brain — strategy, frameworks, accountability, scaling…" disabled={busy} rows={1}
+              <textarea ref={taRef} value={input} onChange={onInput} onKeyDown={onKey} placeholder="Ask about published civic records…" disabled={busy} rows={1}
                 style={{ flex: 1, background: `${F}30`, border: `1px solid ${G}40`, borderRadius: 10, color: CR, fontSize: 12, padding: "9px 12px", resize: "none", lineHeight: 1.5, minHeight: 38, maxHeight: 120, overflowY: "auto" }} />
               <button onClick={() => send(input)} disabled={busy || !input.trim()}
                 style={{ width: 38, height: 38, borderRadius: 10, background: busy ? `${F}60` : `linear-gradient(135deg,${G},${GL})`, border: "none", cursor: busy ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -270,65 +254,35 @@ export default function App() {
                 </svg>
               </button>
             </div>
-            <div style={{ fontSize: 8, color: MU, marginTop: 4, textAlign: "center", letterSpacing: 0.5 }}>ISEYC Civic Brain · Non-partisan · Institutional · Confidential</div>
           </div>
         </>
       )}
 
+      {tab === "routing" && <RoutingWorkspace />}
+
       {tab === "dashboard" && (
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 7, marginBottom: 10 }}>
-            {[{ v: "3–5", l: "Pilot Wards", s: "Kaduna South" }, { v: "13", l: "Months to 2027", s: "Electoral window" }, { v: "7", l: "Pillars", s: "Deploying" }].map((s, i) => (
-              <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}22`, borderRadius: 9, padding: 11, textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: G, fontFamily: "Georgia,serif" }}>{s.v}</div>
-                <div style={{ fontSize: 10, color: CR, fontWeight: 600, marginTop: 1 }}>{s.l}</div>
-                <div style={{ fontSize: 8, color: MU, marginTop: 1 }}>{s.s}</div>
-              </div>
-            ))}
-          </div>
-
-          {[{
-            title: "National Scaling Sequence",
-            content: ["Kaduna South Pilot (3–5 Wards)", "Kaduna State (All 3 Senatorial Zones)", "Northwest Zone (7 States)", "North Central + FCT Corridor", "National — All 36 States + FCT"].map((s, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 8 }}>
-                <div style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: i === 0 ? G : `${G}18`, border: `1px solid ${i === 0 ? G : G + "30"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: i === 0 ? FD : MU }}>{i + 1}</div>
-                <span style={{ fontSize: 11, color: i === 0 ? CR : MU, fontWeight: i === 0 ? 600 : 400 }}>{s}</span>
-                {i === 0 && <span style={{ fontSize: 8, background: `${G}18`, color: G, border: `1px solid ${G}40`, borderRadius: 10, padding: "1px 6px" }}>ACTIVE</span>}
-              </div>
-            ))
-          }, {
-            title: "Kaduna Pilot Roadmap 2026",
-            content: PHASES.map((p, i) => (
-              <div key={i} style={{ display: "flex", gap: 9, marginBottom: 10 }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", flexShrink: 0, marginTop: 4, background: p.active ? "#22c55e" : `${G}30`, boxShadow: p.active ? "0 0 5px #22c55e" : "none" }} />
-                <div><div style={{ fontSize: 11, fontWeight: 700, color: p.active ? CR : MU }}>{p.label}</div><div style={{ fontSize: 9, color: G }}>{p.date}</div><div style={{ fontSize: 10, color: MU }}>{p.desc}</div></div>
-              </div>
-            ))
-          }, {
-            title: "Priority Actions",
-            content: PRIORITIES.map((p, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: i < PRIORITIES.length - 1 ? 7 : 0, paddingBottom: i < PRIORITIES.length - 1 ? 7 : 0, borderBottom: i < PRIORITIES.length - 1 ? `1px solid ${G}10` : "none" }}>
-                <div style={{ display: "flex", gap: 6, flex: 1 }}><span style={{ color: G }}>▸</span><span style={{ fontSize: 11, color: CR }}>{p.task}</span></div>
-                <span style={{ fontSize: 9, color: G, background: `${G}12`, borderRadius: 4, padding: "2px 5px", flexShrink: 0, marginLeft: 7 }}>{p.due}</span>
-              </div>
-            ))
-          }].map((card, ci) => (
-            <div key={ci} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}22`, borderRadius: 9, padding: 13, marginBottom: 10 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: G, letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>{card.title}</div>
-              {card.content}
+          <div style={{ fontSize: 11, color: G, fontWeight: 700, marginBottom: 8 }}>ISEYC planning view</div>
+          <p style={{ fontSize: 10, color: MU, marginBottom: 10, lineHeight: 1.5 }}>Organisational planning only — not verified Civic Mandate evidence.</p>
+          {PHASES.map((ph, i) => (
+            <div key={i} style={{ background: ph.active ? `${G}12` : `${F}30`, border: `1px solid ${ph.active ? G + "50" : G + "18"}`, borderRadius: 8, padding: 10, marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: ph.active ? G : CR }}>{ph.label}</div>
+              <div style={{ fontSize: 9, color: MU }}>{ph.date} · {ph.desc}</div>
             </div>
           ))}
-
-          <div style={{ textAlign: "center", padding: "4px 0 8px" }}>
-            <div style={{ fontSize: 8.5, color: G, letterSpacing: 1.5, textTransform: "uppercase", fontStyle: "italic" }}>Empowering Youth, Shaping Communities</div>
-            <div style={{ fontSize: 7.5, color: MU, letterSpacing: 1, marginTop: 2 }}>Every Street. Every Voice. Accountable Leadership.</div>
-          </div>
+          <div style={{ marginTop: 12, fontSize: 10, color: G, fontWeight: 700, marginBottom: 6 }}>Priorities</div>
+          {PRIORITIES.map((pr, i) => (
+            <div key={i} style={{ fontSize: 11, color: CR, marginBottom: 6, display: "flex", justifyContent: "space-between", gap: 8 }}>
+              <span>{pr.task}</span>
+              <span style={{ color: GL, fontSize: 9 }}>{pr.due}</span>
+            </div>
+          ))}
         </div>
       )}
 
       {tab === "pillars" && (
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-          <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap <strong style={{ color: G }}>Activate →</strong> for the full Kaduna deployment plan.</p>
+          <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap <strong style={{ color: G }}>Activate →</strong> for a Kaduna deployment plan (planning mode — not Civic Mandate evidence).</p>
           {PILLARS.map((p, i) => (
             <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}20`, borderRadius: 9, padding: 12, marginBottom: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -336,7 +290,7 @@ export default function App() {
                   <div style={{ fontSize: 11, fontWeight: 700, color: CR, marginBottom: 3 }}><span style={{ color: G, marginRight: 5 }}>{i + 1}.</span>{p.name}</div>
                   <div style={{ fontSize: 10, color: MU, lineHeight: 1.5 }}>{p.desc}</div>
                 </div>
-                <button className="act" onClick={() => { setTab("chat"); send(`Give me the complete Kaduna pilot activation plan for Pillar ${i + 1}: ${p.name} — including the specific monthly activity, how to document it, what data to collect, and what the measurable output looks like after 3 months.`); }}
+                <button className="act" onClick={() => { setTab("chat"); send(`Give me the complete Kaduna pilot activation plan for Pillar ${i + 1}: ${p.name} — including the specific monthly activity, how to document it, what data to collect, and what the measurable output looks like after 3 months. Label this as organisational planning, not Civic Mandate evidence.`); }}
                   style={{ background: `${G}10`, border: `1px solid ${G}38`, borderRadius: 7, padding: "4px 8px", cursor: "pointer", color: G, fontSize: 9, fontWeight: 700, flexShrink: 0, marginLeft: 8, transition: "all 0.2s", whiteSpace: "nowrap" }}>Activate →</button>
               </div>
             </div>
