@@ -14,10 +14,18 @@
 
 `lib/office-registry.js` — institutional entries only. No invented officeholders or contacts.
 
+Includes Kaduna **specialised patterns** (SUBEB, PHC, water, works) with `verificationStatus: partial` and `routingEligibility: review_only`.
+
 ## Engine
 
 `lib/routing-engine.js` → `routeMandate(input)`  
 API: `POST /api/route-mandate`
+
+Prefer specialised operational patterns over generic political labels when state matches pilot depth.
+
+## Operator support
+
+`lib/operator-review.js` — brief draft + decision helper. Model cannot decide or send.
 
 ## Lifecycle guards
 
@@ -25,6 +33,7 @@ API: `POST /api/route-mandate`
 
 ## Pilot limits
 
-- External delivery always disabled
-- Human review always required
-- Incomplete national directory represented honestly
+- External delivery always disabled  
+- Human review always required  
+- Incomplete national directory represented honestly  
+- No automated Vercel deploy from this project’s agent workflows  
