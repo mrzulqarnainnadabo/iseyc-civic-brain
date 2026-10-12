@@ -1,12 +1,13 @@
 {
   "name": "iseyc-civic-brain",
   "version": "1.0.0",
-  "description": "ISEYC Civic Brain — Institutional AI Architect & Strategic Intelligence System",
+  "description": "ISEYC Civic Brain — secure, evidence-grounded civic intelligence assistant",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node scripts/verify-brain-security.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
