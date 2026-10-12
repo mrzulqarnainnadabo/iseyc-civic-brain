@@ -39,12 +39,14 @@ export default function RoutingWorkspace() {
     }
   };
 
+  const r = routeResult?.routing;
+
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
       <div style={{ fontSize: 12, color: G, fontWeight: 700, marginBottom: 6 }}>Mandate Routing</div>
       <p style={{ fontSize: 11, color: MU, lineHeight: 1.55, marginBottom: 12 }}>
         Recommend a responsible institution from the pilot registry. Recommendations are not referrals.
-        Nothing is sent externally. Human review is required.
+        Nothing is sent externally. Human review is required. No deploy is triggered from this screen.
       </p>
       <label style={{ fontSize: 10, color: GL }}>Demand text</label>
       <textarea
@@ -127,33 +129,36 @@ export default function RoutingWorkspace() {
         {routeBusy ? "Routing…" : "Generate routing recommendation"}
       </button>
       {routeErr && <div style={{ color: "#ef4444", fontSize: 11, marginBottom: 8 }}>{routeErr}</div>}
-      {routeResult?.routing && (
+      {r && (
         <div style={{ background: `linear-gradient(135deg,#0f1f0f,#050d05)`, border: `1px solid ${G}30`, borderRadius: 10, padding: 12 }}>
           <div style={{ fontSize: 10, color: G, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
-            Status · {routeResult.routing.status}
+            Status · {r.status}
           </div>
-          {routeResult.routing.primary ? (
+          {r.primary ? (
             <>
               <div style={{ fontSize: 13, fontWeight: 700, color: CR, marginBottom: 4 }}>
-                {routeResult.routing.primary.institutionalName}
+                {r.primary.institutionalName}
               </div>
               <div style={{ fontSize: 11, color: MU, lineHeight: 1.5, marginBottom: 8 }}>
-                {routeResult.routing.primary.reason}
+                {r.primary.reason}
               </div>
-              <div style={{ fontSize: 10, color: GL }}>Confidence: {routeResult.routing.primary.confidence}</div>
+              <div style={{ fontSize: 10, color: GL }}>
+                Confidence: {r.primary.confidence}
+                {r.primary.roleType ? ` · ${r.primary.roleType}` : ""}
+              </div>
             </>
           ) : (
             <div style={{ fontSize: 12, color: CR }}>No primary institution — needs review or more information.</div>
           )}
-          {routeResult.routing.missingInformation?.length > 0 && (
+          {r.missingInformation?.length > 0 && (
             <div style={{ marginTop: 10, fontSize: 11, color: MU }}>
-              <strong style={{ color: GL }}>Missing:</strong> {routeResult.routing.missingInformation.join("; ")}
+              <strong style={{ color: GL }}>Missing:</strong> {r.missingInformation.join("; ")}
             </div>
           )}
-          {routeResult.routing.additional?.length > 0 && (
+          {r.additional?.length > 0 && (
             <div style={{ marginTop: 10 }}>
               <div style={{ fontSize: 10, color: G, marginBottom: 4 }}>Other institutions that may share responsibility</div>
-              {routeResult.routing.additional.map((a) => (
+              {r.additional.map((a) => (
                 <div key={a.officeId} style={{ fontSize: 11, color: CR, marginBottom: 4 }}>
                   • {a.institutionalName} <span style={{ color: MU }}>({a.confidence})</span>
                 </div>
@@ -161,11 +166,38 @@ export default function RoutingWorkspace() {
             </div>
           )}
           <div style={{ marginTop: 12, fontSize: 11, color: GL, lineHeight: 1.5 }}>
-            {routeResult.routing.suggestedNextAction}
+            {r.suggestedNextAction}
           </div>
           <div style={{ marginTop: 10, fontSize: 10, color: MU, borderTop: `1px solid ${G}22`, paddingTop: 8 }}>
             External delivery: disabled · Human review: required · Case stage: {routeResult.case?.stage}
           </div>
+          {r.operatorReview?.checklist?.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 10, color: G, marginBottom: 4 }}>Operator checklist</div>
+              {r.operatorReview.checklist.map((item, i) => (
+                <div key={i} style={{ fontSize: 10, color: MU, marginBottom: 3 }}>☐ {item}</div>
+              ))}
+            </div>
+          )}
+          {routeResult.referralBriefDraft && (
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ fontSize: 10, color: GL, cursor: "pointer" }}>Referral brief draft (not sent)</summary>
+              <pre
+                style={{
+                  marginTop: 8,
+                  fontSize: 9,
+                  color: CR,
+                  whiteSpace: "pre-wrap",
+                  lineHeight: 1.45,
+                  maxHeight: 220,
+                  overflow: "auto",
+                  fontFamily: "ui-monospace, monospace",
+                }}
+              >
+                {routeResult.referralBriefDraft}
+              </pre>
+            </details>
+          )}
         </div>
       )}
     </div>
