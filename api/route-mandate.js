@@ -1,10 +1,11 @@
 /**
  * POST /api/route-mandate — deterministic routing recommendation only.
- * Never sends external referrals.
+ * Never sends external referrals. Never deploys.
  */
 
 import { routeMandate } from '../lib/routing-engine.js';
 import { createCaseShell, canTransition } from '../lib/referral-lifecycle.js';
+import { buildReferralBriefDraft } from '../lib/operator-review.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 
 function setCors(res, req) {
@@ -71,13 +72,23 @@ export default async function handler(req, res) {
 
   const caseShell = createCaseShell({ recordId: body.recordId || null, routing, actorRole: 'system' });
 
+  const referralBriefDraft = buildReferralBriefDraft({
+    mandateText,
+    duty,
+    state: typeof body.state === 'string' ? body.state.slice(0, 80) : '',
+    lga: typeof body.lga === 'string' ? body.lga.slice(0, 80) : '',
+    routing,
+  });
+
   return res.status(200).json({
     routing,
     case: { caseId: caseShell.caseId, stage: caseShell.stage, audit: caseShell.audit },
+    referralBriefDraft,
     governance: {
       externalDeliveryAllowed: false,
       humanReviewRequired: true,
       modelCannotSend: true,
+      deployNote: 'No production deploy performed by automation; founder controls Vercel usage.',
       lifecycleNote:
         'Published ≠ referred ≠ delivered ≠ acknowledged ≠ answered ≠ resolved. Recommendation only.',
     },
