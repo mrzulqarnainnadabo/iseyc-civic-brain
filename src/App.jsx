@@ -1,302 +1,35 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
+import "./styles/tokens.css";
+import Header from "./components/ui/Header.jsx";
+import Footer from "./components/ui/Footer.jsx";
+import PilotNote from "./components/ui/PilotNote.jsx";
+import EvidenceWorkspace from "./components/EvidenceWorkspace.jsx";
 import RoutingWorkspace from "./RoutingWorkspace.jsx";
 
-const G = "#C9A84C";
-const GL = "#E2C068";
-const CR = "#F5F1E8";
-const F = "#1A3C1A";
-const FD = "#0a150a";
-const MU = "#6B7280";
-const MANDATE_URL = "https://2027-street-mandate.vercel.app";
-
-const PRODUCT_BLURB = "Ask about published Civic Mandate records — pilot public record, not a survey of all Nigerians. Routing is recommendation-only (never auto-sent).";
-
-const QUICK_ACTIONS = [
-  { icon: "📊", label: "Published snapshot", prompt: "Using only the current published Civic Mandate evidence, summarise published totals, states represented, top duties, and the main methodology limitations." },
-  { icon: "🗺️", label: "Coverage gaps", prompt: "From published Civic Mandate evidence only, which states and LGAs appear, and what does limited coverage mean?" },
-  { icon: "🏥", label: "Health in the record", prompt: "What do published Civic Mandate records show about Health-related demands? Separate what the record shows from what remains unknown." },
-  { icon: "🛡️", label: "Security in the record", prompt: "What do published Civic Mandate records show about Security-related demands? Do not invent institutional responses." },
-  { icon: "📝", label: "Research brief", prompt: "Draft a short research brief from published Civic Mandate evidence only. Label unsupported points as questions for research, not facts." },
-  { icon: "🔀", label: "Who might be responsible?", prompt: "Explain how ISEYC would approach routing a public-service demand to a responsible institution: what information is needed, why jurisdiction matters, and why recommendations are not automatic referrals." },
-];
-
-const PILLARS = [
-  { name: "Community Safety & Emergency", desc: "Map safety infrastructure per street. Emergency response protocols per ward." },
-  { name: "Health Awareness", desc: "Monthly screenings at markets and schools. Referral tracking and health data." },
-  { name: "Youth Development & Education", desc: "Homework clubs, reading circles, skills workshops for young people." },
-  { name: "Economic Linkages", desc: "Micro-trader database. Market linkages. Business registration support." },
-  { name: "Sanitation & Environment", desc: "Monthly clean-ups. Environmental mapping. Waste tonnage data." },
-  { name: "Community Data & Intelligence", desc: "Household surveys. Ward-level datasets. Real-time reports to Abuja HQ." },
-  { name: "Community Voice", desc: "Monthly townhalls. Issue logs. Accountability demands and follow-up tracking." },
-];
-
-const PHASES = [
-  { label: "Phase 0 — Structural Setup", date: "Now – ongoing", active: true, desc: "Ward selection, Street Reps, baseline data" },
-  { label: "Phase 1 — 7 Pillars Activation", date: "Jul – Sep 2026", active: false, desc: "One activity per pillar per ward per month" },
-  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Public-service accountability evidence (non-partisan; no candidate rankings)" },
-  { label: "Phase 3 — Publish & Present", date: "Oct – Dec 2026", active: false, desc: "Kaduna Civic Report + 2027 Declaration" },
-];
-
-const PRIORITIES = [
-  { task: "Finalize 3–5 pilot wards in Kaduna South", due: "Priority" },
-  { task: "Design Street Rep recruitment flyer", due: "Priority" },
-  { task: "Build Community Needs Assessment questionnaire", due: "Priority" },
-  { task: "Set up Ward Operations Dashboard", due: "Priority" },
-  { task: "Draft non-partisan accountability evidence checklist (no rankings)", due: "Next" },
-  { task: "Write to NTA Kaduna — media partnership", due: "Next" },
-];
-
-function Logo({ size = 32 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
-      <circle cx="20" cy="20" r="19" fill={FD} stroke={G} strokeWidth="1.5" />
-      <circle cx="20" cy="20" r="13" fill="none" stroke={G} strokeWidth="0.5" opacity="0.5" />
-      <text x="20" y="23" textAnchor="middle" fill={G} fontSize="10" fontWeight="800" fontFamily="Georgia,serif">IS</text>
-      <text x="20" y="30" textAnchor="middle" fill={GL} fontSize="4.5" fontFamily="Georgia,serif" letterSpacing="1">EYIC</text>
-    </svg>
-  );
-}
-
-function Dots() {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "10px 14px" }}>
-      {[0, 1, 2].map(i => (
-        <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: G, animation: `dp 1.3s ease-in-out ${i * 0.22}s infinite` }} />
-      ))}
-      <span style={{ color: MU, fontSize: 10, marginLeft: 6, fontFamily: "Georgia,serif", fontStyle: "italic" }}>Civic Brain processing…</span>
-    </div>
-  );
-}
-
-function Md({ text }) {
-  return (
-    <div style={{ color: CR, fontSize: 12, lineHeight: 1.7 }}>
-      {text.split("\n").map((line, i) => {
-        if (line.startsWith("# ")) return <div key={i} style={{ color: G, fontSize: 15, fontWeight: 700, fontFamily: "Georgia,serif", margin: "12px 0 4px" }}>{line.slice(2)}</div>;
-        if (line.startsWith("## ")) return <div key={i} style={{ color: GL, fontSize: 13, fontWeight: 700, margin: "10px 0 3px", borderBottom: `1px solid ${G}30`, paddingBottom: 2 }}>{line.slice(3)}</div>;
-        if (line.startsWith("### ")) return <div key={i} style={{ color: CR, fontSize: 11, fontWeight: 700, margin: "8px 0 2px", textTransform: "uppercase", letterSpacing: 0.7 }}>{line.slice(4)}</div>;
-        if (line.startsWith("- ") || line.startsWith("* ")) return <div key={i} style={{ display: "flex", gap: 7, margin: "2px 0" }}><span style={{ color: G }}>▸</span><span>{fmt(line.slice(2))}</span></div>;
-        if (/^\d+\.\s/.test(line)) { const n = line.match(/^(\d+)/)[1]; return <div key={i} style={{ display: "flex", gap: 7, margin: "2px 0" }}><span style={{ color: G, minWidth: 16, fontWeight: 700 }}>{n}.</span><span>{fmt(line.replace(/^\d+\.\s/, ""))}</span></div>; }
-        if (line.startsWith("---")) return <hr key={i} style={{ border: "none", borderTop: `1px solid ${G}30`, margin: "10px 0" }} />;
-        if (!line.trim()) return <div key={i} style={{ height: 4 }} />;
-        if (line.startsWith("|")) return <div key={i} style={{ color: GL, fontSize: 11 }}>{line}</div>;
-        return <div key={i} style={{ margin: "2px 0" }}>{fmt(line)}</div>;
-      })}
-    </div>
-  );
-}
-
-function fmt(text) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
-  return parts.map((p, i) => {
-    if (p.startsWith("**") && p.endsWith("**")) return <strong key={i} style={{ color: GL }}>{p.slice(2, -2)}</strong>;
-    if (p.startsWith("*") && p.endsWith("*")) return <em key={i}>{p.slice(1, -1)}</em>;
-    if (p.startsWith("`") && p.endsWith("`")) return <code key={i} style={{ background: "#050d05", color: G, padding: "1px 4px", borderRadius: 3, fontSize: "0.88em", fontFamily: "monospace" }}>{p.slice(1, -1)}</code>;
-    return p;
-  });
-}
-
-function friendlyError(errMsg, status) {
-  const m = (errMsg || "").toLowerCase();
-  if (m.includes("credit") || m.includes("balance") || m.includes("billing") || m.includes("quota")) {
-    return `**Provider credits low**\n\nThe AI provider is out of credits. Add Anthropic credits at console.anthropic.com, or set an **XAI_API_KEY** (Grok) in Vercel Environment Variables as backup.\n\nThen try again.`;
-  }
-  if (m.includes("api key") || m.includes("not configured")) {
-    return `**API key missing**\n\nSet ANTHROPIC_API_KEY and/or XAI_API_KEY in Vercel → Project → Settings → Environment Variables.`;
-  }
-  return `**API Error ${status || ""}:** ${errMsg}`;
-}
-
+/** Civic Brain shell — evidence tool chrome (not a chatbot demo). */
 export default function App() {
-  const [tab, setTab] = useState("chat");
-  const [msgs, setMsgs] = useState([{
-    role: "assistant",
-    content: `# ISEYC Civic Brain\n\n**Evidence-grounded assistant for published civic records**\n\nI help you understand what **published** Civic Mandate Nigeria records show — and what they cannot yet establish. Mandate Routing can recommend which office *may* be responsible. Recommendations are **not** referrals and nothing is auto-sent to officials.\n\n- Ground answers on published evidence only (not a national survey)\n- Say when evidence is missing or retrieval failed\n- Separate record facts, inferences, and unknowns\n\nOpen the public record: https://2027-street-mandate.vercel.app\n\nUse quick actions below, or ask a concrete question.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
-  }]);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [debugMsg, setDebugMsg] = useState("");
-  const endRef = useRef(null);
-  const taRef = useRef(null);
-
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, busy]);
-
-  const send = async (content) => {
-    if (!content.trim() || busy) return;
-    const next = [...msgs, { role: "user", content: content.trim() }];
-    setMsgs(next);
-    setInput("");
-    setDebugMsg("");
-    if (taRef.current) taRef.current.style.height = "40px";
-    setBusy(true);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "civic",
-          messages: next.map(m => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      const raw = await res.text();
-      let data;
-      try { data = JSON.parse(raw); }
-      catch {
-        setDebugMsg(`Parse error (status ${res.status}): ${raw.slice(0, 200)}`);
-        setMsgs(prev => [...prev, { role: "assistant", content: `**Error:** Could not parse server response. Status: ${res.status}` }]);
-        return;
-      }
-
-      if (!res.ok) {
-        const errMsg = data?.error || data?.details?.error?.message || JSON.stringify(data);
-        setDebugMsg(`API error ${res.status}: ${errMsg}`);
-        setMsgs(prev => [...prev, { role: "assistant", content: friendlyError(errMsg, res.status) }]);
-        return;
-      }
-
-      const reply = data?.content?.find(b => b.type === "text")?.text;
-      if (reply) {
-        setMsgs(prev => [...prev, { role: "assistant", content: reply }]);
-      } else {
-        setDebugMsg(`Unexpected response shape: ${JSON.stringify(data).slice(0, 300)}`);
-        setMsgs(prev => [...prev, { role: "assistant", content: `**Unexpected response:** ${JSON.stringify(data).slice(0, 200)}` }]);
-      }
-    } catch (err) {
-      setDebugMsg(`Fetch error: ${err.message}`);
-      setMsgs(prev => [...prev, { role: "assistant", content: `**Network error:** ${err.message}` }]);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onKey = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } };
-  const onInput = e => { const el = e.target; el.style.height = "auto"; el.style.height = Math.min(el.scrollHeight, 120) + "px"; setInput(el.value); };
-
-  const TABS = [{ id: "chat", label: "Civic Intelligence" }, { id: "routing", label: "Mandate Routing" }, { id: "dashboard", label: "Planning" }, { id: "pillars", label: "7 Pillars" }];
+  const [tab, setTab] = useState("evidence");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: `linear-gradient(160deg,#122812 0%,${FD} 50%,#050d05 100%)`, fontFamily: "Georgia,serif", overflow: "hidden" }}>
-      <style>{`*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:${G}40;border-radius:2px}@keyframes dp{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}textarea{outline:none;font-family:Georgia,serif}textarea::placeholder{color:${MU}}.qa:hover{background:${F}!important;border-color:${G}60!important}.act:hover{background:${G}20!important}`}</style>
-
-      <div style={{ background: `linear-gradient(90deg,${FD} 0%,${F} 50%,${FD} 100%)`, borderBottom: `2px solid ${G}`, height: 54, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Logo size={36} />
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: G }}>ISEYC Civic Brain</div>
-            <div style={{ fontSize: 8, color: GL, letterSpacing: 2, textTransform: "uppercase" }}>Evidence-grounded civic intelligence</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
-          <span style={{ fontSize: 8.5, color: MU, letterSpacing: 1, textTransform: "uppercase" }}>Published records · Non-partisan</span>
-        </div>
-      </div>
-
-      <div style={{ display: "flex", background: FD, borderBottom: `1px solid ${G}18`, padding: "0 12px", flexShrink: 0 }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "9px 13px", fontSize: 11, fontWeight: tab === t.id ? 700 : 400, color: tab === t.id ? G : MU, background: "none", border: "none", borderBottom: tab === t.id ? `2px solid ${G}` : "2px solid transparent", cursor: "pointer" }}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "chat" && (
-        <>
-          <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px 0" }}>
-            {msgs.map((m, i) => m.role === "user" ? (
-              <div key={i} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                <div style={{ maxWidth: "78%", background: F, border: `1px solid ${G}40`, borderRadius: "14px 4px 14px 14px", padding: "9px 13px", color: CR, fontSize: 12, lineHeight: 1.6 }}>{m.content}</div>
-              </div>
-            ) : (
-              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "flex-start" }}>
-                <div style={{ flexShrink: 0, marginTop: 2 }}><Logo size={26} /></div>
-                <div style={{ flex: 1, background: `linear-gradient(135deg,#0f1f0f,#050d05)`, border: `1px solid ${G}25`, borderRadius: "4px 14px 14px 14px", padding: "11px 14px", position: "relative" }}>
-                  <div style={{ position: "absolute", top: 6, right: 10, fontSize: 7.5, color: G, opacity: 0.5, letterSpacing: 1, textTransform: "uppercase" }}>Civic Brain</div>
-                  <div style={{ marginTop: 2 }}><Md text={m.content} /></div>
-                </div>
-              </div>
-            ))}
-            {busy && (
-              <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "flex-start" }}>
-                <Logo size={26} />
-                <div style={{ background: `linear-gradient(135deg,#0f1f0f,#050d05)`, border: `1px solid ${G}25`, borderRadius: "4px 14px 14px 14px" }}><Dots /></div>
-              </div>
-            )}
-            {debugMsg && (
-              <div style={{ background: "#1a0a0a", border: "1px solid #ef444430", borderRadius: 8, padding: "8px 12px", marginBottom: 12, fontSize: 10, color: "#ef4444", wordBreak: "break-all" }}>
-                Debug: {debugMsg}
-              </div>
-            )}
-            <div ref={endRef} />
-          </div>
-
-          {msgs.length <= 1 && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "8px 12px" }}>
-              <p style={{ fontSize: 11, color: MU, marginBottom: 10, lineHeight: 1.5, gridColumn: "1 / -1" }}>
-                {PRODUCT_BLURB}{" "}
-                <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: GL, fontWeight: 600 }}>
-                  Open Civic Mandate
-                </a>
-              </p>
-              {QUICK_ACTIONS.map((a, i) => (
-                <button key={i} className="qa" onClick={() => send(a.prompt)} style={{ background: `${F}55`, border: `1px solid ${G}25`, borderRadius: 8, padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, transition: "all 0.2s" }}>
-                  <span style={{ fontSize: 14 }}>{a.icon}</span>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: CR }}>{a.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div style={{ padding: "8px 12px 12px", borderTop: `1px solid ${G}15`, background: FD, flexShrink: 0 }}>
-            <div style={{ display: "flex", gap: 7, alignItems: "flex-end" }}>
-              <textarea ref={taRef} value={input} onChange={onInput} onKeyDown={onKey} placeholder="Ask about published civic records…" disabled={busy} rows={1}
-                style={{ flex: 1, background: `${F}30`, border: `1px solid ${G}40`, borderRadius: 10, color: CR, fontSize: 12, padding: "9px 12px", resize: "none", lineHeight: 1.5, minHeight: 38, maxHeight: 120, overflowY: "auto" }} />
-              <button onClick={() => send(input)} disabled={busy || !input.trim()}
-                style={{ width: 38, height: 38, borderRadius: 10, background: busy ? `${F}60` : `linear-gradient(135deg,${G},${GL})`, border: "none", cursor: busy ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13" stroke={busy ? MU : FD} strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke={busy ? MU : FD} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {tab === "routing" && <RoutingWorkspace />}
-
-      {tab === "dashboard" && (
-        <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-          <div style={{ fontSize: 11, color: G, fontWeight: 700, marginBottom: 8 }}>ISEYC planning view</div>
-          <p style={{ fontSize: 10, color: MU, marginBottom: 10, lineHeight: 1.5 }}>Organisational planning only — not verified Civic Mandate evidence.</p>
-          {PHASES.map((ph, i) => (
-            <div key={i} style={{ background: ph.active ? `${G}12` : `${F}30`, border: `1px solid ${ph.active ? G + "50" : G + "18"}`, borderRadius: 8, padding: 10, marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: ph.active ? G : CR }}>{ph.label}</div>
-              <div style={{ fontSize: 9, color: MU }}>{ph.date} · {ph.desc}</div>
-            </div>
-          ))}
-          <div style={{ marginTop: 12, fontSize: 10, color: G, fontWeight: 700, marginBottom: 6 }}>Priorities</div>
-          {PRIORITIES.map((pr, i) => (
-            <div key={i} style={{ fontSize: 11, color: CR, marginBottom: 6, display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span>{pr.task}</span>
-              <span style={{ color: GL, fontSize: 9 }}>{pr.due}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {tab === "pillars" && (
-        <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-          <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap a pillar for a Kaduna planning note (planning mode — not Civic Mandate evidence).</p>
-          {PILLARS.map((p, i) => (
-            <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}25`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: G }}>{p.name}</div>
-              <div style={{ fontSize: 11, color: MU, marginTop: 4, lineHeight: 1.45 }}>{p.desc}</div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100%",
+        background: "var(--iseyc-cream)",
+      }}
+    >
+      <Header tab={tab} onTab={setTab} />
+      <PilotNote />
+      <main
+        id="main"
+        role="main"
+        style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
+      >
+        {tab === "evidence" && <EvidenceWorkspace />}
+        {tab === "routing" && <RoutingWorkspace />}
+      </main>
+      <Footer />
     </div>
   );
 }
