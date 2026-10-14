@@ -7,8 +7,9 @@ const CR = "#F5F1E8";
 const F = "#1A3C1A";
 const FD = "#0a150a";
 const MU = "#6B7280";
+const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
-const PRODUCT_BLURB = "Ask about published Civic Mandate records — not a survey of all Nigerians. Routing recommendations require human review and are never auto-sent.";
+const PRODUCT_BLURB = "Ask about published Civic Mandate records — pilot public record, not a survey of all Nigerians. Routing is recommendation-only (never auto-sent).";
 
 const QUICK_ACTIONS = [
   { icon: "📊", label: "Published snapshot", prompt: "Using only the current published Civic Mandate evidence, summarise published totals, states represented, top duties, and the main methodology limitations." },
@@ -32,7 +33,7 @@ const PILLARS = [
 const PHASES = [
   { label: "Phase 0 — Structural Setup", date: "Now – ongoing", active: true, desc: "Ward selection, Street Reps, baseline data" },
   { label: "Phase 1 — 7 Pillars Activation", date: "Jul – Sep 2026", active: false, desc: "One activity per pillar per ward per month" },
-  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Public-service accountability analysis (non-partisan; no candidate rankings)" },
+  { label: "Phase 2 — Accountability Tracker", date: "Aug – Oct 2026", active: false, desc: "Public-service accountability evidence (non-partisan; no candidate rankings)" },
   { label: "Phase 3 — Publish & Present", date: "Oct – Dec 2026", active: false, desc: "Kaduna Civic Report + 2027 Declaration" },
 ];
 
@@ -41,7 +42,7 @@ const PRIORITIES = [
   { task: "Design Street Rep recruitment flyer", due: "Priority" },
   { task: "Build Community Needs Assessment questionnaire", due: "Priority" },
   { task: "Set up Ward Operations Dashboard", due: "Priority" },
-  { task: "Draft Accountability Scorecard criteria", due: "Next" },
+  { task: "Draft non-partisan accountability evidence checklist (no rankings)", due: "Next" },
   { task: "Write to NTA Kaduna — media partnership", due: "Next" },
 ];
 
@@ -110,7 +111,7 @@ export default function App() {
   const [tab, setTab] = useState("chat");
   const [msgs, setMsgs] = useState([{
     role: "assistant",
-    content: `# ISEYC Civic Brain — Activated\n\n**Institutional AI Architect & Strategic Intelligence System**\n\nGrounded on published Civic Mandate records where available. Recommendations are not referrals.\n\n- **Pilot zone:** Kaduna South — Phase 0 (structural setup)\n- **HQ:** Abuja, FCT\n- **Sequence:** Kaduna → Northwest → National\n- **Window:** ~13 months to 2027 elections — time to build is NOW\n\nUse the quick actions or ask me anything directly.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
+    content: `# ISEYC Civic Brain\n\n**Evidence-grounded assistant for published civic records**\n\nI help you understand what **published** Civic Mandate Nigeria records show — and what they cannot yet establish. Mandate Routing can recommend which office *may* be responsible. Recommendations are **not** referrals and nothing is auto-sent to officials.\n\n- Ground answers on published evidence only (not a national survey)\n- Say when evidence is missing or retrieval failed\n- Separate record facts, inferences, and unknowns\n\nOpen the public record: https://2027-street-mandate.vercel.app\n\nUse quick actions below, or ask a concrete question.\n\n---\n*Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership.*`
   }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -232,7 +233,12 @@ export default function App() {
 
           {msgs.length <= 1 && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "8px 12px" }}>
-              <p style={{ fontSize: 11, color: MU, marginBottom: 10, lineHeight: 1.5, gridColumn: "1 / -1" }}>{PRODUCT_BLURB}</p>
+              <p style={{ fontSize: 11, color: MU, marginBottom: 10, lineHeight: 1.5, gridColumn: "1 / -1" }}>
+                {PRODUCT_BLURB}{" "}
+                <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: GL, fontWeight: 600 }}>
+                  Open Civic Mandate
+                </a>
+              </p>
               {QUICK_ACTIONS.map((a, i) => (
                 <button key={i} className="qa" onClick={() => send(a.prompt)} style={{ background: `${F}55`, border: `1px solid ${G}25`, borderRadius: 8, padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, transition: "all 0.2s" }}>
                   <span style={{ fontSize: 14 }}>{a.icon}</span>
@@ -282,30 +288,13 @@ export default function App() {
 
       {tab === "pillars" && (
         <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-          <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap <strong style={{ color: G }}>Activate →</strong> for a Kaduna deployment plan (planning mode — not Civic Mandate evidence).</p>
+          <p style={{ fontSize: 10, color: MU, marginBottom: 10 }}>Tap a pillar for a Kaduna planning note (planning mode — not Civic Mandate evidence).</p>
           {PILLARS.map((p, i) => (
-            <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}20`, borderRadius: 9, padding: 12, marginBottom: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: CR, marginBottom: 3 }}><span style={{ color: G, marginRight: 5 }}>{i + 1}.</span>{p.name}</div>
-                  <div style={{ fontSize: 10, color: MU, lineHeight: 1.5 }}>{p.desc}</div>
-                </div>
-                <button className="act" onClick={() => { setTab("chat"); send(`Give me the complete Kaduna pilot activation plan for Pillar ${i + 1}: ${p.name} — including the specific monthly activity, how to document it, what data to collect, and what the measurable output looks like after 3 months. Label this as organisational planning, not Civic Mandate evidence.`); }}
-                  style={{ background: `${G}10`, border: `1px solid ${G}38`, borderRadius: 7, padding: "4px 8px", cursor: "pointer", color: G, fontSize: 9, fontWeight: 700, flexShrink: 0, marginLeft: 8, transition: "all 0.2s", whiteSpace: "nowrap" }}>Activate →</button>
-              </div>
+            <div key={i} style={{ background: "linear-gradient(135deg,#0f1f0f,#050d05)", border: `1px solid ${G}25`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: G }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: MU, marginTop: 4, lineHeight: 1.45 }}>{p.desc}</div>
             </div>
           ))}
-          <div style={{ background: `${G}10`, border: `1px solid ${G}32`, borderRadius: 9, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: G, fontWeight: 700, marginBottom: 8 }}>4-TIER DELIVERY SYSTEM</div>
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 3 }}>
-              {["Street Rep", "Line Coord.", "Ward Coord.", "Central HQ"].map((t, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                  <div style={{ fontSize: 10, color: i === 3 ? G : CR, padding: "3px 7px", background: `${F}60`, borderRadius: 4 }}>{t}</div>
-                  {i < 3 && <span style={{ color: G, fontSize: 10 }}>→</span>}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>
