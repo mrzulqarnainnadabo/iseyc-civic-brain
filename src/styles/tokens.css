@@ -1,0 +1,58 @@
+/** ISEYC design tokens — sync with Civic Mandate. See docs/DESIGN-SYSTEM.md */
+:root {
+  --iseyc-forest: #0b3d2e;
+  --iseyc-forest-deep: #072a20;
+  --iseyc-forest-mid: #0f4d34;
+  --iseyc-gold: #c4a35a;
+  --iseyc-gold-soft: #d4bc7a;
+  --iseyc-cream: #f7f3e9;
+  --iseyc-white: #ffffff;
+  --iseyc-ink: #0f1a16;
+  --iseyc-ink-secondary: #3d4a44;
+  --iseyc-ink-muted: #6b756f;
+  --iseyc-border: rgba(11, 61, 46, 0.14);
+  --iseyc-border-strong: rgba(11, 61, 46, 0.28);
+  --iseyc-surface: #ffffff;
+  --iseyc-surface-muted: #f0ebe0;
+  --iseyc-danger-text: #5c2a2a;
+  --iseyc-danger-bg: #f5e8e8;
+  --font-display: "Source Serif 4", "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --header-h: 56px;
+  --touch-min: 44px;
+  --motion: 160ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion: 0ms; }
+  * { animation: none !important; transition: none !important; }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--iseyc-cream);
+  color: var(--iseyc-ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--iseyc-forest);
+}
+a { color: var(--iseyc-forest-mid); }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--iseyc-gold);
+  outline-offset: 2px;
+}
+.mono { font-family: var(--font-mono); font-size: 0.85em; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
