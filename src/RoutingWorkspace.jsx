@@ -1,11 +1,26 @@
 import { useState } from "react";
+import Card from "./components/ui/Card.jsx";
 
-const G = "#C9A84C";
-const GL = "#E2C068";
-const CR = "#F5F1E8";
-const F = "#1A3C1A";
-const FD = "#0a150a";
-const MU = "#6B7280";
+const field = {
+  width: "100%",
+  marginTop: 4,
+  marginBottom: 0,
+  minHeight: 44,
+  padding: "10px 12px",
+  fontSize: 14,
+  fontFamily: "var(--font-body)",
+  color: "var(--iseyc-ink)",
+  background: "var(--iseyc-cream)",
+  border: "1px solid var(--iseyc-border-strong)",
+  borderRadius: "var(--radius-sm)",
+};
+
+const labelStyle = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: "var(--iseyc-ink-secondary)",
+  display: "block",
+};
 
 export default function RoutingWorkspace() {
   const [routeForm, setRouteForm] = useState({
@@ -42,163 +57,243 @@ export default function RoutingWorkspace() {
   const r = routeResult?.routing;
 
   return (
-    <div style={{ flex: 1, overflowY: "auto", padding: 12 }}>
-      <div style={{ fontSize: 12, color: G, fontWeight: 700, marginBottom: 6 }}>Mandate Routing</div>
-      <p style={{ fontSize: 11, color: MU, lineHeight: 1.55, marginBottom: 12 }}>
-        Recommend a responsible institution from the pilot registry. Recommendations are not referrals.
-        Nothing is sent externally. Human review is required. No deploy is triggered from this screen.
+    <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        padding: "16px 12px",
+        maxWidth: 720,
+        width: "100%",
+        margin: "0 auto",
+      }}
+    >
+      <h1 className="display" style={{ fontSize: 18, margin: "0 0 8px" }}>
+        Mandate routing
+      </h1>
+      <p style={{ fontSize: 13, color: "var(--iseyc-ink-secondary)", lineHeight: 1.55, margin: "0 0 16px" }}>
+        Recommend a responsible institution from the pilot registry. Recommendations are not
+        referrals. Nothing is sent externally. Human review is required.
       </p>
-      <label style={{ fontSize: 10, color: GL }}>Demand text</label>
-      <textarea
-        value={routeForm.mandateText}
-        onChange={(e) => setRouteForm({ ...routeForm, mandateText: e.target.value })}
-        rows={3}
-        placeholder="Describe the public-service demand…"
-        style={{
-          width: "100%",
-          marginTop: 4,
-          marginBottom: 8,
-          background: `${F}30`,
-          border: `1px solid ${G}40`,
-          borderRadius: 8,
-          color: CR,
-          fontSize: 12,
-          padding: 8,
-          fontFamily: "Georgia,serif",
-        }}
-      />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-        <div>
-          <label style={{ fontSize: 10, color: GL }}>Duty</label>
-          <select
-            value={routeForm.duty}
-            onChange={(e) => setRouteForm({ ...routeForm, duty: e.target.value })}
-            style={{ width: "100%", marginTop: 4, background: F, color: CR, border: `1px solid ${G}40`, borderRadius: 6, padding: 6, fontSize: 11 }}
-          >
-            {["Health", "Education", "Security", "Roads & Transport", "Water", "Power", "Jobs & Economy", "Agriculture", "Other"].map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontSize: 10, color: GL }}>State</label>
-          <input
-            value={routeForm.state}
-            onChange={(e) => setRouteForm({ ...routeForm, state: e.target.value })}
-            style={{ width: "100%", marginTop: 4, background: `${F}30`, border: `1px solid ${G}40`, borderRadius: 6, color: CR, fontSize: 11, padding: 6 }}
+
+      <Card title="Demand details">
+        <label style={labelStyle}>
+          Demand text
+          <textarea
+            value={routeForm.mandateText}
+            onChange={(e) => setRouteForm({ ...routeForm, mandateText: e.target.value })}
+            rows={3}
+            placeholder="Describe the public-service demand…"
+            disabled={routeBusy}
+            style={{ ...field, minHeight: 88, resize: "vertical", marginTop: 6 }}
           />
+        </label>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+          <label style={labelStyle}>
+            Duty
+            <select
+              value={routeForm.duty}
+              onChange={(e) => setRouteForm({ ...routeForm, duty: e.target.value })}
+              disabled={routeBusy}
+              style={{ ...field, marginTop: 6 }}
+            >
+              {["Health", "Education", "Security", "Roads", "Water", "Electricity", "Sanitation", "Other"].map(
+                (d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                )
+              )}
+            </select>
+          </label>
+          <label style={labelStyle}>
+            State
+            <input
+              value={routeForm.state}
+              onChange={(e) => setRouteForm({ ...routeForm, state: e.target.value })}
+              disabled={routeBusy}
+              style={{ ...field, marginTop: 6 }}
+            />
+          </label>
+          <label style={labelStyle}>
+            LGA (optional)
+            <input
+              value={routeForm.lga}
+              onChange={(e) => setRouteForm({ ...routeForm, lga: e.target.value })}
+              disabled={routeBusy}
+              style={{ ...field, marginTop: 6 }}
+            />
+          </label>
+          <label style={labelStyle}>
+            Road class
+            <select
+              value={routeForm.roadClass}
+              onChange={(e) => setRouteForm({ ...routeForm, roadClass: e.target.value })}
+              disabled={routeBusy}
+              style={{ ...field, marginTop: 6 }}
+            >
+              <option value="unknown">Unknown</option>
+              <option value="federal">Federal</option>
+              <option value="state">State</option>
+              <option value="local">Local</option>
+            </select>
+          </label>
         </div>
-        <div>
-          <label style={{ fontSize: 10, color: GL }}>LGA (optional)</label>
-          <input
-            value={routeForm.lga}
-            onChange={(e) => setRouteForm({ ...routeForm, lga: e.target.value })}
-            style={{ width: "100%", marginTop: 4, background: `${F}30`, border: `1px solid ${G}40`, borderRadius: 6, color: CR, fontSize: 11, padding: 6 }}
-          />
+        <button
+          type="button"
+          onClick={run}
+          disabled={routeBusy || !routeForm.mandateText.trim()}
+          style={{
+            marginTop: 16,
+            minHeight: 44,
+            width: "100%",
+            fontSize: 14,
+            fontWeight: 700,
+            fontFamily: "var(--font-body)",
+            color: "var(--iseyc-cream)",
+            background:
+              routeBusy || !routeForm.mandateText.trim()
+                ? "var(--iseyc-ink-muted)"
+                : "var(--iseyc-forest)",
+            border: "none",
+            borderRadius: "var(--radius-sm)",
+            cursor: routeBusy || !routeForm.mandateText.trim() ? "not-allowed" : "pointer",
+          }}
+        >
+          {routeBusy ? "Working…" : "Get recommendation"}
+        </button>
+      </Card>
+
+      {routeErr && (
+        <div
+          role="alert"
+          style={{
+            marginTop: 12,
+            padding: "12px 14px",
+            background: "var(--iseyc-danger-bg)",
+            color: "var(--iseyc-danger-text)",
+            border: "1px solid rgba(92,42,42,0.2)",
+            borderRadius: "var(--radius-sm)",
+            fontSize: 13,
+          }}
+        >
+          {routeErr}
         </div>
-        <div>
-          <label style={{ fontSize: 10, color: GL }}>Road class</label>
-          <select
-            value={routeForm.roadClass}
-            onChange={(e) => setRouteForm({ ...routeForm, roadClass: e.target.value })}
-            style={{ width: "100%", marginTop: 4, background: F, color: CR, border: `1px solid ${G}40`, borderRadius: 6, padding: 6, fontSize: 11 }}
-          >
-            <option value="unknown">Unknown</option>
-            <option value="local">Local</option>
-            <option value="state">State</option>
-            <option value="federal">Federal</option>
-          </select>
-        </div>
-      </div>
-      <button
-        disabled={routeBusy}
-        onClick={run}
-        style={{
-          width: "100%",
-          padding: "10px 12px",
-          borderRadius: 8,
-          border: "none",
-          background: `linear-gradient(135deg,${G},${GL})`,
-          color: FD,
-          fontWeight: 700,
-          fontSize: 12,
-          cursor: routeBusy ? "wait" : "pointer",
-          marginBottom: 12,
-        }}
-      >
-        {routeBusy ? "Routing…" : "Generate routing recommendation"}
-      </button>
-      {routeErr && <div style={{ color: "#ef4444", fontSize: 11, marginBottom: 8 }}>{routeErr}</div>}
+      )}
+
       {r && (
-        <div style={{ background: `linear-gradient(135deg,#0f1f0f,#050d05)`, border: `1px solid ${G}30`, borderRadius: 10, padding: 12 }}>
-          <div style={{ fontSize: 10, color: G, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>
-            Status · {r.status}
+        <Card title="Routing recommendation" style={{ marginTop: 16, borderColor: "var(--iseyc-gold)" }}>
+          <div
+            role="status"
+            style={{
+              marginBottom: 12,
+              padding: "10px 12px",
+              background: "var(--iseyc-surface-muted)",
+              border: "1px solid var(--iseyc-border)",
+              borderRadius: "var(--radius-sm)",
+              fontSize: 13,
+              fontWeight: 700,
+              color: "var(--iseyc-forest)",
+            }}
+          >
+            Human review required. Not sent to anyone.
           </div>
+
           {r.primary ? (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 700, color: CR, marginBottom: 4 }}>
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: "var(--iseyc-ink-muted)", marginBottom: 4 }}>
+                Recommended institution
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: "var(--iseyc-forest)" }}>
                 {r.primary.institutionalName}
               </div>
-              <div style={{ fontSize: 11, color: MU, lineHeight: 1.5, marginBottom: 8 }}>
-                {r.primary.reason}
-              </div>
-              <div style={{ fontSize: 10, color: GL }}>
+              <div className="mono" style={{ fontSize: 12, color: "var(--iseyc-ink-muted)", marginTop: 4 }}>
                 Confidence: {r.primary.confidence}
-                {r.primary.roleType ? ` · ${r.primary.roleType}` : ""}
+                {r.primary.officeId ? ` · ${r.primary.officeId}` : ""}
               </div>
-            </>
+            </div>
           ) : (
-            <div style={{ fontSize: 12, color: CR }}>No primary institution — needs review or more information.</div>
+            <p style={{ fontSize: 14, color: "var(--iseyc-ink-secondary)" }}>
+              Unclear: needs human research. No confident primary office from the pilot registry.
+            </p>
           )}
-          {r.missingInformation?.length > 0 && (
-            <div style={{ marginTop: 10, fontSize: 11, color: MU }}>
-              <strong style={{ color: GL }}>Missing:</strong> {r.missingInformation.join("; ")}
-            </div>
+
+          {r.basis && (
+            <p style={{ fontSize: 13, color: "var(--iseyc-ink-secondary)", lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--iseyc-ink)" }}>Basis: </strong>
+              {typeof r.basis === "string" ? r.basis : JSON.stringify(r.basis)}
+            </p>
           )}
+
           {r.additional?.length > 0 && (
-            <div style={{ marginTop: 10 }}>
-              <div style={{ fontSize: 10, color: G, marginBottom: 4 }}>Other institutions that may share responsibility</div>
-              {r.additional.map((a) => (
-                <div key={a.officeId} style={{ fontSize: 11, color: CR, marginBottom: 4 }}>
-                  • {a.institutionalName} <span style={{ color: MU }}>({a.confidence})</span>
-                </div>
-              ))}
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>May also share responsibility</div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
+                {r.additional.map((a) => (
+                  <li key={a.officeId} style={{ marginBottom: 4 }}>
+                    {a.institutionalName}{" "}
+                    <span className="mono" style={{ color: "var(--iseyc-ink-muted)" }}>
+                      ({a.confidence})
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-          <div style={{ marginTop: 12, fontSize: 11, color: GL, lineHeight: 1.5 }}>
-            {r.suggestedNextAction}
-          </div>
-          <div style={{ marginTop: 10, fontSize: 10, color: MU, borderTop: `1px solid ${G}22`, paddingTop: 8 }}>
-            External delivery: disabled · Human review: required · Case stage: {routeResult.case?.stage}
-          </div>
+
+          {r.suggestedNextAction && (
+            <p style={{ marginTop: 12, fontSize: 13, lineHeight: 1.5 }}>{r.suggestedNextAction}</p>
+          )}
+
+          <p
+            className="mono"
+            style={{
+              marginTop: 14,
+              paddingTop: 10,
+              borderTop: "1px solid var(--iseyc-border)",
+              fontSize: 11,
+              color: "var(--iseyc-ink-muted)",
+            }}
+          >
+            External delivery: disabled · Stage: {routeResult.case?.stage || "recommendation"}
+          </p>
+
           {r.operatorReview?.checklist?.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 10, color: G, marginBottom: 4 }}>Operator checklist</div>
-              {r.operatorReview.checklist.map((item, i) => (
-                <div key={i} style={{ fontSize: 10, color: MU, marginBottom: 3 }}>☐ {item}</div>
-              ))}
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Operator checklist</div>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--iseyc-ink-secondary)" }}>
+                {r.operatorReview.checklist.map((item, i) => (
+                  <li key={i} style={{ marginBottom: 4 }}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
+
           {routeResult.referralBriefDraft && (
-            <details style={{ marginTop: 12 }}>
-              <summary style={{ fontSize: 10, color: GL, cursor: "pointer" }}>Referral brief draft (not sent)</summary>
+            <details style={{ marginTop: 14 }}>
+              <summary style={{ fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--iseyc-forest)" }}>
+                Referral brief draft (not sent)
+              </summary>
               <pre
+                className="mono"
                 style={{
                   marginTop: 8,
-                  fontSize: 9,
-                  color: CR,
+                  fontSize: 11,
                   whiteSpace: "pre-wrap",
                   lineHeight: 1.45,
-                  maxHeight: 220,
+                  maxHeight: 240,
                   overflow: "auto",
-                  fontFamily: "ui-monospace, monospace",
+                  padding: 12,
+                  background: "var(--iseyc-surface-muted)",
+                  borderRadius: "var(--radius-sm)",
                 }}
               >
                 {routeResult.referralBriefDraft}
               </pre>
             </details>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );
