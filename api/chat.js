@@ -12,6 +12,7 @@ import { fetchCivicIntelligence, formatEvidenceBlock } from '../lib/civic-eviden
 
 const PROVIDER_TIMEOUT_MS = 25000;
 const MAX_OUTPUT_TOKENS = 1024;
+const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 
 function setCors(res, req) {
   const allowed = (process.env.CIVIC_BRAIN_ALLOWED_ORIGIN || '').trim();
@@ -72,7 +73,15 @@ export default async function handler(req, res) {
     const snap = await withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE');
     if (snap && !snap.error) {
       evidenceBlock = formatEvidenceBlock(snap);
-      evidenceMeta = { ok: true, publishedCount: snap.publishedCount, generatedAt: snap.generatedAt, version: snap.version };
+      evidenceMeta = {
+        ok: true,
+        publishedCount: snap.publishedCount,
+        generatedAt: snap.generatedAt,
+        version: snap.version,
+        primarySource: 'civic-mandate-public-intelligence',
+        sourceUrl: process.env.CIVIC_MANDATE_INTELLIGENCE_URL || DEFAULT_EVIDENCE_URL,
+        fetchedAt: new Date().toISOString(),
+      };
     } else {
       evidenceMeta = { ok: false, reason: snap?.error || 'unavailable' };
       evidenceBlock = '[Civic Mandate evidence unavailable. Do not invent published counts, states, or duties. Say retrieval failed.]';
@@ -118,6 +127,9 @@ export default async function handler(req, res) {
             publishedCount: evidenceMeta.publishedCount ?? null,
             generatedAt: evidenceMeta.generatedAt ?? null,
             version: evidenceMeta.version ?? null,
+            primarySource: evidenceMeta.primarySource ?? null,
+            sourceUrl: evidenceMeta.sourceUrl ?? null,
+            fetchedAt: evidenceMeta.fetchedAt ?? null,
           },
         });
       }
