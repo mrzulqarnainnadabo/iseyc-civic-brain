@@ -32,8 +32,8 @@ export default function Header({ tab, onTab }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <img
-            src="/iseyc-seal.png"
-            alt="ISEYC official seal"
+            src="/iseyc-logo.svg"
+            alt="ISEYC logo; official seal asset pending"
             width={44}
             height={44}
             style={{
