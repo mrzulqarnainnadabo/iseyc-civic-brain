@@ -1,6 +1,6 @@
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
-/** Institutional header. Seal slot until founder supplies public/brand file. */
+/** Full ISEYC institutional header — aligned with Civic Mandate. */
 export default function Header({ tab, onTab }) {
   const tabs = [
     { id: "evidence", label: "Evidence" },
@@ -12,7 +12,7 @@ export default function Header({ tab, onTab }) {
       role="banner"
       style={{
         background: "var(--iseyc-forest-deep)",
-        borderBottom: "1px solid var(--iseyc-gold)",
+        borderBottom: "2px solid var(--iseyc-gold)",
         minHeight: "var(--header-h)",
         display: "flex",
         flexDirection: "column",
@@ -31,28 +31,32 @@ export default function Header({ tab, onTab }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <div
-            aria-hidden
+          <img
+            src="/iseyc-logo.svg"
+            alt="ISEYC"
+            width={40}
+            height={30}
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              background: "var(--iseyc-white)",
-              border: "1px solid var(--iseyc-gold)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              width: 40,
+              height: 30,
+              objectFit: "contain",
               flexShrink: 0,
-              fontFamily: "var(--font-display)",
-              fontSize: 11,
-              fontWeight: 700,
-              color: "var(--iseyc-forest)",
+              borderRadius: 4,
+              background: "var(--iseyc-cream)",
             }}
-            title="ISEYC seal slot — replace with official public/brand file"
-          >
-            IS
-          </div>
+          />
           <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--iseyc-gold)",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                fontWeight: 700,
+              }}
+            >
+              ISEYC
+            </div>
             <div
               className="display"
               style={{
@@ -62,17 +66,16 @@ export default function Header({ tab, onTab }) {
                 lineHeight: 1.2,
               }}
             >
-              ISEYC Civic Brain
+              Civic Brain
             </div>
             <div
               style={{
                 fontSize: 10,
-                color: "var(--iseyc-gold-soft)",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
+                color: "rgba(247,243,233,0.72)",
+                lineHeight: 1.3,
               }}
             >
-              Evidence tool · Duty over personality.
+              Initiative for Sustainable Evolution for Youth and Community
             </div>
           </div>
         </div>
@@ -86,28 +89,28 @@ export default function Header({ tab, onTab }) {
             display: "inline-flex",
             alignItems: "center",
             padding: "0 12px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid rgba(196,163,90,0.45)",
+            color: "var(--iseyc-gold-soft)",
+            textDecoration: "none",
             fontSize: 12,
             fontWeight: 600,
-            color: "var(--iseyc-forest-deep)",
-            background: "var(--iseyc-cream)",
-            border: "1px solid var(--iseyc-gold)",
-            borderRadius: "var(--radius-sm)",
-            textDecoration: "none",
           }}
         >
-          Civic Mandate
+          Mandate →
         </a>
       </div>
+
       <nav
-        aria-label="Primary"
+        aria-label="Civic Brain modes"
         style={{
           display: "flex",
           gap: 0,
-          padding: "0 8px",
           maxWidth: 960,
           width: "100%",
           margin: "0 auto",
-          borderTop: "1px solid rgba(196,163,90,0.25)",
+          padding: "0 14px",
+          borderTop: "1px solid rgba(247,243,233,0.12)",
         }}
       >
         {tabs.map((t) => {
@@ -119,16 +122,16 @@ export default function Header({ tab, onTab }) {
               onClick={() => onTab(t.id)}
               aria-current={active ? "page" : undefined}
               style={{
+                flex: 1,
                 minHeight: 44,
-                padding: "0 16px",
-                fontSize: 13,
-                fontWeight: active ? 700 : 500,
-                fontFamily: "var(--font-body)",
-                color: active ? "var(--iseyc-gold)" : "rgba(247,243,233,0.7)",
-                background: "transparent",
                 border: "none",
-                borderBottom: active ? "2px solid var(--iseyc-gold)" : "2px solid transparent",
+                background: "transparent",
+                color: active ? "var(--iseyc-gold)" : "rgba(247,243,233,0.7)",
+                fontWeight: active ? 700 : 500,
+                fontSize: 13,
                 cursor: "pointer",
+                borderBottom: active ? "2px solid var(--iseyc-gold)" : "2px solid transparent",
+                fontFamily: "var(--font-body)",
               }}
             >
               {t.label}
