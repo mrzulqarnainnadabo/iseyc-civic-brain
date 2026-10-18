@@ -28,7 +28,7 @@ for (const required of [
   "https://2027-street-mandate.vercel.app",
   "not a representative national survey",
   "Never invent counts",
-  "Never automatically contact officials",
+  "Do not automatically contact officials",
   "unpublished submissions",
 ]) {
   if (!prompt.toLowerCase().includes(required.toLowerCase())) {
