@@ -4,6 +4,13 @@ import Card from "./ui/Card.jsx";
 
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
+const TOOL_LIMITS = [
+  "Published Civic Mandate aggregates only, when available",
+  "States when evidence is missing or thin",
+  "Does not invent institutional responses",
+  "Does not rank candidates or parties",
+];
+
 const SUGGESTIONS = [
   {
     label: "Published snapshot",
@@ -130,6 +137,33 @@ export default function EvidenceWorkspace() {
         aria-relevant="additions"
         style={{ flex: 1, overflowY: "auto", padding: "16px 12px", maxWidth: 720, width: "100%", margin: "0 auto" }}
       >
+        <div
+          style={{
+            marginBottom: 14,
+            padding: "12px 14px",
+            background: "var(--iseyc-white)",
+            border: "1px solid var(--iseyc-border)",
+            borderRadius: "var(--radius-md)",
+          }}
+        >
+          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 600, color: "var(--iseyc-forest)" }}>
+            Evidence boundaries
+          </p>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--iseyc-ink-secondary)", lineHeight: 1.45 }}>
+            {TOOL_LIMITS.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <p style={{ margin: "8px 0 0", fontSize: 11 }}>
+            <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)" }}>
+              Open Civic Mandate Nigeria
+            </a>
+            {" · "}
+            <a href={MANDATE_URL + "/methodology"} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)" }}>
+              Methodology
+            </a>
+          </p>
+        </div>
         {msgs.map((m, i) =>
           m.role === "user" ? (
             <div key={i} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
