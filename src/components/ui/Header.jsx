@@ -1,6 +1,6 @@
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
-/** Full ISEYC institutional header — aligned with Civic Mandate. */
+/** Official ISEYC seal + institutional header. */
 export default function Header({ tab, onTab }) {
   const tabs = [
     { id: "evidence", label: "Evidence" },
@@ -32,17 +32,18 @@ export default function Header({ tab, onTab }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <img
-            src="/iseyc-logo.svg"
-            alt="ISEYC"
-            width={40}
-            height={30}
+            src="/iseyc-seal.png"
+            alt="ISEYC official seal"
+            width={44}
+            height={44}
             style={{
-              width: 40,
-              height: 30,
+              width: 44,
+              height: 44,
               objectFit: "contain",
               flexShrink: 0,
-              borderRadius: 4,
-              background: "var(--iseyc-cream)",
+              borderRadius: "50%",
+              background: "#fff",
+              border: "1px solid var(--iseyc-gold)",
             }}
           />
           <div style={{ minWidth: 0 }}>
@@ -60,10 +61,10 @@ export default function Header({ tab, onTab }) {
             <div
               className="display"
               style={{
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: 700,
                 color: "var(--iseyc-cream)",
-                lineHeight: 1.2,
+                lineHeight: 1.15,
               }}
             >
               Civic Brain
@@ -75,7 +76,7 @@ export default function Header({ tab, onTab }) {
                 lineHeight: 1.3,
               }}
             >
-              Initiative for Sustainable Evolution for Youth and Community
+              Reading companion for Civic Mandate Nigeria
             </div>
           </div>
         </div>
