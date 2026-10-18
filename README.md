@@ -1,82 +1,38 @@
 # ISEYC Civic Brain
 
-**Institutional AI Architect & Strategic Intelligence System**
+Evidence tool for **published** Civic Mandate Nigeria records, plus **recommendation-only** institutional routing.
 
-The official AI agent for the Initiative for Sustainable Evolution for Youth and Community (ISEYC).
+> Duty over personality. Not a poll. Not an endorsement.
 
-> *"Empowering Youth, Shaping Communities — Every Street. Every Voice. Accountable Leadership."*
+## What it does
 
-## About ISEYC
+- **Evidence** — questions grounded on published Civic Mandate aggregates (pilot data, not a national survey)
+- **Routing** — deterministic recommendation of responsible institutions; **never auto-sends**; always requires human review
 
-ISEYC is a youth-led, non-partisan, national movement headquartered in Abuja, FCT, with its grassroots pilot active in Kaduna State — scaling to all 36 Nigerian states ahead of the 2027 general elections.
+## What it does not do
 
-## Agent Features
+- Invent published counts or national public opinion
+- Rank candidates or issue awards
+- Contact officeholders or claim a referral was sent
+- Expose internal planning tools on the public surface
 
-- **Strategic Chat** — Live AI powered by Claude (claude-sonnet-4-6), calibrated to ISEYC's full institutional context
-- **Kaduna Dashboard** — Operational view: national scaling sequence, phase roadmap, priority actions
-- **7 Pillars Panel** — Activate and plan each of ISEYC's 7 Responsibility Pillars with one tap
-- **8 Quick Actions** — Kaduna pilot setup, accountability scorecard, funding pipeline, media strategy, national scaling, and more
+## Stack
 
-## Tech Stack
+- React + Vite
+- Serverless `api/chat.js`, `api/route-mandate.js`
+- Providers via server env only (Groq / Anthropic / xAI)
 
-- React (JSX) + Vite
-- Anthropic Claude API (`claude-sonnet-4-6`)
-- ISEYC Brand: Forest Green `#1A3C1A` · Gold `#C9A84C` · Cream `#F5F1E8`
-
-## Getting Started
+## Local
 
 ```bash
 npm install
+npm test
+npm run build
 npm run dev
 ```
 
-Configure your Anthropic API key in your proxy or environment.
+## Deploy (founder)
 
-## Project Structure
+See `docs/DEPLOY-TOGETHER.md` (deploy Mandate + Brain in one window).
 
-```
-iseyc-civic-brain/
-├── src/
-│   └── App.jsx        # Full Civic Brain agent component
-├── index.html
-├── package.json
-└── README.md
-```
-
-## 7 Responsibility Pillars
-
-1. Community Safety & Emergency
-2. Health Awareness
-3. Youth Development & Education
-4. Economic Linkages
-5. Sanitation & Environment
-6. Community Data & Intelligence
-7. Community Voice
-
-## 5 Departments
-
-Education · Health & Wellbeing · Software & Technology · Graphic Design & Creativity · Business & Investment
-
-## Scaling Sequence
-
-```
-Kaduna South Pilot (3–5 Wards)
-        ↓
-Kaduna State (All 3 Senatorial Zones)
-        ↓
-Northwest Zone (7 States)
-        ↓
-North Central + FCT Corridor
-        ↓
-National — All 36 States + FCT
-```
-
-## Contact
-
-- Email: iseycglobal@gmail.com
-- Phone: +234 803 698 4766
-- Website: www.iseyc.com.ng
-
----
-
-*Every Street. Every Voice. Accountable Leadership.*
+Active branch: `feat/secure-evidence-grounded-brain` (PR #6)
