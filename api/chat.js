@@ -13,6 +13,7 @@ import { fetchCivicIntelligence, formatEvidenceBlock } from '../lib/civic-eviden
 const PROVIDER_TIMEOUT_MS = 25000;
 const MAX_OUTPUT_TOKENS = 1024;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
+const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
 
 function setCors(res, req) {
   const allowed = (process.env.CIVIC_BRAIN_ALLOWED_ORIGIN || '').trim();
@@ -111,7 +112,10 @@ export default async function handler(req, res) {
   if (xaiKey) providers.push(() => callXAI(xaiKey, messages, system));
 
   if (!providers.length) {
-    return res.status(503).json({ error: 'NO_PROVIDER', message: 'No AI provider is configured on the server.' });
+    return res.status(503).json({
+      error: 'NO_PROVIDER',
+      message: 'No AI provider is configured. Set GROQ_API_KEY (or ANTHROPIC_API_KEY / XAI_API_KEY) on the server and redeploy.',
+    });
   }
 
   for (const run of providers) {
@@ -138,33 +142,72 @@ export default async function handler(req, res) {
     }
   }
 
-  return res.status(502).json({ error: 'PROVIDER_UNAVAILABLE', message: 'The assistant could not complete this request. Try again later.' });
+  return res.status(502).json({
+    error: 'PROVIDER_UNAVAILABLE',
+    message: 'The assistant could not complete this request. Check GROQ_API_KEY on Vercel and redeploy after changing env vars.',
+  });
 }
 
 async function callGroq(apiKey, messages, system) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
-  const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
-    body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: openAIMessages, max_tokens: MAX_OUTPUT_TOKENS, temperature: 0.4 }),
-  });
-  const raw = await upstream.text();
-  let data; try { data = JSON.parse(raw); } catch { return { ok: false, error: 'parse_error', provider: 'groq' }; }
-  if (!upstream.ok) return { ok: false, error: data?.error?.message || 'groq_error', provider: 'groq' };
-  const text = data.choices?.[0]?.message?.content;
-  if (!text) return { ok: false, error: 'empty', provider: 'groq' };
-  return { ok: true, text, model: data.model || 'llama-3.3-70b-versatile', provider: 'groq' };
+
+  let lastError = 'groq_error';
+  for (const model of GROQ_MODELS) {
+    const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model,
+        messages: openAIMessages,
+        max_tokens: MAX_OUTPUT_TOKENS,
+        temperature: 0.4,
+      }),
+    });
+    const raw = await upstream.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      lastError = 'parse_error';
+      continue;
+    }
+    if (!upstream.ok) {
+      lastError = data?.error?.message || 'groq_error';
+      continue;
+    }
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) {
+      lastError = 'empty';
+      continue;
+    }
+    return { ok: true, text, model: data.model || model, provider: 'groq' };
+  }
+  return { ok: false, error: lastError, provider: 'groq' };
 }
 
 async function callAnthropic(apiKey, messages, system) {
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: MAX_OUTPUT_TOKENS, system, messages: messages.map((m) => ({ role: m.role, content: m.content })) }),
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: MAX_OUTPUT_TOKENS,
+      system,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    }),
   });
   const raw = await upstream.text();
-  let data; try { data = JSON.parse(raw); } catch { return { ok: false, error: 'parse_error', provider: 'anthropic' }; }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return { ok: false, error: 'parse_error', provider: 'anthropic' };
+  }
   if (!upstream.ok) return { ok: false, error: data?.error?.message || 'anthropic_error', provider: 'anthropic' };
   const textBlock = data.content?.find((b) => b.type === 'text');
   if (!textBlock?.text) return { ok: false, error: 'empty', provider: 'anthropic' };
@@ -177,10 +220,20 @@ async function callXAI(apiKey, messages, system) {
   const upstream = await fetch('https://api.x.ai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
-    body: JSON.stringify({ model: 'grok-3', messages: openAIMessages, max_tokens: MAX_OUTPUT_TOKENS, temperature: 0.4 }),
+    body: JSON.stringify({
+      model: 'grok-3',
+      messages: openAIMessages,
+      max_tokens: MAX_OUTPUT_TOKENS,
+      temperature: 0.4,
+    }),
   });
   const raw = await upstream.text();
-  let data; try { data = JSON.parse(raw); } catch { return { ok: false, error: 'parse_error', provider: 'xai' }; }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return { ok: false, error: 'parse_error', provider: 'xai' };
+  }
   if (!upstream.ok) return { ok: false, error: data?.error?.message || 'xai_error', provider: 'xai' };
   const text = data.choices?.[0]?.message?.content;
   if (!text) return { ok: false, error: 'empty', provider: 'xai' };
