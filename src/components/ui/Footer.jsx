@@ -16,7 +16,7 @@ export default function Footer() {
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <img
             src="/iseyc-logo.svg"
-            alt=""
+            alt="ISEYC logo"
             width={32}
             height={24}
             style={{ width: 32, height: 24, objectFit: "contain", background: "var(--iseyc-cream)", borderRadius: 3 }}
