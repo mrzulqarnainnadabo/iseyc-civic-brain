@@ -4,33 +4,26 @@ import Card from "./ui/Card.jsx";
 
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
-const TOOL_LIMITS = [
-  "Published Civic Mandate aggregates only, when available",
-  "States when evidence is missing or thin",
-  "Does not invent institutional responses",
-  "Does not rank candidates or parties",
-];
-
 const SUGGESTIONS = [
   {
-    label: "Published snapshot",
+    label: "What is Civic Mandate?",
     prompt:
-      "Using only the current published Civic Mandate evidence, summarise published totals, states represented, top duties, and the main methodology limitations. If evidence is thin, say so.",
+      "Explain Civic Mandate Nigeria in plain language: what it is, what it is not, how a demand becomes Published, and how Civic Brain uses the public record. Keep it short.",
   },
   {
-    label: "Coverage limits",
+    label: "What is published so far?",
     prompt:
-      "From published Civic Mandate evidence only, which states and LGAs appear, and what does limited pilot coverage mean?",
+      "Using only the current published Civic Mandate evidence, summarise totals, states, and main duties. Say clearly if coverage is thin.",
   },
   {
     label: "Health in the record",
     prompt:
-      "What do published Civic Mandate records show about Health-related demands? Separate record facts from unknowns. Do not invent institutional responses.",
+      "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses.",
   },
   {
-    label: "Research brief",
+    label: "How Mandate + Brain work",
     prompt:
-      "Draft a short research brief from published Civic Mandate evidence only. Label unsupported points as questions for research, not facts.",
+      "How should a citizen or partner use Civic Mandate and Civic Brain together? Include submit → review → publish → understand. Non-partisan only.",
   },
 ];
 
@@ -45,7 +38,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `ISEYC Civic Brain helps you understand **published** Civic Mandate Nigeria records — and what those records cannot yet establish.\n\n- Answers are grounded on published evidence only (not a national survey).\n- Thin evidence is reported honestly.\n- Routing recommendations require human review and are never auto-sent.\n\nOpen the public record: ${MANDATE_URL}`;
+const INTRO = `**Civic Brain** is the reading companion for **Civic Mandate Nigeria**.\n\n**Mandate** collects and publishes concrete public-service demands (after human review).\n**Brain** explains what those published records show — and what they cannot yet prove.\n\nNot a poll. Not a ranking. Not a campaign tool.\n\n[Open Civic Mandate](${MANDATE_URL}) · pick a starter below.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
@@ -137,33 +130,51 @@ export default function EvidenceWorkspace() {
         aria-relevant="additions"
         style={{ flex: 1, overflowY: "auto", padding: "16px 12px", maxWidth: 720, width: "100%", margin: "0 auto" }}
       >
-        <div
-          style={{
-            marginBottom: 14,
-            padding: "12px 14px",
-            background: "var(--iseyc-white)",
-            border: "1px solid var(--iseyc-border)",
-            borderRadius: "var(--radius-md)",
-          }}
-        >
-          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 600, color: "var(--iseyc-forest)" }}>
-            Evidence boundaries
-          </p>
-          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--iseyc-ink-secondary)", lineHeight: 1.45 }}>
-            {TOOL_LIMITS.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-          <p style={{ margin: "8px 0 0", fontSize: 11 }}>
-            <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)" }}>
-              Open Civic Mandate Nigeria
-            </a>
-            {" · "}
-            <a href={MANDATE_URL + "/methodology"} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)" }}>
-              Methodology
-            </a>
-          </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+          <a
+            href={MANDATE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: "none",
+              borderRadius: 8,
+              border: "1px solid var(--iseyc-border)",
+              background: "var(--iseyc-white)",
+              padding: "12px 10px",
+              color: "inherit",
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "var(--iseyc-gold)", textTransform: "uppercase" }}>
+              Civic Mandate
+            </div>
+            <div style={{ marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, color: "var(--iseyc-forest)" }}>
+              Record the demand
+            </div>
+            <div style={{ marginTop: 4, fontSize: 11, color: "var(--iseyc-ink-secondary)", lineHeight: 1.4 }}>
+              Submit → human review → Published
+            </div>
+          </a>
+          <div
+            style={{
+              borderRadius: 8,
+              border: "1px solid var(--iseyc-border)",
+              background: "var(--iseyc-forest)",
+              padding: "12px 10px",
+              color: "var(--iseyc-cream)",
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "var(--iseyc-gold)", textTransform: "uppercase" }}>
+              Civic Brain
+            </div>
+            <div style={{ marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}>
+              Understand the record
+            </div>
+            <div style={{ marginTop: 4, fontSize: 11, opacity: 0.85, lineHeight: 1.4 }}>
+              What published evidence shows — and cannot prove
+            </div>
+          </div>
         </div>
+
         {msgs.map((m, i) =>
           m.role === "user" ? (
             <div key={i} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
@@ -193,7 +204,7 @@ export default function EvidenceWorkspace() {
                   marginBottom: 6,
                 }}
               >
-                Civic Brain
+                Civic Brief
               </div>
               <Markdown text={m.content} />
             </Card>
@@ -202,7 +213,7 @@ export default function EvidenceWorkspace() {
         {busy && (
           <Card style={{ marginBottom: 12 }} aria-busy="true">
             <p style={{ margin: 0, fontSize: 13, color: "var(--iseyc-ink-muted)" }}>
-              Retrieving published evidence…
+              Reading the public record…
             </p>
           </Card>
         )}
@@ -270,15 +281,7 @@ export default function EvidenceWorkspace() {
           padding: "10px 12px 14px",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "flex-end",
-            maxWidth: 720,
-            margin: "0 auto",
-          }}
-        >
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 720, margin: "0 auto" }}>
           <label htmlFor="civic-q" className="sr-only">
             Ask about published civic records
           </label>
@@ -288,7 +291,7 @@ export default function EvidenceWorkspace() {
             value={input}
             onChange={onInput}
             onKeyDown={onKey}
-            placeholder="Ask about published civic records…"
+            placeholder="Ask what the published record shows…"
             disabled={busy}
             rows={1}
             style={{
