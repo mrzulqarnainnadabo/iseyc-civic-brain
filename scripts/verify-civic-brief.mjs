@@ -48,7 +48,7 @@ if (!header.includes('src="/iseyc-logo.svg"')) {
   console.error("FAIL: header does not use available interim logo");
   failed++;
 } else console.log("OK: header uses existing logo asset");
-for (const label of ["What is Civic Mandate?", "What is published so far?", "Health in the record", "How Mandate + Brain work"]) {
+for (const label of ["What is Civic Mandate?", "What is published so far?", "Health-related demands", "How Mandate + Brain work", "Published vs resolved"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
     failed++;
