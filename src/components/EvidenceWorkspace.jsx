@@ -13,17 +13,27 @@ const SUGGESTIONS = [
   {
     label: "What is published so far?",
     prompt:
-      "Using only the current published Civic Mandate evidence, summarise totals, states, and main duties. Say clearly if coverage is thin.",
+      "Using only the current published Civic Mandate evidence, summarise totals, states represented, and main duties. Say clearly if coverage is thin and that this is pilot data.",
   },
   {
-    label: "Health in the record",
+    label: "Health-related demands",
     prompt:
-      "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses.",
+      "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses or claim referrals were sent.",
+  },
+  {
+    label: "Who may be responsible?",
+    prompt:
+      "In general, how does Civic Brain recommend a responsible institution? Stress human review, jurisdiction uncertainty, and that a recommendation is not a referral sent.",
+  },
+  {
+    label: "Published vs resolved",
+    prompt:
+      "What is the difference between a published civic demand and a resolved issue? Use only ISEYC product rules — do not invent government outcomes.",
   },
   {
     label: "How Mandate + Brain work",
     prompt:
-      "How should a citizen or partner use Civic Mandate and Civic Brain together? Include submit → review → publish → understand. Non-partisan only.",
+      "How should a citizen use Civic Mandate and Civic Brain together? Submit → human review → Published → understand evidence. Non-partisan only.",
   },
 ];
 
@@ -38,7 +48,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `**Civic Brain** is the reading companion for **Civic Mandate Nigeria**.\n\n**Mandate** collects and publishes concrete public-service demands (after human review).\n**Brain** explains what those published records show — and what they cannot yet prove.\n\nNot a poll. Not a ranking. Not a campaign tool.\n\n[Open Civic Mandate](${MANDATE_URL}) · pick a starter below.`;
+const INTRO = `**ISEYC Civic Brain** helps you understand **published** Civic Mandate Nigeria records.\n\n**What you can do here**\n- See what the pilot public record shows (counts, places, duties when available)\n- Understand limits: this is **not** a national survey\n- Get **recommendations** about responsible offices — always for **human review**, never auto-sent\n\n**What this tool cannot do**\n- Contact government for you\n- Mark a demand as resolved\n- See unpublished or private submissions\n\n[Open Civic Mandate Nigeria](${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
