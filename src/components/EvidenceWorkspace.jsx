@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Markdown from "./Markdown.jsx";
 import Card from "./ui/Card.jsx";
+import EvidenceExplorer from "./EvidenceExplorer.jsx";
 
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
@@ -134,6 +135,7 @@ export default function EvidenceWorkspace() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+      <EvidenceExplorer onAsk={(prompt) => send(prompt)} />
       <div
         role="log"
         aria-live="polite"
