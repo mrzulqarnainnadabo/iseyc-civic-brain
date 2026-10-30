@@ -1,14 +1,10 @@
 import {
   validateCivicBrief,
-  extractJsonBrief,
   narrativeFallbackFromFailure,
   BRIEF_SCHEMA_VERSION,
 } from '../lib/civic-brief-engine.js';
-import { assessCitationRelevance, applyRelevanceToFindings } from '../lib/citation-relevance.js';
-import {
-  canAdvanceAccountability,
-  describeState,
-} from '../lib/accountability-states.js';
+import { assessCitationRelevance } from '../lib/citation-relevance.js';
+import { canAdvanceAccountability } from '../lib/accountability-states.js';
 import { stripToPublicMandateRecord } from '../lib/public-mandate-dto.js';
 
 let failed = 0;
@@ -64,11 +60,10 @@ function baseBrief(overrides = {}) {
 
 ok(validateCivicBrief(baseBrief()).ok, 'valid brief passes');
 
-// Irrelevant citation: FACT about water cites a security-only source
 const irrelevant = baseBrief({
   findings: [
     {
-      text: 'Water supply was fully fixed across Lagos beaches yesterday.',
+      text: 'Water supply was fully implemented and resolved across Lagos beaches yesterday.',
       classification: 'FACT',
       citations: ['src-security'],
     },
@@ -83,7 +78,6 @@ const irrelevant = baseBrief({
     },
   ],
 });
-// Completion language blocks before relevance
 ok(!validateCivicBrief(irrelevant).ok, 'completion + irrelevant path fails validation');
 
 const weakOnly = baseBrief({
