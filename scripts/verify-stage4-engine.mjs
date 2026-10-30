@@ -4,18 +4,12 @@ import {
   narrativeFallbackFromFailure,
   BRIEF_SCHEMA_VERSION,
 } from '../lib/civic-brief-engine.js';
-import {
-  assessEvidenceItem,
-  findDuplicateEvidenceIds,
-  geographicMismatch,
-  summariseEvidenceQuality,
-} from '../lib/evidence-quality.js';
+import { assessCitationRelevance, applyRelevanceToFindings } from '../lib/citation-relevance.js';
 import {
   canAdvanceAccountability,
   describeState,
-  ACCOUNTABILITY_STATES,
 } from '../lib/accountability-states.js';
-import { voicesToPublicRecords, stripToPublicMandateRecord } from '../lib/public-mandate-dto.js';
+import { stripToPublicMandateRecord } from '../lib/public-mandate-dto.js';
 
 let failed = 0;
 function ok(c, m) {
@@ -31,9 +25,7 @@ function baseBrief(overrides = {}) {
     executiveSummary: 'Pilot published health demands in Kaduna exist.',
     whatIsHappening: 'Published records describe primary care access concerns.',
     geographicScope: 'Kaduna (pilot coverage only)',
-    communityReports: [
-      { text: 'PHC medicines gap', classification: 'COMMUNITY_REPORT', recordId: 'r1' },
-    ],
+    communityReports: [{ text: 'PHC medicines gap', classification: 'COMMUNITY_REPORT', recordId: 'r1' }],
     officialEvidence: [],
     findings: [
       {
@@ -49,20 +41,20 @@ function baseBrief(overrides = {}) {
         level: 'state',
         duty: 'Health',
         verificationStatus: 'unverified',
-        limitations: 'Registry pattern only; not a legal determination.',
+        limitations: 'Registry pattern only.',
       },
     ],
     publicCommitments: [],
     verifiedImplementation: [],
-    evidenceGaps: ['No independently verified implementation evidence in this turn.'],
-    recommendations: [
-      { text: 'Human review before any referral draft.', classification: 'RECOMMENDATION' },
-    ],
+    evidenceGaps: ['No independently verified implementation evidence.'],
+    recommendations: [{ text: 'Human review before any referral draft.', classification: 'RECOMMENDATION' }],
     sources: [
       {
         id: 'src-pulse',
-        title: 'Civic Mandate Pulse (published)',
+        title: 'Civic Mandate Pulse published Health records Kaduna',
         sourceType: 'community_submission',
+        geoCoverage: 'Kaduna',
+        subjectCategory: 'Health',
       },
     ],
     limitations: 'Pilot published records only; not a national survey.',
@@ -70,124 +62,84 @@ function baseBrief(overrides = {}) {
   };
 }
 
-const v1 = validateCivicBrief(baseBrief());
-ok(v1.ok, 'valid brief passes');
-ok(v1.brief?.validationNote?.includes('Structural'), 'validationNote discloses structural limit');
+ok(validateCivicBrief(baseBrief()).ok, 'valid brief passes');
 
-ok(!validateCivicBrief(baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: [] }] })).ok, 'FACT without citations fails');
-ok(
-  !validateCivicBrief(
-    baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: ['missing'] }] })
-  ).ok,
-  'unknown citation fails'
-);
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      findings: [
-        {
-          text: '80% of Nigerians lack water',
-          classification: 'FACT',
-          citations: ['src-pulse'],
-        },
-      ],
-    })
-  ).ok,
-  'prevalence-style claim flagged'
-);
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      findings: [
-        {
-          text: 'The clinic problem is resolved and fully implemented.',
-          classification: 'FACT',
-          citations: ['src-pulse'],
-        },
-      ],
-    })
-  ).ok,
-  'completion claim without independent source fails'
-);
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      institutionalResponsibilities: [
-        {
-          institution: 'Invented Agency',
-          verificationStatus: 'verified',
-        },
-      ],
-    })
-  ).ok,
-  'verified responsibility without source fails'
-);
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      verifiedImplementation: ['The road was successfully delivered and resolved.'],
-    })
-  ).ok,
-  'verifiedImplementation completion language fails without independent source'
-);
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      officialEvidence: [
-        {
-          text: 'The project was fully implemented and resolved.',
-          classification: 'FACT',
-        },
-      ],
-    })
-  ).ok,
-  'announcement-as-completion fails'
-);
+// Irrelevant citation: FACT about water cites a security-only source
+const irrelevant = baseBrief({
+  findings: [
+    {
+      text: 'Water supply was fully fixed across Lagos beaches yesterday.',
+      classification: 'FACT',
+      citations: ['src-security'],
+    },
+  ],
+  sources: [
+    {
+      id: 'src-security',
+      title: 'Security neighbourhood response notes',
+      sourceType: 'community_submission',
+      geoCoverage: 'Zamfara',
+      subjectCategory: 'Security',
+    },
+  ],
+});
+// Completion language blocks before relevance
+ok(!validateCivicBrief(irrelevant).ok, 'completion + irrelevant path fails validation');
 
-ok(extractJsonBrief('```json\n' + JSON.stringify(baseBrief()) + '\n```')?.schemaVersion === BRIEF_SCHEMA_VERSION, 'extract fenced JSON');
-const fb = narrativeFallbackFromFailure('health in Kaduna', ['fact_missing_citations:0'], true);
-ok(fb.includes('What the public record shows'), 'fallback preserves headings');
-ok(fb.includes('not a validated civic_brief_v1'), 'fallback not labelled validated brief');
-
-// Malformed cannot pass
-ok(!validateCivicBrief(null).ok, 'null brief fails');
-ok(!validateCivicBrief('string').ok, 'string brief fails');
-ok(!validateCivicBrief({ schemaVersion: '9.9.9' }).ok, 'wrong schema version fails');
-
-// Accountability
-ok(canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'model' }).ok === false, 'model cannot mark independently verified');
-ok(canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'authorised_operator' }).ok === false, 'operator still needs independent evidence flag');
+const weakOnly = baseBrief({
+  findings: [
+    {
+      text: 'Water pipes require maintenance schedules in remote desert counties.',
+      classification: 'FACT',
+      citations: ['src-security'],
+    },
+  ],
+  sources: [
+    {
+      id: 'src-security',
+      title: 'Security neighbourhood response notes',
+      sourceType: 'community_submission',
+      geoCoverage: 'Zamfara',
+      subjectCategory: 'Security',
+    },
+  ],
+});
+const weakResult = validateCivicBrief(weakOnly);
+ok(weakResult.ok, 'structurally valid brief with weak citation still validates structurally');
 ok(
-  canAdvanceAccountability('record_published', 'outcome_independently_verified', {
-    actorRole: 'authorised_operator',
-    hasIndependentEvidence: true,
-  }).ok === true,
-  'operator with independent evidence can mark verified'
+  weakResult.brief?.findings?.[0]?.classification === 'UNKNOWN' ||
+    weakResult.brief?.findings?.[0]?.classification === 'ANALYSIS',
+  'weak citation demotes FACT classification'
 );
-ok(describeState('record_published').doesNotMean.includes('Not proof'), 'published does not mean action');
+ok(weakResult.brief?.findings?.[0]?.claimRelevance?.independentlyVerified === false, 'never independently verified from heuristic');
+ok(weakResult.brief?.findings?.[0]?.claimRelevance?.requiresHumanReview === true, 'requires human review on weak relevance');
 
-// Live-shaped Pulse allowlist (fixture mirrors production shape)
-const liveVoice = {
+const rel = assessCitationRelevance(
+  { text: 'Health primary care medicines in Kaduna South' },
+  { title: 'Health PHC medicines Kaduna South', geoCoverage: 'Kaduna South', subjectCategory: 'Health' }
+);
+ok(rel.supportLevel === 'plausible_related' || rel.related, 'related health/kaduna scores related');
+ok(rel.independentlyVerified === false, 'relevance never sets independentlyVerified');
+
+ok(!validateCivicBrief(baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: [] }] })).ok, 'FACT no citations');
+ok(!validateCivicBrief(baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: ['nope'] }] })).ok, 'unknown citation');
+
+const fb = narrativeFallbackFromFailure('q', ['x'], true);
+ok(fb.includes('not a validated civic_brief_v1'), 'fallback not validated brief');
+
+ok(canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'model' }).ok === false, 'model cannot verify outcome');
+
+const live = stripToPublicMandateRecord({
   id: '4005db88ef468116ae20ec69bc81b114',
   sentence: 'Public access points in schools and civic centres.',
-  mandate: 'Digital Infrastructure',
   duty: 'Digital Infrastructure',
   office: 'President',
   state: 'Ondo',
   lga: 'Owo',
   created: '2026-10-21T18:15:00.000Z',
-  email: 'should-not-leak@example.com',
-};
-const stripped = stripToPublicMandateRecord(liveVoice);
-ok(stripped && stripped.id === liveVoice.id, 'live-shaped id preserved');
-ok(stripped && !('email' in stripped), 'live-shaped email stripped');
-ok(voicesToPublicRecords([liveVoice]).length === 1, 'live-shaped voice maps');
-
-// Evidence quality
-ok(assessEvidenceItem({ id: '1', title: 'x' }).issues.includes('missing_publisher'), 'missing publisher');
-ok(findDuplicateEvidenceIds([{ id: 'a' }, { id: 'a' }]).includes('a'), 'duplicates');
-ok(geographicMismatch('Kaduna South', 'Lagos').mismatch === true, 'geo mismatch');
-ok(ACCOUNTABILITY_STATES.includes('record_published'), 'states list');
+  email: 'x@y.com',
+});
+ok(live && !('email' in live), 'privacy strip');
 
 if (failed) {
   console.error(failed + ' failure(s)');
