@@ -1,6 +1,7 @@
 /**
  * Published-only public records proxy for Civic Brain UI.
  * Strict PublicMandateRecord v1 allowlist — never Notion private fields.
+ * Each record includes publicUrl for the Mandate receipt page.
  */
 import { voicesToPublicRecords } from '../lib/public-mandate-dto.js';
 
@@ -35,7 +36,13 @@ export default async function handler(req, res) {
       });
       return;
     }
-    const records = voicesToPublicRecords(data.voices);
+    // voicesToPublicRecords sets publicUrl on each allowlisted record
+    const records = voicesToPublicRecords(data.voices).map((rec) => ({
+      ...rec,
+      publicUrl:
+        rec.publicUrl ||
+        `https://2027-street-mandate.vercel.app/mandate/${rec.id}`,
+    }));
     res.status(200).json({
       version: '1.0.0',
       schema: 'PublicMandateRecord',
