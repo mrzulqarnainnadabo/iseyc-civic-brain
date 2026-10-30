@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iseyc.com.ng/schemas/public-mandate-record.v1.json",
+  "title": "PublicMandateRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "sentence", "duty", "office", "state", "created"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "id": { "type": "string", "minLength": 1 },
+    "sentence": { "type": "string", "minLength": 1 },
+    "duty": { "type": "string", "minLength": 1 },
+    "mandate": { "type": "string" },
+    "office": { "type": "string" },
+    "state": { "type": "string", "minLength": 1 },
+    "lga": { "type": "string" },
+    "created": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iseyc.com.ng/schemas/evidence-metadata.v1.json",
+  "title": "EvidenceRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "publisher", "title", "sourceType", "verificationStatus"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "id": { "type": "string" },
+    "publisher": { "type": "string" },
+    "title": { "type": "string" },
+    "sourceUrl": { "type": "string" },
+    "documentRef": { "type": "string" },
+    "sourceType": {
+      "type": "string",
+      "enum": ["official_publication", "official_dataset", "published_research", "community_submission", "media_report", "institutional_announcement", "independently_verified", "unverified_claim", "historical"]
+    },
+    "verificationStatus": {
+      "type": "string",
+      "enum": ["unverified", "source_linked", "reviewed", "independently_verified", "disputed", "outdated"]
+    },
+    "knownLimitations": { "type": "string" }
+  }
+}

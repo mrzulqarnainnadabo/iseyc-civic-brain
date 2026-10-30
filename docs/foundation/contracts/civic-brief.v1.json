@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iseyc.com.ng/schemas/civic-brief.v1.json",
+  "title": "CivicBrief",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "executiveSummary", "whatIsHappening", "geographicScope", "communityReports", "officialEvidence", "findings", "possibleExplanations", "institutionalResponsibilities", "publicCommitments", "verifiedImplementation", "evidenceGaps", "recommendations", "sources", "limitations"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "executiveSummary": { "type": "string" },
+    "whatIsHappening": { "type": "string" },
+    "geographicScope": { "type": "string" },
+    "communityReports": { "type": "array" },
+    "officialEvidence": { "type": "array" },
+    "findings": { "type": "array" },
+    "possibleExplanations": { "type": "array" },
+    "institutionalResponsibilities": { "type": "array" },
+    "publicCommitments": { "type": "array" },
+    "verifiedImplementation": { "type": "array" },
+    "evidenceGaps": { "type": "array" },
+    "recommendations": { "type": "array" },
+    "sources": { "type": "array" },
+    "limitations": { "type": "string" }
+  }
+}
