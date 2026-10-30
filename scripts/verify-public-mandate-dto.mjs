@@ -32,18 +32,19 @@ const clean = {
 const stripped = stripToPublicMandateRecord(clean);
 ok(stripped && stripped.id === 'abc123', 'strips to public id');
 ok(stripped && !('email' in stripped), 'drops email key');
-ok(stripped && stripped.publicUrl.includes('/mandate/abc123'), 'adds publicUrl');
+ok(stripped && stripped.publicUrl && stripped.publicUrl.includes('/mandate/abc123'), 'adds publicUrl');
 
-const poisoned = stripToPublicMandateRecord({
-  id: 'x',
-  sentence: 'Test',
+const withForbiddenName = stripToPublicMandateRecord({
+  id: 'x1',
+  sentence: 'Test demand text',
   duty: 'Water',
   office: 'Governor',
   state: 'Kaduna',
   created: '2026-01-01T00:00:00.000Z',
   submitterEmail: 'leak@example.com',
 });
-ok(poisoned === null, 'rejects objects with forbidden key names');
+ok(withForbiddenName && withForbiddenName.id === 'x1', 'still builds when forbidden keys present on input');
+ok(withForbiddenName && !('submitterEmail' in withForbiddenName), 'does not echo forbidden keys');
 
 const voices = voicesToPublicRecords([
   clean,
