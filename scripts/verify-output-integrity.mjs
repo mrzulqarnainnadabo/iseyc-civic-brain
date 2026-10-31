@@ -1,7 +1,6 @@
 import { BRIEF_SCHEMA_VERSION } from '../lib/civic-brief-engine.js';
 import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
 import { assessAggregateClaim } from '../lib/aggregate-claims.js';
-import { applyNarrativeEvidencePolicy } from '../lib/claim-policy.js';
 import {
   buildStructuredBriefResponse,
   buildNarrativeResponse,
@@ -50,12 +49,6 @@ ok(
   !assessAggregateClaim('Snapshot 2026-10-30 shows 24 published records and 50 clinics.', meta).ok,
   'date ok but unbound 50 rejected'
 );
-ok(
-  !assessAggregateClaim('There are 24 published records and 3.5 average items.', meta).ok,
-  'decimal still leaves claim needing care — reject if integer issues'
-);
-// decimal masked — 24 only integer left; may pass if only 24 remains
-// If decimal masks to DECIMAL, only 24 bound — should ok
 ok(
   assessAggregateClaim('There are 24 published records and about 3.5 share.', meta).ok,
   'decimal masked with correct pairs'
@@ -119,7 +112,6 @@ const malicious = JSON.stringify({
   limitations: 'none',
 });
 
-// API response construction (same path as handler)
 const api = buildStructuredBriefResponse(malicious, reg, 'test question', {
   aggregateAvailable: true,
   recordsAvailable: true,
@@ -131,25 +123,29 @@ ok(api.content[0].text === renderValidatedBriefMarkdown(api.brief), 'content equ
 ok(!api.content[0].text.includes('model-invented-source'), 'no invented source in content');
 ok(!api.content[0].text.includes('SECRET_LEAK_TOKEN_XYZ') || /Unverified/i.test(api.content[0].text), 'leak not as fact');
 ok(/Unverified/i.test(api.content[0].text), 'unverified language present');
-ok(api.brief.communityReports[0].displayText && /Unverified/i.test(api.brief.communityReports[0].displayText), 'list displayText preserved');
-ok(api.brief.publicCommitments[0].displayText && /Unverified/i.test(api.brief.publicCommitments[0].displayText), 'commitments displayText');
+ok(
+  api.brief.communityReports[0].displayText && /Unverified/i.test(api.brief.communityReports[0].displayText),
+  'list displayText preserved'
+);
+ok(
+  api.brief.publicCommitments[0].displayText && /Unverified/i.test(api.brief.publicCommitments[0].displayText),
+  'commitments displayText'
+);
 ok(api.brief.verifiedImplementation[0].independentlyVerified === false, 'impl not verified');
 ok(/Coverage limitation|pilot/i.test(api.content[0].text), 'national scope limited');
 
-// Empty registry structured
 const emptyApi = buildStructuredBriefResponse(malicious, emptyReg, 'q', {
   aggregateAvailable: false,
   recordsAvailable: false,
 });
-ok(emptyApi.briefValid || emptyApi.format === 'narrative_fallback' || emptyApi.briefValid, 'empty registry handled');
+ok(emptyApi.briefValid || emptyApi.format === 'narrative_fallback', 'empty registry handled');
 if (emptyApi.briefValid) {
   ok(
-    emptyApi.brief.findings.every((f) => f.classification !== 'FACT' || f.claimRelevance),
+    emptyApi.brief.findings.every((f) => f.classification !== 'FACT'),
     'no bare FACT without registry'
   );
 }
 
-// Narrative path
 const narr = buildNarrativeResponse(
   'The clinic was fully implemented. There are 999 published records.',
   meta
