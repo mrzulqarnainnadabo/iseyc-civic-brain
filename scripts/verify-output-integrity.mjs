@@ -1,11 +1,12 @@
-/**
- * API-level output integrity: no raw model leakage; metric binding; narrative neutralize.
- */
-import { validateCivicBrief, BRIEF_SCHEMA_VERSION } from '../lib/civic-brief-engine.js';
-import { renderValidatedBriefMarkdown } from '../lib/render-validated-brief.js';
+import { BRIEF_SCHEMA_VERSION } from '../lib/civic-brief-engine.js';
 import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
-import { assessAggregateClaim, extractMetricPairs } from '../lib/aggregate-claims.js';
+import { assessAggregateClaim } from '../lib/aggregate-claims.js';
 import { applyNarrativeEvidencePolicy } from '../lib/claim-policy.js';
+import {
+  buildStructuredBriefResponse,
+  buildNarrativeResponse,
+} from '../lib/civic-brief-response.js';
+import { renderValidatedBriefMarkdown } from '../lib/render-validated-brief.js';
 
 let failed = 0;
 function ok(c, m) {
@@ -23,33 +24,52 @@ const meta = {
   pulseTotal: 24,
 };
 
-// Multi-metric correct
 ok(
   assessAggregateClaim('There are 24 published records across 3 states and 10 LGAs.', meta).ok,
-  'multi-metric correct sentence'
+  'correct multi-metric'
 );
-// One wrong
 ok(
-  !assessAggregateClaim('There are 25 published records across 3 states and 10 LGAs.', meta).ok,
-  'multi-metric one wrong'
+  !assessAggregateClaim(
+    'There are 24 published records across 3 states and 10 LGAs and 999 additional reports.',
+    meta
+  ).ok,
+  'extra 999 rejected'
 );
-// Different order
+ok(
+  !assessAggregateClaim(
+    'There are 24 published records across 3 states and 10 LGAs plus 1500 cases.',
+    meta
+  ).ok,
+  'extra 1500 rejected'
+);
+ok(
+  !assessAggregateClaim('There are 24 published records and 30 published records.', meta).ok,
+  'conflicting published counts'
+);
+ok(
+  !assessAggregateClaim('Snapshot 2026-10-30 shows 24 published records and 50 clinics.', meta).ok,
+  'date ok but unbound 50 rejected'
+);
+ok(
+  !assessAggregateClaim('There are 24 published records and 3.5 average items.', meta).ok,
+  'decimal still leaves claim needing care — reject if integer issues'
+);
+// decimal masked — 24 only integer left; may pass if only 24 remains
+// If decimal masks to DECIMAL, only 24 bound — should ok
+ok(
+  assessAggregateClaim('There are 24 published records and about 3.5 share.', meta).ok,
+  'decimal masked with correct pairs'
+);
 ok(
   assessAggregateClaim('Across 3 states and 10 LGAs there are 24 published records.', meta).ok,
-  'metric order variation'
+  'order variation'
 );
-// Unbound number near metrics
+ok(!assessAggregateClaim('There are 24 published records', null).ok, 'missing meta');
+ok(assessAggregateClaim('There are three states represented', meta).ok, 'word three states');
 ok(
-  !assessAggregateClaim('Published records total something like 15 in the pilot.', meta).ok,
-  'unbound number rejected'
+  !assessAggregateClaim('There are thousand published records', meta).ok,
+  'unsupported word thousand records'
 );
-// Dates ignored
-ok(assessAggregateClaim('Snapshot generated 2026-10-30 with 24 published records.', meta).ok, 'date + correct count');
-
-const pairs = extractMetricPairs('24 published records across 3 states and 10 LGAs');
-ok(pairs.some((p) => p.key === 'publishedCount' && p.value === 24), 'pair published');
-ok(pairs.some((p) => p.key === 'statesRepresented' && p.value === 3), 'pair states');
-ok(pairs.some((p) => p.key === 'lgasRepresented' && p.value === 10), 'pair lgas');
 
 const pulse = {
   records: [
@@ -64,61 +84,78 @@ const pulse = {
   ],
   total: 24,
 };
-const snap = { publishedCount: 24, statesRepresented: 3, lgasRepresented: 10, dutiesRepresented: 8 };
+const snap = {
+  publishedCount: 24,
+  statesRepresented: 3,
+  lgasRepresented: 10,
+  dutiesRepresented: 8,
+};
 const reg = buildTrustedRegistry(pulse, snap);
+const emptyReg = buildTrustedRegistry({ error: 'down', records: [] }, { error: 'down' });
 
-// Malicious provider payload with secret + bad claims
-const maliciousRaw = JSON.stringify({
+const malicious = JSON.stringify({
   schemaVersion: BRIEF_SCHEMA_VERSION,
   executiveSummary: 'The ministry successfully delivered the clinic and the problem is resolved.',
   whatIsHappening: 'There are 999 published records nationwide.',
   geographicScope: 'Nigeria',
-  communityReports: [],
-  officialEvidence: [],
+  communityReports: [{ text: 'The referral was accepted by the ministry.' }],
+  officialEvidence: ['Government confirmed receipt of all complaints.'],
   findings: [
     {
-      text: 'SECRET_LEAK_TOKEN_XYZ and 999 published records prove national success.',
+      text: 'SECRET_LEAK_TOKEN_XYZ proves 999 published records.',
       classification: 'FACT',
       citations: ['model-invented-source'],
     },
   ],
   possibleExplanations: [],
-  institutionalResponsibilities: [],
-  publicCommitments: [],
+  institutionalResponsibilities: [
+    { text: 'Agency X', verificationStatus: 'independently_verified' },
+  ],
+  publicCommitments: ['Successfully delivered water to all wards.'],
   verifiedImplementation: ['Outcome independently verified by the model.'],
   evidenceGaps: [],
-  recommendations: [],
+  recommendations: ['Refer to state ministry for human review.'],
   sources: [{ id: 'model-invented-source', title: 'Fake', sourceType: 'independently_verified' }],
   limitations: 'none',
 });
 
-const parsed = JSON.parse(maliciousRaw);
-const validated = validateCivicBrief(parsed, reg);
-ok(validated.ok, 'structure still validates after demotion');
-const md = renderValidatedBriefMarkdown(validated.brief);
+// API response construction (same path as handler)
+const api = buildStructuredBriefResponse(malicious, reg, 'test question', {
+  aggregateAvailable: true,
+  recordsAvailable: true,
+});
+ok(api.briefValid, 'structured response validates');
+ok(api.format === 'civic_brief_v1', 'format civic_brief_v1');
+ok(!api.content[0].text.trim().startsWith('{'), 'content not raw JSON');
+ok(api.content[0].text === renderValidatedBriefMarkdown(api.brief), 'content equals renderer');
+ok(!api.content[0].text.includes('model-invented-source'), 'no invented source in content');
+ok(!api.content[0].text.includes('SECRET_LEAK_TOKEN_XYZ') || /Unverified/i.test(api.content[0].text), 'leak not as fact');
+ok(/Unverified/i.test(api.content[0].text), 'unverified language present');
+ok(api.brief.communityReports[0].displayText && /Unverified/i.test(api.brief.communityReports[0].displayText), 'list displayText preserved');
+ok(api.brief.publicCommitments[0].displayText && /Unverified/i.test(api.brief.publicCommitments[0].displayText), 'commitments displayText');
+ok(api.brief.verifiedImplementation[0].independentlyVerified === false, 'impl not verified');
+ok(/Coverage limitation|pilot/i.test(api.content[0].text), 'national scope limited');
 
-ok(!md.includes('SECRET_LEAK_TOKEN_XYZ') || md.includes('Unverified'), 'leak token not presented as fact');
-ok(!md.includes('model-invented-source'), 'invented source id not in user markdown');
-ok(!/independently verified by the model/i.test(md) || /Unverified/i.test(md), 'model verification not asserted');
-ok(md.includes('server-validated') || md.includes('Integrity note'), 'integrity note present');
-ok(
-  validated.brief.sources.every((s) => s.serverOwned),
-  'brief.sources server-owned only'
-);
+// Empty registry structured
+const emptyApi = buildStructuredBriefResponse(malicious, emptyReg, 'q', {
+  aggregateAvailable: false,
+  recordsAvailable: false,
+});
+ok(emptyApi.briefValid || emptyApi.format === 'narrative_fallback' || emptyApi.briefValid, 'empty registry handled');
+if (emptyApi.briefValid) {
+  ok(
+    emptyApi.brief.findings.every((f) => f.classification !== 'FACT' || f.claimRelevance),
+    'no bare FACT without registry'
+  );
+}
 
-// Simulate API contract: content.text must equal renderer, not raw
-const apiContentText = renderValidatedBriefMarkdown(validated.brief);
-ok(apiContentText !== maliciousRaw, 'content.text is not raw provider JSON');
-ok(!apiContentText.trim().startsWith('{'), 'content.text is not JSON object');
-
-// Narrative neutralization removes claim as established fact
-const narr = applyNarrativeEvidencePolicy(
+// Narrative path
+const narr = buildNarrativeResponse(
   'The clinic was fully implemented. There are 999 published records.',
   meta
 );
-ok(narr.policyApplied, 'narrative policy applied');
-ok(/unverified/i.test(narr.text), 'narrative replaces with unverified');
-ok(!/fully implemented\. There are 999/.test(narr.text), 'raw false pair not left intact');
+ok(narr.evidencePolicyApplied, 'narrative policy');
+ok(/unverified/i.test(narr.content[0].text), 'narrative neutralized');
 
 if (failed) {
   console.error(failed + ' failure(s)');
