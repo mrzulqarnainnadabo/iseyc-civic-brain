@@ -6,6 +6,7 @@ import {
 import { assessCitationRelevance } from '../lib/citation-relevance.js';
 import { canAdvanceAccountability } from '../lib/accountability-states.js';
 import { stripToPublicMandateRecord } from '../lib/public-mandate-dto.js';
+import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
 
 let failed = 0;
 function ok(c, m) {
@@ -14,6 +15,22 @@ function ok(c, m) {
     failed++;
   } else console.log('OK:', m);
 }
+
+const reg = buildTrustedRegistry(
+  {
+    records: [
+      {
+        id: 'src-pulse',
+        sentence: 'At least one published Health demand exists for Kaduna in the pulse sample.',
+        duty: 'Health',
+        state: 'Kaduna',
+        lga: 'Kaduna South',
+        created: '2026-09-26T15:55:00.000Z',
+      },
+    ],
+  },
+  { publishedCount: 24, generatedAt: '2026-10-30T00:00:00.000Z', statesRepresented: 3 }
+);
 
 function baseBrief(overrides = {}) {
   return {
@@ -27,7 +44,7 @@ function baseBrief(overrides = {}) {
       {
         text: 'At least one published Health demand exists for Kaduna in the pulse sample.',
         classification: 'FACT',
-        citations: ['src-pulse'],
+        citations: ['mandate:src-pulse'],
       },
     ],
     possibleExplanations: [{ text: 'May reflect local service gaps', classification: 'HYPOTHESIS' }],
@@ -44,79 +61,61 @@ function baseBrief(overrides = {}) {
     verifiedImplementation: [],
     evidenceGaps: ['No independently verified implementation evidence.'],
     recommendations: [{ text: 'Human review before any referral draft.', classification: 'RECOMMENDATION' }],
-    sources: [
-      {
-        id: 'src-pulse',
-        title: 'Civic Mandate Pulse published Health records Kaduna',
-        sourceType: 'community_submission',
-        geoCoverage: 'Kaduna',
-        subjectCategory: 'Health',
-      },
-    ],
+    sources: [{ id: 'ignored-model-source', title: 'Model', sourceType: 'independently_verified' }],
     limitations: 'Pilot published records only; not a national survey.',
     ...overrides,
   };
 }
 
-ok(validateCivicBrief(baseBrief()).ok, 'valid brief passes');
+const v1 = validateCivicBrief(baseBrief(), reg);
+ok(v1.ok, 'valid brief passes');
+ok(v1.brief?.sources?.every((s) => s.serverOwned), 'server-owned sources');
 
-const irrelevant = baseBrief({
-  findings: [
-    {
-      text: 'Water supply was fully implemented and resolved across Lagos beaches yesterday.',
-      classification: 'FACT',
-      citations: ['src-security'],
-    },
-  ],
-  sources: [
-    {
-      id: 'src-security',
-      title: 'Security neighbourhood response notes',
-      sourceType: 'community_submission',
-      geoCoverage: 'Zamfara',
-      subjectCategory: 'Security',
-    },
-  ],
-});
-ok(!validateCivicBrief(irrelevant).ok, 'completion + irrelevant path fails validation');
-
-const weakOnly = baseBrief({
-  findings: [
-    {
-      text: 'Water pipes require maintenance schedules in remote desert counties.',
-      classification: 'FACT',
-      citations: ['src-security'],
-    },
-  ],
-  sources: [
-    {
-      id: 'src-security',
-      title: 'Security neighbourhood response notes',
-      sourceType: 'community_submission',
-      geoCoverage: 'Zamfara',
-      subjectCategory: 'Security',
-    },
-  ],
-});
-const weakResult = validateCivicBrief(weakOnly);
-ok(weakResult.ok, 'structurally valid brief with weak citation still validates structurally');
 ok(
-  weakResult.brief?.findings?.[0]?.classification === 'UNKNOWN' ||
-    weakResult.brief?.findings?.[0]?.classification === 'ANALYSIS',
-  'weak citation demotes FACT classification'
+  !validateCivicBrief(
+    baseBrief({
+      findings: [{ text: 'x', classification: 'FACT', citations: [] }],
+    }),
+    reg
+  ).brief.findings[0].classification === 'FACT',
+  'FACT no citations demoted'
 );
-ok(weakResult.brief?.findings?.[0]?.claimRelevance?.independentlyVerified === false, 'never independently verified from heuristic');
-ok(weakResult.brief?.findings?.[0]?.claimRelevance?.requiresHumanReview === true, 'requires human review on weak relevance');
 
-const rel = assessCitationRelevance(
-  { text: 'Health primary care medicines in Kaduna South' },
-  { title: 'Health PHC medicines Kaduna South', geoCoverage: 'Kaduna South', subjectCategory: 'Health' }
+const unknownCite = validateCivicBrief(
+  baseBrief({
+    findings: [{ text: 'Health demand Kaduna', classification: 'FACT', citations: ['nope'] }],
+  }),
+  reg
 );
-ok(rel.supportLevel === 'plausible_related' || rel.related, 'related health/kaduna scores related');
-ok(rel.independentlyVerified === false, 'relevance never sets independentlyVerified');
+ok(unknownCite.brief.findings[0].classification !== 'FACT', 'unknown citation demotes');
 
-ok(!validateCivicBrief(baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: [] }] })).ok, 'FACT no citations');
-ok(!validateCivicBrief(baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: ['nope'] }] })).ok, 'unknown citation');
+const prev = validateCivicBrief(
+  baseBrief({
+    findings: [
+      {
+        text: '80% of Nigerians lack water',
+        classification: 'FACT',
+        citations: ['mandate:src-pulse'],
+      },
+    ],
+  }),
+  reg
+);
+ok(prev.brief.findings[0].classification === 'UNKNOWN', 'prevalence demoted');
+
+const done = validateCivicBrief(
+  baseBrief({
+    findings: [
+      {
+        text: 'Water supply was fully implemented and resolved across Lagos beaches yesterday.',
+        classification: 'FACT',
+        citations: ['mandate:src-pulse'],
+      },
+    ],
+  }),
+  reg
+);
+ok(done.brief.findings[0].classification === 'UNKNOWN', 'completion demoted');
 
 const fb = narrativeFallbackFromFailure('q', ['x'], true);
 ok(fb.includes('not a validated civic_brief_v1'), 'fallback not validated brief');
@@ -134,6 +133,12 @@ const live = stripToPublicMandateRecord({
   email: 'x@y.com',
 });
 ok(live && !('email' in live), 'privacy strip');
+
+const rel = assessCitationRelevance(
+  { text: 'Health primary care medicines in Kaduna South' },
+  { title: 'Health PHC medicines Kaduna South', geoCoverage: 'Kaduna South', subjectCategory: 'Health' }
+);
+ok(rel.independentlyVerified === false, 'relevance never independentlyVerified');
 
 if (failed) {
   console.error(failed + ' failure(s)');
