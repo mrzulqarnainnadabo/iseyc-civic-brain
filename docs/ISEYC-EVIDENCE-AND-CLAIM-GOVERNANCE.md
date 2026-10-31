@@ -1,56 +1,32 @@
 # ISEYC Evidence and Claim Governance
 
-**Status:** Institutional methodology + implemented server controls (partial).  
-**Audience:** Developers, civic researchers, moderators, partners.
+## Public presentation vs internal flags
+
+| Layer | What users see | What is retained server-side |
+|-------|----------------|------------------------------|
+| Structured brief | Markdown from `renderValidatedBriefMarkdown` only | Validated brief object with classifications |
+| Narrative | Sentence-level neutralization of high-risk claims | `evidencePolicyFlags` |
+| Raw model JSON | **Not returned** in `content.text` after validation | Discarded |
+
+Unsupported institutional completion, acknowledgement, prevalence, and false aggregates are shown as **Unverified / unknown**, not as facts with a footer disclaimer only.
+
+## Aggregate metric binding
+
+Numbers bind only through explicit patterns such as `24 published records`, `3 states`, `10 LGAs`. Cross-metric reuse of a number is rejected. Ambiguous unbound numbers require human review.
+
+## Limits of heuristics
+
+Phrase and pattern controls are not semantic entailment. They reduce unsafe presentation; they do not prove truth.
+
+## Human correction
+
+Consequential verification, referrals, and publication remain human-governed in Civic Mandate moderation. Civic Brain does not write Mandate publication state.
 
 ## Evidence categories
 
-| Category | Establishes | Does not establish | Who changes verification |
-|----------|-------------|--------------------|--------------------------|
-| **Community testimony** | What a person reported | Prevalence, official action | Human moderator (publish only) |
-| **Published community record** | Human-reviewed public text + place/duty labels | National stats, implementation, acknowledgement | ISEYC moderation workflow |
-| **Official documentary evidence** | What an institution published | Delivery unless document proves it | Designated evidence officer |
-| **Institutional commitment** | Stated intent/promise | That work occurred | Evidence officer + editorial review |
-| **Implementation evidence** | Documented works/expenditure artefacts | Successful outcomes for users | Evidence officer; dual review recommended |
-| **Independent outcome verification** | Third-party or field-verified result | Political endorsement | Named verifier + audit log |
+Community testimony · Published community record · Official documentary evidence · Institutional commitment · Implementation evidence · Independent outcome verification — each with distinct establishment limits (see prior section in history of this file).
 
-### Minimum metadata
-Publisher, title, URL/doc ref, date, geography, subject, verification status, known limitations, licence if known.
+## Implemented vs future
 
-### Conflicts & corrections
-Prefer newer verified sources; keep superseded records visible with correction notes; never delete audit history silently.
-
-## Distinctions (non-negotiable)
-
-- Report count ≠ prevalence  
-- Publication ≠ factual verification of conditions on the ground  
-- Announcement ≠ implementation  
-- Referral ≠ acknowledgement  
-- Acknowledgement ≠ delivery  
-- Implementation ≠ independently verified outcome  
-
-## Implemented in Civic Brain (code)
-
-- Server-owned registry from Pulse + intelligence only  
-- Metric-specific aggregate number checks  
-- Shared `claim-policy` for structured brief fields and narrative post-notice  
-- Model cannot set independently_verified  
-- Endpoint path policies; fail-closed bounded body read  
-
-## Not implemented (future)
-
-- Official NBS/ministry dataset ingestion  
-- Semantic entailment of citations  
-- Full narrative rewrite (currently notice + flags)  
-- Dual-control production verification UI  
-
-## Geographic coverage methodology (draft)
-
-Progressive state → LGA → ward coverage. Pilot records (e.g. Kaduna-heavy) **must not** be labelled nationally representative. Coverage dashboards must show gaps. Comparisons only when methods are comparable.
-
-## Progressive research model
-
-1. Strengthen published Mandate evidence quality.  
-2. Register official sources with update schedules.  
-3. Human-reviewed linkage of commitments to implementation artefacts.  
-4. Independent verification only with named method and date.  
+Implemented: server registry, metric pairs, shared claim policy, validated brief renderer, narrative neutralization, fail-closed body read.  
+Future: official dataset ingestion, dual-control verification UI, full semantic citation checking.

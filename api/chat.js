@@ -1,5 +1,5 @@
 /**
- * Chat — abortable independent evidence channels + shared claim policy on narrative.
+ * Chat — validated brief rendering; no raw model JSON leakage.
  */
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from '../lib/system-prompt.js';
 import { validateChatBody } from '../lib/request-validate.js';
@@ -12,6 +12,7 @@ import {
 } from '../lib/civic-evidence.js';
 import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
 import { applyNarrativeEvidencePolicy } from '../lib/claim-policy.js';
+import { renderValidatedBriefMarkdown } from '../lib/render-validated-brief.js';
 import {
   briefModeSystemAppendix,
   extractJsonBrief,
@@ -62,7 +63,6 @@ export default async function handler(req, res) {
   const briefMode = format === 'civic_brief_v1';
   const modeHint = MODE_HINTS[mode] || MODE_HINTS.civic;
 
-  // Independent abortable evidence channels
   const evidenceController = new AbortController();
   const evidenceTimer = setTimeout(() => evidenceController.abort(), 8000);
 
@@ -80,7 +80,6 @@ export default async function handler(req, res) {
     const intelP = fetchCivicIntelligence(evidenceController.signal)
       .then((r) => ({ ok: !r.error, data: r }))
       .catch((e) => ({ ok: false, data: { error: e?.message || 'INTEL_ERROR' } }));
-
     const [pulseRes, intelRes] = await Promise.all([pulseP, intelP]);
 
     if (intelRes.ok && intelRes.data && !intelRes.data.error) {
@@ -151,6 +150,7 @@ export default async function handler(req, res) {
           format: 'narrative',
           evidencePolicyApplied: policed.policyApplied,
           evidencePolicyFlags: policed.flags,
+          // Never echo raw model text separately
           evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
         });
       }
@@ -159,17 +159,21 @@ export default async function handler(req, res) {
       const validated = parsed
         ? validateCivicBrief(parsed, trustedRegistry)
         : { ok: false, errors: ['json_parse_failed'], brief: null };
+
       if (validated.ok) {
+        const safeMarkdown = renderValidatedBriefMarkdown(validated.brief);
         return res.status(200).json({
-          content: [{ type: 'text', text: result.text }],
+          content: [{ type: 'text', text: safeMarkdown }],
           brief: validated.brief,
           briefValid: true,
           provider: result.provider,
           model: result.model,
           format: 'civic_brief_v1',
+          // rawProviderText intentionally omitted
           evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
         });
       }
+
       return res.status(200).json({
         content: [
           {
