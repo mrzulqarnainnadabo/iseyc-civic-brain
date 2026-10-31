@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node scripts/verify-brain-security.mjs && node scripts/verify-routing.mjs && node scripts/verify-acceptance-contracts.mjs && node scripts/verify-civic-brief.mjs && node scripts/verify-evidence-explorer.mjs"
+    "test": "node scripts/verify-brain-security.mjs && node scripts/verify-routing.mjs && node scripts/verify-acceptance-contracts.mjs && node scripts/verify-civic-brief.mjs && node scripts/verify-evidence-explorer.mjs && node scripts/verify-public-mandate-dto.mjs && node scripts/verify-stage4-engine.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
