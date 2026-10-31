@@ -1,5 +1,5 @@
 /**
- * Chat endpoint — independent evidence fetches + trusted registry validation.
+ * Chat — abortable independent evidence channels + shared claim policy on narrative.
  */
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from '../lib/system-prompt.js';
 import { validateChatBody } from '../lib/request-validate.js';
@@ -11,6 +11,7 @@ import {
   formatRecordEvidenceBlock,
 } from '../lib/civic-evidence.js';
 import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
+import { applyNarrativeEvidencePolicy } from '../lib/claim-policy.js';
 import {
   briefModeSystemAppendix,
   extractJsonBrief,
@@ -42,31 +43,6 @@ function clientIp(req) {
   return req.socket?.remoteAddress || 'unknown';
 }
 
-async function withTimeout(promise, ms, label) {
-  let t;
-  const timeout = new Promise((_, reject) => {
-    t = setTimeout(() => reject(new Error(label + '_TIMEOUT')), ms);
-  });
-  try {
-    return await Promise.race([promise, timeout]);
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-/** Fail independently — never treat failure as empty verified data. */
-async function loadEvidenceChannels() {
-  const pulseP = fetchPublishedRecords()
-    .then((r) => ({ ok: !r.error, data: r }))
-    .catch((e) => ({ ok: false, data: { error: e?.message || 'PULSE_FETCH_ERROR', records: [] } }));
-  const intelP = fetchCivicIntelligence()
-    .then((r) => ({ ok: !r.error, data: r }))
-    .catch((e) => ({ ok: false, data: { error: e?.message || 'INTEL_FETCH_ERROR' } }));
-
-  const [pulseRes, intelRes] = await Promise.all([pulseP, intelP]);
-  return { pulseRes, intelRes };
-}
-
 export default async function handler(req, res) {
   setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -86,6 +62,10 @@ export default async function handler(req, res) {
   const briefMode = format === 'civic_brief_v1';
   const modeHint = MODE_HINTS[mode] || MODE_HINTS.civic;
 
+  // Independent abortable evidence channels
+  const evidenceController = new AbortController();
+  const evidenceTimer = setTimeout(() => evidenceController.abort(), 8000);
+
   let evidenceBlock = '[Aggregate evidence unavailable.]';
   let recordBlock = '[Published records unavailable.]';
   let evidenceMeta = { ok: false };
@@ -94,22 +74,23 @@ export default async function handler(req, res) {
   let snap = { error: 'not_loaded' };
 
   try {
-    const { pulseRes, intelRes } = await withTimeout(loadEvidenceChannels(), 9000, 'EVIDENCE');
+    const pulseP = fetchPublishedRecords(evidenceController.signal)
+      .then((r) => ({ ok: !r.error, data: r }))
+      .catch((e) => ({ ok: false, data: { error: e?.message || 'PULSE_ERROR', records: [] } }));
+    const intelP = fetchCivicIntelligence(evidenceController.signal)
+      .then((r) => ({ ok: !r.error, data: r }))
+      .catch((e) => ({ ok: false, data: { error: e?.message || 'INTEL_ERROR' } }));
+
+    const [pulseRes, intelRes] = await Promise.all([pulseP, intelP]);
+
     if (intelRes.ok && intelRes.data && !intelRes.data.error) {
       snap = intelRes.data;
       evidenceBlock = formatEvidenceBlock(snap);
-      evidenceMeta = {
-        ok: true,
-        publishedCount: snap.publishedCount,
-        generatedAt: snap.generatedAt,
-        version: snap.version,
-      };
+      evidenceMeta = { ok: true, publishedCount: snap.publishedCount, generatedAt: snap.generatedAt };
     } else {
       evidenceMeta = { ok: false, reason: intelRes.data?.error || 'unavailable' };
       evidenceBlock =
-        '[Aggregate evidence unavailable (' +
-        (evidenceMeta.reason || 'error') +
-        '). Do not invent counts.]';
+        '[Aggregate unavailable (' + (evidenceMeta.reason || 'error') + '). Do not invent counts.]';
     }
     if (pulseRes.ok && pulseRes.data && !pulseRes.data.error && pulseRes.data.records?.length) {
       pulse = pulseRes.data;
@@ -118,14 +99,11 @@ export default async function handler(req, res) {
     } else {
       recordsMeta = { ok: false, count: 0, reason: pulseRes.data?.error || 'empty' };
       recordBlock =
-        '[Published records unavailable (' +
-        (recordsMeta.reason || 'error') +
-        '). Do not invent record ids.]';
+        '[Records unavailable (' + (recordsMeta.reason || 'error') + '). Do not invent ids.]';
       pulse = pulseRes.data || { error: 'unavailable', records: [] };
     }
-  } catch (e) {
-    evidenceMeta = { ok: false, reason: e?.message || 'fetch_error' };
-    recordsMeta = { ok: false, count: 0, reason: e?.message || 'fetch_error' };
+  } finally {
+    clearTimeout(evidenceTimer);
   }
 
   const trustedRegistry = buildTrustedRegistry(
@@ -133,44 +111,50 @@ export default async function handler(req, res) {
     evidenceMeta.ok ? snap : { error: evidenceMeta.reason || 'unavailable' }
   );
 
-  const systemParts = [
+  const system = [
     SERVER_SYSTEM_PROMPT,
     modeHint,
     '',
-    '=== AGGREGATE EVIDENCE ===',
+    '=== AGGREGATE ===',
     evidenceBlock,
     '',
-    '=== PUBLISHED RECORDS ===',
+    '=== RECORDS ===',
     recordBlock,
     '=== END ===',
-    'Cite only server evidence ids. Never invent aggregate numbers or independent verification.',
-  ];
-  if (briefMode) systemParts.push('', briefModeSystemAppendix());
-  const system = systemParts.join('\n');
+    'Cite only server ids. Never invent aggregate numbers or independent verification.',
+    briefMode ? briefModeSystemAppendix() : '',
+  ].join('\n');
 
   const providers = [];
-  if (process.env.GROQ_API_KEY) providers.push(() => callGroq(process.env.GROQ_API_KEY, messages, system));
+  if (process.env.GROQ_API_KEY) providers.push((sig) => callGroq(process.env.GROQ_API_KEY, messages, system, sig));
   if (process.env.ANTHROPIC_API_KEY)
-    providers.push(() => callAnthropic(process.env.ANTHROPIC_API_KEY, messages, system));
-  if (process.env.XAI_API_KEY) providers.push(() => callXAI(process.env.XAI_API_KEY, messages, system));
+    providers.push((sig) => callAnthropic(process.env.ANTHROPIC_API_KEY, messages, system, sig));
+  if (process.env.XAI_API_KEY) providers.push((sig) => callXAI(process.env.XAI_API_KEY, messages, system, sig));
   if (!providers.length) {
     return res.status(503).json({ error: 'NO_PROVIDER', message: 'No AI provider configured.' });
   }
 
   const lastUser = messages[messages.length - 1]?.content || '';
   for (const run of providers) {
+    const providerController = new AbortController();
+    const providerTimer = setTimeout(() => providerController.abort(), PROVIDER_TIMEOUT_MS);
     try {
-      const result = await withTimeout(run(), PROVIDER_TIMEOUT_MS, 'PROVIDER');
+      const result = await run(providerController.signal);
       if (!result.ok) continue;
+
       if (!briefMode) {
+        const policed = applyNarrativeEvidencePolicy(result.text, trustedRegistry.aggregateMeta);
         return res.status(200).json({
-          content: [{ type: 'text', text: result.text }],
+          content: [{ type: 'text', text: policed.text }],
           provider: result.provider,
           model: result.model,
           format: 'narrative',
+          evidencePolicyApplied: policed.policyApplied,
+          evidencePolicyFlags: policed.flags,
           evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
         });
       }
+
       const parsed = extractJsonBrief(result.text);
       const validated = parsed
         ? validateCivicBrief(parsed, trustedRegistry)
@@ -206,7 +190,9 @@ export default async function handler(req, res) {
         evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
       });
     } catch (err) {
-      console.error('Provider path error:', err?.message || 'provider_error');
+      console.error('Provider path error:', err?.name || 'provider_error');
+    } finally {
+      clearTimeout(providerTimer);
     }
   }
   return res.status(502).json({ error: 'PROVIDER_UNAVAILABLE', message: 'Assistant unavailable.' });
@@ -223,7 +209,7 @@ function evidencePayload(evidenceMeta, recordsMeta, registry) {
   };
 }
 
-async function callGroq(apiKey, messages, system) {
+async function callGroq(apiKey, messages, system, signal) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
   for (const model of GROQ_MODELS) {
@@ -231,6 +217,7 @@ async function callGroq(apiKey, messages, system) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
       body: JSON.stringify({ model, messages: openAIMessages, max_tokens: MAX_OUTPUT_TOKENS, temperature: 0.4 }),
+      signal,
     });
     const raw = await upstream.text();
     let data;
@@ -246,7 +233,7 @@ async function callGroq(apiKey, messages, system) {
   return { ok: false, error: 'groq_error', provider: 'groq' };
 }
 
-async function callAnthropic(apiKey, messages, system) {
+async function callAnthropic(apiKey, messages, system, signal) {
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -260,6 +247,7 @@ async function callAnthropic(apiKey, messages, system) {
       system,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     }),
+    signal,
   });
   const raw = await upstream.text();
   let data;
@@ -274,7 +262,7 @@ async function callAnthropic(apiKey, messages, system) {
   return { ok: true, text: textBlock.text, model: data.model || 'claude', provider: 'anthropic' };
 }
 
-async function callXAI(apiKey, messages, system) {
+async function callXAI(apiKey, messages, system, signal) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
   const upstream = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -286,6 +274,7 @@ async function callXAI(apiKey, messages, system) {
       max_tokens: MAX_OUTPUT_TOKENS,
       temperature: 0.4,
     }),
+    signal,
   });
   const raw = await upstream.text();
   let data;
