@@ -72,30 +72,20 @@ ok(v1.ok, 'valid brief passes');
 ok(v1.brief?.sources?.every((s) => s.serverOwned), 'server-owned sources');
 
 const noCite = validateCivicBrief(
-  baseBrief({
-    findings: [{ text: 'x', classification: 'FACT', citations: [] }],
-  }),
+  baseBrief({ findings: [{ text: 'x', classification: 'FACT', citations: [] }] }),
   reg
 );
 ok(noCite.brief.findings[0].classification !== 'FACT', 'FACT no citations demoted');
 
 const unknownCite = validateCivicBrief(
-  baseBrief({
-    findings: [{ text: 'Health demand Kaduna', classification: 'FACT', citations: ['nope'] }],
-  }),
+  baseBrief({ findings: [{ text: 'Health demand Kaduna', classification: 'FACT', citations: ['nope'] }] }),
   reg
 );
 ok(unknownCite.brief.findings[0].classification !== 'FACT', 'unknown citation demotes');
 
 const prev = validateCivicBrief(
   baseBrief({
-    findings: [
-      {
-        text: '80% of Nigerians lack water',
-        classification: 'FACT',
-        citations: ['mandate:src-pulse'],
-      },
-    ],
+    findings: [{ text: '80% of Nigerians lack water', classification: 'FACT', citations: ['mandate:src-pulse'] }],
   }),
   reg
 );
@@ -116,9 +106,12 @@ const done = validateCivicBrief(
 ok(done.brief.findings[0].classification === 'UNKNOWN', 'completion demoted');
 
 const fb = narrativeFallbackFromFailure('q', ['x'], true);
-ok(fb.includes('not a validated civic_brief_v1'), 'fallback not validated brief');
+ok(fb.toLowerCase().includes('not a validated civic_brief_v1'), 'fallback not validated brief');
 
-ok(canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'model' }).ok === false, 'model cannot verify outcome');
+ok(
+  canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'model' }).ok === false,
+  'model cannot verify outcome'
+);
 
 const live = stripToPublicMandateRecord({
   id: '4005db88ef468116ae20ec69bc81b114',
