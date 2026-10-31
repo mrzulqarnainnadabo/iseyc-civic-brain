@@ -71,15 +71,13 @@ const v1 = validateCivicBrief(baseBrief(), reg);
 ok(v1.ok, 'valid brief passes');
 ok(v1.brief?.sources?.every((s) => s.serverOwned), 'server-owned sources');
 
-ok(
-  !validateCivicBrief(
-    baseBrief({
-      findings: [{ text: 'x', classification: 'FACT', citations: [] }],
-    }),
-    reg
-  ).brief.findings[0].classification === 'FACT',
-  'FACT no citations demoted'
+const noCite = validateCivicBrief(
+  baseBrief({
+    findings: [{ text: 'x', classification: 'FACT', citations: [] }],
+  }),
+  reg
 );
+ok(noCite.brief.findings[0].classification !== 'FACT', 'FACT no citations demoted');
 
 const unknownCite = validateCivicBrief(
   baseBrief({
