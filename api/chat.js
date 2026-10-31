@@ -1,5 +1,5 @@
 /**
- * Chat — validated brief rendering; no raw model JSON leakage.
+ * Chat — validated brief rendering via buildStructuredBriefResponse; no raw model leakage.
  */
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from '../lib/system-prompt.js';
 import { validateChatBody } from '../lib/request-validate.js';
@@ -11,14 +11,11 @@ import {
   formatRecordEvidenceBlock,
 } from '../lib/civic-evidence.js';
 import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
-import { applyNarrativeEvidencePolicy } from '../lib/claim-policy.js';
-import { renderValidatedBriefMarkdown } from '../lib/render-validated-brief.js';
 import {
-  briefModeSystemAppendix,
-  extractJsonBrief,
-  validateCivicBrief,
-  narrativeFallbackFromFailure,
-} from '../lib/civic-brief-engine.js';
+  buildStructuredBriefResponse,
+  buildNarrativeResponse,
+} from '../lib/civic-brief-response.js';
+import { briefModeSystemAppendix } from '../lib/civic-brief-engine.js';
 
 const PROVIDER_TIMEOUT_MS = 25000;
 const MAX_OUTPUT_TOKENS = 1024;
@@ -142,53 +139,21 @@ export default async function handler(req, res) {
       if (!result.ok) continue;
 
       if (!briefMode) {
-        const policed = applyNarrativeEvidencePolicy(result.text, trustedRegistry.aggregateMeta);
+        const body = buildNarrativeResponse(result.text, trustedRegistry.aggregateMeta);
         return res.status(200).json({
-          content: [{ type: 'text', text: policed.text }],
+          ...body,
           provider: result.provider,
           model: result.model,
-          format: 'narrative',
-          evidencePolicyApplied: policed.policyApplied,
-          evidencePolicyFlags: policed.flags,
-          // Never echo raw model text separately
           evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
         });
       }
 
-      const parsed = extractJsonBrief(result.text);
-      const validated = parsed
-        ? validateCivicBrief(parsed, trustedRegistry)
-        : { ok: false, errors: ['json_parse_failed'], brief: null };
-
-      if (validated.ok) {
-        const safeMarkdown = renderValidatedBriefMarkdown(validated.brief);
-        return res.status(200).json({
-          content: [{ type: 'text', text: safeMarkdown }],
-          brief: validated.brief,
-          briefValid: true,
-          provider: result.provider,
-          model: result.model,
-          format: 'civic_brief_v1',
-          // rawProviderText intentionally omitted
-          evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
-        });
-      }
-
+      const body = buildStructuredBriefResponse(result.text, trustedRegistry, lastUser, {
+        aggregateAvailable: evidenceMeta.ok,
+        recordsAvailable: recordsMeta.ok,
+      });
       return res.status(200).json({
-        content: [
-          {
-            type: 'text',
-            text: narrativeFallbackFromFailure(
-              lastUser,
-              validated.errors,
-              evidenceMeta.ok || recordsMeta.ok
-            ),
-          },
-        ],
-        brief: null,
-        briefValid: false,
-        briefErrors: validated.errors,
-        format: 'narrative_fallback',
+        ...body,
         provider: result.provider,
         model: result.model,
         evidence: evidencePayload(evidenceMeta, recordsMeta, trustedRegistry),
