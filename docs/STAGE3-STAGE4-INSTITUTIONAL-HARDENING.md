@@ -1,18 +1,18 @@
-# Stage 3+4 Institutional Hardening (review corrections applied)
+# Institutional hardening — final corrective pass notes
 
 **Branch:** `feat/stage4-institutional-hardening`
 
-## Review fixes
+## Implemented controls
 
-1. **Aggregate numerical claims** — `lib/aggregate-claims.js` compares claimed numbers to `registry.aggregateMeta` (publishedCount, states, LGAs, duties, pulseTotal). Mismatches demoted; national/trend language blocked.
-2. **Endpoint policies** — `validateSourceUrl(url, 'pulse'|'intelligence'|'mandateRecord')` enforces exact paths, no query/fragment/port/userinfo, fixed host.
-3. **Streaming body limit** — `readBodyWithLimit` counts bytes while reading; aborts over max; Content-Length advisory only.
-4. **Field-level claims** — `claim-guards.js` scans verifiedImplementation, publicCommitments, officialEvidence, communityReports, responsibilities.
-5. **Independent fetches** — chat loads Pulse and intelligence separately; partial registry + `unavailableEvidence`.
-6. **Citations** — malformed entries rejected; only server registry IDs retained; model sources discarded.
+1. Metric-specific aggregates (`lib/aggregate-claims.js`)  
+2. Common claim policy (`lib/claim-policy.js`) on full brief + narrative  
+3. Fail-closed bounded body read (no unbounded arrayBuffer path)  
+4. AbortSignal on evidence + provider fetches  
+5. Narrative cannot bypass policy (server notice + flags)  
+6. Expanded adversarial tests  
 
-## Limits
+## Explicit non-claims
 
-Semantic entailment not solved. Structured brief API-only. Not production-approved until founder merge.
+Phrase filters ≠ semantic truth. Narrative policy appends notices; it does not fully rewrite model prose. Official source ingestion not in this branch.
 
-## main not merged · production not deployed
+main not merged · production not deployed.

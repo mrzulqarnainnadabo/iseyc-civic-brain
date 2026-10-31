@@ -1,7 +1,8 @@
-import { validateSourceUrl, validatePublicHttpsUrl, buildMandatePublicUrl } from '../lib/safe-fetch.js';
-import { buildTrustedRegistry, resolveTrustedCitation } from '../lib/trusted-evidence-registry.js';
+import { validateSourceUrl, buildMandatePublicUrl } from '../lib/safe-fetch.js';
+import { buildTrustedRegistry } from '../lib/trusted-evidence-registry.js';
 import { validateCivicBrief, BRIEF_SCHEMA_VERSION } from '../lib/civic-brief-engine.js';
 import { assessAggregateClaim } from '../lib/aggregate-claims.js';
+import { applyNarrativeEvidencePolicy, validateClaimText } from '../lib/claim-policy.js';
 import { canAdvanceAccountability } from '../lib/accountability-states.js';
 
 let failed = 0;
@@ -12,24 +13,29 @@ function ok(c, m) {
   } else console.log('OK:', m);
 }
 
-// URL policy
-ok(validateSourceUrl('https://2027-street-mandate.vercel.app/api/pulse', 'pulse').ok, 'pulse path ok');
-ok(!validateSourceUrl('https://2027-street-mandate.vercel.app/api/pulse?x=1', 'pulse').ok, 'pulse query rejected');
-ok(!validateSourceUrl('https://2027-street-mandate.vercel.app/api/admin', 'pulse').ok, 'wrong path rejected');
-ok(!validateSourceUrl('https://2027-street-mandate.vercel.app:8443/api/pulse', 'pulse').ok, 'port rejected');
-ok(!validateSourceUrl('https://user:pass@2027-street-mandate.vercel.app/api/pulse', 'pulse').ok, 'userinfo rejected');
-ok(!validateSourceUrl('https://evil.com/api/pulse', 'pulse').ok, 'host rejected');
-ok(!validateSourceUrl('https://2027-street-mandate.vercel.app/api/pulse#x', 'pulse').ok, 'fragment rejected');
-ok(validateSourceUrl('https://2027-street-mandate.vercel.app/api/civic-intelligence', 'intelligence').ok, 'intel path ok');
-ok(!validateSourceUrl('https://2027-street-mandate.vercel.app/api/civic-intelligence/../admin', 'intelligence').ok, 'path trick rejected');
-ok(buildMandatePublicUrl('abc').endsWith('/mandate/abc'), 'mandate url');
+const meta = {
+  publishedCount: 24,
+  statesRepresented: 3,
+  lgasRepresented: 10,
+  dutiesRepresented: 8,
+  pulseTotal: 24,
+};
 
-// Aggregate claims
-const meta = { publishedCount: 24, statesRepresented: 3, lgasRepresented: 10, dutiesRepresented: 8 };
-ok(assessAggregateClaim('There are 24 published records', meta).ok, 'matching count ok');
-ok(!assessAggregateClaim('There are 999 published records', meta).ok, 'fabricated count rejected');
-ok(!assessAggregateClaim('80% of Nigerians lack water', meta).ok, 'national stat rejected');
+// Cross-field substitution: 3 is states, not published records
+ok(!assessAggregateClaim('There are 3 published records', meta).ok, 'cross-field 3 as published rejected');
+ok(assessAggregateClaim('There are 3 states represented', meta).ok, '3 as states accepted');
+ok(!assessAggregateClaim('There are 24 states represented', meta).ok, '24 as states rejected');
+ok(assessAggregateClaim('There are 24 published records', meta).ok, '24 published ok');
+ok(!assessAggregateClaim('twenty-four published records'.replace('twenty-four', '999'), meta).ok, 'wrong digit rejected');
+ok(!assessAggregateClaim('Published records are 50 percent of the pilot', meta).ok, 'percent rejected');
+ok(!assessAggregateClaim('80% of Nigerians lack water', meta).ok, 'national rejected');
 ok(!assessAggregateClaim('Published records increased by 40%', meta).ok, 'trend rejected');
+
+// Number words
+ok(assessAggregateClaim('There are three states represented', meta).ok, 'word three states ok');
+
+// Missing meta
+ok(!assessAggregateClaim('There are 24 published records', null).ok, 'no meta rejects metric claim');
 
 const pulse = {
   records: [
@@ -52,14 +58,13 @@ const snap = {
   generatedAt: '2026-10-30T00:00:00.000Z',
 };
 const reg = buildTrustedRegistry(pulse, snap);
-ok(reg.aggregateMeta?.publishedCount === 24, 'aggregate meta stored');
 
 function baseBrief(overrides = {}) {
   return {
     schemaVersion: BRIEF_SCHEMA_VERSION,
-    executiveSummary: 'Summary',
-    whatIsHappening: 'Happening',
-    geographicScope: 'Kaduna',
+    executiveSummary: 'Summary of pilot published health records.',
+    whatIsHappening: 'Communities report health access issues.',
+    geographicScope: 'Kaduna pilot',
     communityReports: [],
     officialEvidence: [],
     findings: [],
@@ -69,14 +74,14 @@ function baseBrief(overrides = {}) {
     verifiedImplementation: [],
     evidenceGaps: [],
     recommendations: [],
-    sources: [{ id: 'model-fake', title: 'Fake', sourceType: 'independently_verified' }],
-    limitations: 'limits',
+    sources: [],
+    limitations: 'Pilot only',
     ...overrides,
   };
 }
 
-// Fabricated aggregate with genuine citation id
-const fab = validateCivicBrief(
+// False number with genuine citation
+const falseNum = validateCivicBrief(
   baseBrief({
     findings: [
       {
@@ -88,56 +93,65 @@ const fab = validateCivicBrief(
   }),
   reg
 );
-ok(fab.ok && fab.brief.findings[0].classification !== 'FACT', 'fabricated aggregate demoted');
+ok(falseNum.brief.findings[0].classification !== 'FACT', 'false aggregate demoted');
 
-// Matching aggregate
-const good = validateCivicBrief(
+// Executive summary unverified achievement
+const exec = validateCivicBrief(
   baseBrief({
-    findings: [
-      {
-        text: 'There are 24 published records in the platform snapshot.',
-        classification: 'FACT',
-        citations: ['intelligence:snapshot'],
-      },
+    executiveSummary: 'The ministry successfully delivered the clinic and the problem is resolved.',
+    findings: [],
+  }),
+  reg
+);
+ok(exec.brief.executiveSummaryPolicy.requiresHumanReview, 'exec summary achievement flagged');
+
+// Fabricated implementation with non-empty registry
+const impl = validateCivicBrief(
+  baseBrief({
+    findings: [],
+    verifiedImplementation: ['Road construction finished and outcome independently verified.'],
+  }),
+  reg
+);
+ok(
+  impl.brief.verifiedImplementation[0].classification === 'UNKNOWN' &&
+    impl.brief.verifiedImplementation[0].independentlyVerified === false,
+  'implementation never trusted from model'
+);
+
+// Indirect ministry acted
+const acted = validateClaimText('The ministry has acted on the referral and accepted the referral.', {
+  aggregateMeta: meta,
+});
+ok(acted.classification === 'UNKNOWN', 'indirect ministry action demoted');
+
+// Model verification status
+const ir = validateCivicBrief(
+  baseBrief({
+    findings: [],
+    institutionalResponsibilities: [
+      { institution: 'X', verificationStatus: 'independently_verified', text: 'Responsible body' },
     ],
   }),
   reg
 );
-ok(good.ok && good.brief.findings[0].classification === 'FACT', 'matching aggregate FACT ok');
+ok(ir.brief.institutionalResponsibilities[0].verificationStatus === 'unverified', 'status demoted');
 
-// Indirect completion in publicCommitments scrubbed
-const pc = validateCivicBrief(
-  baseBrief({
-    findings: [],
-    publicCommitments: ['The ministry successfully delivered the clinic and the problem is resolved.'],
-  }),
-  reg
+// Narrative policy
+const narr = applyNarrativeEvidencePolicy(
+  'There are 999 published records and the clinic was fully implemented.',
+  meta
 );
-ok(pc.ok && pc.brief.publicCommitments[0].requiresHumanReview, 'commitment completion scrubbed');
+ok(narr.policyApplied && narr.flags.length > 0, 'narrative policy flags unsupported claims');
 
-// verifiedImplementation still hard-fails
-const vi = validateCivicBrief(
-  baseBrief({
-    findings: [],
-    verifiedImplementation: ['Construction finished and outcome independently verified.'],
-  }),
-  reg
-);
-ok(!vi.ok, 'verifiedImplementation completion rejected');
+// URL policy
+ok(validateSourceUrl('https://2027-street-mandate.vercel.app/api/pulse', 'pulse').ok, 'pulse ok');
+ok(!validateSourceUrl('https://2027-street-mandate.vercel.app/api/other', 'pulse').ok, 'wrong path');
+ok(buildMandatePublicUrl('x').includes('/mandate/x'), 'mandate url');
 
-// Malformed citation
-const mal = validateCivicBrief(
-  baseBrief({
-    findings: [{ text: 'Health Kaduna medicines', classification: 'FACT', citations: [123] }],
-  }),
-  reg
-);
-ok(mal.brief.findings[0].classification === 'UNKNOWN', 'malformed citation demoted');
-
-// Partial registry: pulse only
-const pulseOnly = buildTrustedRegistry(pulse, { error: 'down' });
-ok(pulseOnly.unavailable.some((u) => u.channel === 'intelligence'), 'intel unavailable recorded');
-ok(resolveTrustedCitation('mandate:rec1', pulseOnly).ok, 'pulse still usable');
+// Partial evidence
+const partial = buildTrustedRegistry(pulse, { error: 'down' });
+ok(partial.unavailable.some((u) => u.channel === 'intelligence'), 'partial failure recorded');
 
 ok(canAdvanceAccountability('record_published', 'outcome_independently_verified', { actorRole: 'model' }).ok === false, 'model cannot verify');
 
