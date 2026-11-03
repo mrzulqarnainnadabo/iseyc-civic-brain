@@ -12,6 +12,8 @@ const ws = readFileSync(join(root, "src/components/EvidenceWorkspace.jsx"), "utf
 ok(ws.includes("EvidenceExplorer"), "EvidenceWorkspace mounts EvidenceExplorer");
 const api = readFileSync(join(root, "api/public-records.js"), "utf8");
 ok(api.includes("published-only") || api.includes("Published"), "API documents published-only");
-ok(api.includes("publicUrl"), "API returns publicUrl");
+const lib = readFileSync(join(root, "lib/public-mandate-record.js"), "utf8");
+ok(api.includes("voicesToPublicMandateRecords") || api.includes("publicUrl"), "API maps published voices");
+ok(lib.includes("publicUrl"), "DTO includes publicUrl");
 if (failed) process.exit(1);
 console.log("Evidence explorer checks passed.");
