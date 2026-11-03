@@ -1,8 +1,9 @@
 /**
  * Published-only public records proxy for Civic Brain UI.
- * Server-side fetch avoids relying on browser CORS alone.
- * Never returns unpublished Notion data.
+ * Server-side fetch of Civic Mandate /api/pulse. Allowlist DTO only.
  */
+import { voicesToPublicMandateRecords, PUBLIC_MANDATE_SCHEMA_VERSION } from '../lib/public-mandate-record.js';
+
 const PULSE_URL =
   process.env.CIVIC_MANDATE_PULSE_URL ||
   'https://2027-street-mandate.vercel.app/api/pulse';
@@ -34,18 +35,10 @@ export default async function handler(req, res) {
       });
       return;
     }
-    const records = data.voices.map((v) => ({
-      id: v.id,
-      sentence: v.sentence,
-      duty: v.duty || v.mandate || null,
-      office: v.office || null,
-      state: v.state || null,
-      lga: v.lga || null,
-      created: v.created || null,
-      publicUrl: `https://2027-street-mandate.vercel.app/mandate/${v.id}`,
-    }));
+    const records = voicesToPublicMandateRecords(data.voices);
     res.status(200).json({
-      version: '1.0.0',
+      schemaVersion: PUBLIC_MANDATE_SCHEMA_VERSION,
+      version: PUBLIC_MANDATE_SCHEMA_VERSION,
       source: 'civic-mandate-pulse-published-only',
       generatedAt: new Date().toISOString(),
       total: typeof data.total === 'number' ? data.total : records.length,
@@ -55,10 +48,11 @@ export default async function handler(req, res) {
       limitations: [
         'Published records only after human ISEYC review.',
         'Pilot coverage — not a representative national survey.',
+        'Counts are published records in this dataset, not prevalence of need.',
         'Named office is as recorded on the public record, not a legal determination.',
       ],
     });
-  } catch (err) {
+  } catch {
     res.status(503).json({
       error: 'PUBLIC_RECORDS_UNAVAILABLE',
       message: 'Published Civic Mandate records could not be loaded.',
