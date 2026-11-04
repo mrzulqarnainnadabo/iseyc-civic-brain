@@ -124,7 +124,7 @@ export default function EvidenceWorkspace() {
       }
       const reply = data?.content?.find((b) => b.type === "text")?.text;
       if (reply) {
-        setMsgs((prev) => [...prev, { role: "assistant", content: reply }]);
+        setMsgs((prev) => [...prev, { role: "assistant", content: reply, evidence: data.evidence || null }]);
       } else {
         setMsgs((prev) => [
           ...prev,
@@ -243,6 +243,27 @@ export default function EvidenceWorkspace() {
                 Civic Brief
               </div>
               <Markdown text={m.content} />
+              {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
+                    INEC public evidence · {m.evidence.nationalEvidence.status}
+                  </div>
+                  {m.evidence.nationalEvidence.datasets?.map((source) => (
+                    <div key={source.datasetId} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5 }}>
+                      <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {source.title}
+                      </a>
+                      <span>· {source.referenceDate || "reference date not stated"}</span>
+                    </div>
+                  ))}
+                  {m.evidence.nationalEvidence.status === "unavailable" && (
+                    <div>No official INEC dataset was available for this answer. No substitute figures were used.</div>
+                  )}
+                  {m.evidence.nationalEvidence.status === "partial" && (
+                    <div>Partial retrieval. Only the listed datasets were used.</div>
+                  )}
+                </div>
+              )}
             </Card>
           )
         )}
@@ -319,7 +340,7 @@ export default function EvidenceWorkspace() {
       >
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 720, margin: "0 auto" }}>
           <label htmlFor="civic-q" className="sr-only">
-            Ask about published civic records
+            Ask about public civic evidence
           </label>
           <textarea
             id="civic-q"
@@ -327,7 +348,7 @@ export default function EvidenceWorkspace() {
             value={input}
             onChange={onInput}
             onKeyDown={onKey}
-            placeholder="Ask what the published record shows…"
+            placeholder="Ask what the public evidence shows…"
             disabled={busy}
             rows={1}
             style={{
