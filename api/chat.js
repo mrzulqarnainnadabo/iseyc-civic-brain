@@ -137,6 +137,12 @@ export default async function handler(req, res) {
     status: inecBundle.status,
     datasetIds: (inecBundle.datasets || []).map((dataset) => dataset.datasetId),
     sourceUrls: (inecBundle.datasets || []).map((dataset) => dataset.sourceUrl),
+    datasets: (inecBundle.datasets || []).map((dataset) => ({
+      datasetId: dataset.datasetId,
+      title: dataset.title,
+      sourceUrl: dataset.sourceUrl,
+      referenceDate: dataset.sourceReferenceDate || null,
+    })),
     fetchedAt: inecBundle.fetchedAt || new Date().toISOString(),
     errorCode: inecBundle.errorCode || null,
     limitations: inecBundle.limitations || [],
