@@ -4,7 +4,7 @@
 
 Civic Brain reads the ISEYC Observatory's public, versioned INEC evidence endpoint:
 
-`GET https://iseyc-civic-intelligence-observatory.vercel.app/api/evidence/inec?dataset=all`
+`GET https://iseyc-civic-intelligence-observator.vercel.app/api/evidence/inec?dataset=all`
 
 The endpoint is an allowlisted transcription of official INEC publications. It is not a live INEC API or a complete current nationwide voter register.
 
@@ -59,6 +59,6 @@ Optional override:
 
 Default:
 
-`https://iseyc-civic-intelligence-observatory.vercel.app/api/evidence/inec`
+`https://iseyc-civic-intelligence-observator.vercel.app/api/evidence/inec`
 
 No credentials are required for this public read-only endpoint. Never add INEC, Observatory or Notion secrets to client-side code.
