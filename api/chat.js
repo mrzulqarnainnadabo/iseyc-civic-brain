@@ -132,7 +132,7 @@ export default async function handler(req, res) {
     status: nationalEvidenceBundle.status,
     contractVersion: nationalEvidenceBundle.contractVersion || null,
     datasets: (nationalEvidenceBundle.datasets || []).map((dataset) => dataset.datasetId),
-    sourceUrl: nationalEvidenceBundle.sourceUrl || process.env.CIVIC_OBSERVATORY_INEC_EVIDENCE_URL || 'https://iseyc-civic-intelligence-observatory.vercel.app/api/evidence/inec',
+    sourceUrl: nationalEvidenceBundle.sourceUrl || process.env.CIVIC_OBSERVATORY_INEC_EVIDENCE_URL || 'https://iseyc-civic-intelligence-observator.vercel.app/api/evidence/inec',
     fetchedAt: new Date().toISOString(),
     errorCode: nationalEvidenceBundle.errorCode || null,
     limitations: nationalEvidenceBundle.limitations || [],
