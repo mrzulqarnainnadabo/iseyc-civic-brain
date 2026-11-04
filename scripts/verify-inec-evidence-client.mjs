@@ -10,6 +10,7 @@ const base = {
   contractVersion: '1.0.0',
   status: 'ok',
   publisher,
+  retrievedAt: '2026-11-04',
   methodology: 'Direct transcription of the official INEC source.',
   limitations: ['Historical or source-specific evidence; not a live INEC feed.'],
   recordCount: 1,
