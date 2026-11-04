@@ -17,10 +17,16 @@ const cr = fromCommunityRecord({
   state: 'Kaduna',
   lga: 'Chikun',
   createdAt: '2026-10-01T00:00:00.000Z',
+  sector: 'health', issueCategory: 'staffing', ward: 'Ungwan Rimi', facilityRef: null,
+  evidenceRefIds: ['evidence-1'], followUpStatus: 'under-review', relatedSuggestedIds: ['abc-2'],
 });
 assert.equal(cr.sentence, 'Fix PHC water');
 assert.equal(cr.verificationStatus, 'unverified');
 assert.equal(cr.office, 'LGA');
+assert.equal(cr.sector, 'health');
+assert.deepEqual(cr.evidenceRefIds, ['evidence-1']);
+assert.equal(cr.followUpStatus, 'under-review');
+assert.deepEqual(cr.relatedSuggestedIds, ['abc-2']);
 assert.ok(!('email' in cr));
 
 const pulse = fromPulseVoice({
