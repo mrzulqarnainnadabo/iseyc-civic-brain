@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import {
   fetchInecEvidence,
   formatInecEvidenceBlock,
@@ -108,5 +110,14 @@ assert.equal(partial.errorCode, 'UPSTREAM_UNAVAILABLE');
 const wrongPublisher = await fetchInecEvidence('PVCs collected in Nigeria', async () => json({ ...pvc2023, publisher: 'Unknown source' }));
 assert.equal(wrongPublisher.status, 'unavailable');
 assert.equal(wrongPublisher.errorCode, 'PUBLISHER_MISMATCH');
+
+const root = new URL('../', import.meta.url);
+const chatSource = fs.readFileSync(new URL('api/chat.js', root), 'utf8');
+const promptSource = fs.readFileSync(new URL('lib/system-prompt.js', root), 'utf8');
+assert.match(chatSource, /fetchInecEvidence\(latestUserMessage\)/);
+assert.match(chatSource, /nationalEvidence: inecMeta/);
+assert.match(chatSource, /NATIONAL OFFICIAL EVIDENCE \(INEC\)/);
+assert.match(promptSource, /NATIONAL OFFICIAL EVIDENCE RULES/);
+assert.match(promptSource, /Never add phase-one CVR registrations to the 2023 register/);
 
 console.log('verify-inec-evidence-client: PASS');
