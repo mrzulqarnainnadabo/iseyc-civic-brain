@@ -82,7 +82,7 @@ export default async function handler(req, res) {
   const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
   const [snapshotResult, observationResult] = await Promise.allSettled([
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
-    withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage }), 8000, 'COMMUNITY_OBSERVATIONS'),
+    withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
   ]);
 
   if (snapshotResult.status === 'fulfilled' && snapshotResult.value && !snapshotResult.value.error) {
