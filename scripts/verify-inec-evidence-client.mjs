@@ -119,4 +119,11 @@ assert.match(chatSource, /NATIONAL OFFICIAL EVIDENCE \(INEC\)/);
 assert.match(promptSource, /NATIONAL OFFICIAL EVIDENCE RULES/);
 assert.match(promptSource, /Never add phase-one CVR registrations to the 2023 register/);
 
+const unexpectedField = await fetchInecEvidence('2023 registered voters', async () => json({
+  ...pvc2023,
+  records: [{ ...pvc2023.records[0], reporterPhone: '+2348000000000' }],
+}));
+assert.equal(unexpectedField.status, 'unavailable');
+assert.equal(unexpectedField.errorCode, 'RECORD_SCHEMA_MISMATCH');
+
 console.log('verify-inec-evidence-client: PASS');
