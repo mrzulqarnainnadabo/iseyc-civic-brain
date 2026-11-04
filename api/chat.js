@@ -10,6 +10,7 @@ import { validateChatBody } from '../lib/request-validate.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 import { fetchCivicIntelligence, formatEvidenceBlock } from '../lib/civic-evidence.js';
 import { fetchPublishedCommunityObservations, formatCommunityObservationBlock } from '../lib/community-observation-client.js';
+import { fetchInecEvidence, formatInecEvidenceBlock } from '../lib/inec-evidence-client.js';
 
 const PROVIDER_TIMEOUT_MS = 25000;
 const MAX_OUTPUT_TOKENS = 1024;
@@ -117,6 +118,28 @@ export default async function handler(req, res) {
     };
   }
 
+  if (inecResult.status === 'fulfilled' && inecResult.value) {
+    inecBundle = inecResult.value;
+  } else {
+    inecBundle = {
+      status: 'unavailable',
+      datasets: [],
+      limitations: ['INEC evidence retrieval timed out or failed. No substitute data are used.'],
+      errorCode: 'INEC_EVIDENCE_RETRIEVAL_FAILED',
+    };
+  }
+
+  const inecBlock = formatInecEvidenceBlock(inecBundle);
+  const inecMeta = {
+    available: inecBundle.status === 'ready' || inecBundle.status === 'partial',
+    status: inecBundle.status,
+    datasetIds: (inecBundle.datasets || []).map((dataset) => dataset.datasetId),
+    sourceUrls: (inecBundle.datasets || []).map((dataset) => dataset.sourceUrl),
+    fetchedAt: inecBundle.fetchedAt || new Date().toISOString(),
+    errorCode: inecBundle.errorCode || null,
+    limitations: inecBundle.limitations || [],
+  };
+
   const observationBlock = formatCommunityObservationBlock(observationBundle, latestUserMessage);
   const observationMeta = {
     available: observationBundle.status === 'ready' || observationBundle.status === 'empty',
@@ -176,7 +199,7 @@ export default async function handler(req, res) {
             primarySource: evidenceMeta.primarySource ?? null,
             sourceUrl: evidenceMeta.sourceUrl ?? null,
             fetchedAt: evidenceMeta.fetchedAt ?? null,
-            communityObservations: observationMeta,
+            communityObservations: observationMeta,\n            nationalEvidence: inecMeta,
           },
         });
       }
