@@ -70,7 +70,7 @@ assert.match(block, /2023-02-05/);
 assert.match(block, /93469008/);
 assert.match(block, /registeredVoters: 4335208/);
 assert.match(block, /newEligibleVotersReported: 2782587/);
-assert.match(block, /phaseOneCountDifference/);
+assert.match(block, /Two official statements differ by two registrations/);
 assert.match(block, /not a live INEC API/);
 
 // A 2023-specific question does not silently pull in later CVR registrations.
