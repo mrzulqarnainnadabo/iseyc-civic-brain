@@ -59,7 +59,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = \`**ISEYC Civic Brain** explains public civic evidence from Civic Mandate, reviewed community observations and official-source publications.
+const INTRO = `**ISEYC Civic Brain** explains public civic evidence from Civic Mandate, reviewed community observations and official-source publications.
 
 **What you can do here**
 - Understand published community demands and reports
@@ -73,7 +73,7 @@ const INTRO = \`**ISEYC Civic Brain** explains public civic evidence from Civic 
 - See unpublished or private submissions
 - Turn partial evidence into national conclusions
 
-[Open Civic Mandate Nigeria](\${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.\`;
+[Open Civic Mandate Nigeria](${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
