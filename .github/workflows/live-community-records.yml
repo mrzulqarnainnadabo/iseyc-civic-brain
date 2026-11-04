@@ -1,6 +1,8 @@
 name: Live CommunityRecord Integration
 
 on:
+  push:
+    branches: [chore/live-community-records-smoke]
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * *'
