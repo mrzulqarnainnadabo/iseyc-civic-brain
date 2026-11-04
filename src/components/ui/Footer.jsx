@@ -31,8 +31,8 @@ export default function Footer() {
           </div>
         </div>
         <p style={{ margin: "0 0 10px", color: "rgba(247,243,233,0.78)", lineHeight: 1.45 }}>
-          Explains published Civic Mandate records and recommends institutions for human review.
-          Does not contact officials. Not a poll. Not an endorsement.
+          Explains published Civic Mandate records, reviewed community observations and official-source evidence.
+          Institutional routing is for human review only. Does not contact officials. Not a poll. Not an endorsement.
         </p>
         <p style={{ margin: "0 0 8px" }}>
           <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>
