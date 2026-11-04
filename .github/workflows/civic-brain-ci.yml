@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, feat/civic-brief-communication]
+    branches: [main, feat/civic-brief-communication, feat/community-record-consumer-v1]
 
 permissions:
   contents: read
