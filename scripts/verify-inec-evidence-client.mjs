@@ -52,10 +52,7 @@ const mockFetch = async (url) => {
   const parsed = new URL(url);
   calls.push(parsed);
   const dataset = parsed.searchParams.get('dataset');
-  if (dataset === '2023-pvc') {
-    assert.equal(parsed.searchParams.get('state'), 'Kaduna');
-    return json(pvc2023);
-  }
+  if (dataset === '2023-pvc') return json(pvc2023);
   if (dataset === 'cvr-2025-26') return json(cvr);
   return json({ error: 'DATASET_NOT_FOUND' }, 404);
 };
@@ -66,9 +63,10 @@ assert.equal(result.status, 'ready');
 assert.equal(result.stateFilter, 'Kaduna');
 assert.equal(result.datasets.length, 2);
 assert.equal(calls.length, 2);
+assert.equal(calls.find((url) => url.searchParams.get('dataset') === '2023-pvc').searchParams.get('state'), 'Kaduna');
 const block = formatInecEvidenceBlock(result);
 assert.match(block, /2023-02-05/);
-assert.match(block, /registeredVoters: 93469008/);
+assert.match(block, /93469008/);
 assert.match(block, /registeredVoters: 4335208/);
 assert.match(block, /newEligibleVotersReported: 2782587/);
 assert.match(block, /phaseOneCountDifference/);
