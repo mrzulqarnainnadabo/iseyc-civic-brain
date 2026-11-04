@@ -12,7 +12,7 @@ assert.match(chat, /communityObservations: observationMeta/);
 assert.match(chat, /Promise\.allSettled/);
 
 assert.match(prompt, /Community Observations are a separate published report stream/);
-assert.match(prompt, /Publication is editorial review, not independent verification/);
+assert.match(prompt, /This is editorial review, not independent verification/);
 assert.match(prompt, /Do not treat report volume as prevalence/);
 assert.match(prompt, /Do not use national indicators to verify a named state/);
 
