@@ -76,7 +76,7 @@ export default function Header({ tab, onTab }) {
                 lineHeight: 1.3,
               }}
             >
-              Reading companion for Civic Mandate Nigeria
+              Evidence-grounded civic explainer
             </div>
           </div>
         </div>

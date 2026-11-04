@@ -17,6 +17,16 @@ const SUGGESTIONS = [
       "Using only the current published Civic Mandate evidence, summarise totals, states represented, and main duties. Say clearly if coverage is thin and that this is pilot data.",
   },
   {
+    label: "INEC voter register and PVCs",
+    prompt:
+      "What do official INEC sources say about registered voters and PVCs? Separate the 2023 validated register from 2025–2026 CVR registrations, cite source dates, and explain what remains unknown.",
+  },
+  {
+    label: "Current CVR status",
+    prompt:
+      "What is known about the 2025–2026 Continuous Voter Registration exercise? Explain the official phase-one counts, the two-voter discrepancy, and whether a final validated national register is available.",
+  },
+  {
     label: "Health-related demands",
     prompt:
       "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses or claim referrals were sent.",
@@ -49,7 +59,21 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `**ISEYC Civic Brain** helps you understand **published** Civic Mandate Nigeria records.\n\n**What you can do here**\n- See what the pilot public record shows (counts, places, duties when available)\n- Understand limits: this is **not** a national survey\n- Get **recommendations** about responsible offices — always for **human review**, never auto-sent\n\n**What this tool cannot do**\n- Contact government for you\n- Mark a demand as resolved\n- See unpublished or private submissions\n\n[Open Civic Mandate Nigeria](${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.`;
+const INTRO = `**ISEYC Civic Brain** explains public civic evidence from Civic Mandate, reviewed community observations and official-source publications.
+
+**What you can do here**
+- Understand published community demands and reports
+- Ask about INEC voter-register and PVC figures, with source dates and limitations
+- Separate official statistics, community experience, commitments and verified outcomes
+- Identify responsible institutions for human review
+
+**What this tool cannot do**
+- Contact government for you
+- Mark a public issue as resolved
+- See unpublished or private submissions
+- Turn partial evidence into national conclusions
+
+[Open Civic Mandate Nigeria](${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
@@ -100,7 +124,7 @@ export default function EvidenceWorkspace() {
       }
       const reply = data?.content?.find((b) => b.type === "text")?.text;
       if (reply) {
-        setMsgs((prev) => [...prev, { role: "assistant", content: reply }]);
+        setMsgs((prev) => [...prev, { role: "assistant", content: reply, evidence: data.evidence || null }]);
       } else {
         setMsgs((prev) => [
           ...prev,
@@ -219,6 +243,27 @@ export default function EvidenceWorkspace() {
                 Civic Brief
               </div>
               <Markdown text={m.content} />
+              {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
+                    INEC public evidence · {m.evidence.nationalEvidence.status}
+                  </div>
+                  {m.evidence.nationalEvidence.datasets?.map((source) => (
+                    <div key={source.datasetId} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5 }}>
+                      <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {source.title}
+                      </a>
+                      <span>· {source.referenceDate || "reference date not stated"}</span>
+                    </div>
+                  ))}
+                  {m.evidence.nationalEvidence.status === "unavailable" && (
+                    <div>No official INEC dataset was available for this answer. No substitute figures were used.</div>
+                  )}
+                  {m.evidence.nationalEvidence.status === "partial" && (
+                    <div>Partial retrieval. Only the listed datasets were used.</div>
+                  )}
+                </div>
+              )}
             </Card>
           )
         )}
@@ -295,7 +340,7 @@ export default function EvidenceWorkspace() {
       >
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 720, margin: "0 auto" }}>
           <label htmlFor="civic-q" className="sr-only">
-            Ask about published civic records
+            Ask about public civic evidence
           </label>
           <textarea
             id="civic-q"
@@ -303,7 +348,7 @@ export default function EvidenceWorkspace() {
             value={input}
             onChange={onInput}
             onKeyDown={onKey}
-            placeholder="Ask what the published record shows…"
+            placeholder="Ask what the public evidence shows…"
             disabled={busy}
             rows={1}
             style={{
