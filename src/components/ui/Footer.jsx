@@ -15,11 +15,11 @@ export default function Footer() {
       <div style={{ maxWidth: 960, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <img
-            src="/iseyc-logo.svg"
-            alt="ISEYC logo"
-            width={32}
-            height={24}
-            style={{ width: 32, height: 24, objectFit: "contain", background: "var(--iseyc-cream)", borderRadius: 3 }}
+            src="/iseyc-seal.svg"
+            alt="ISEYC official seal"
+            width={34}
+            height={34}
+            style={{ width: 34, height: 34, objectFit: "contain", background: "#fff", borderRadius: "50%", border: "1px solid var(--iseyc-gold)" }}
           />
           <div>
             <p style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}>
