@@ -44,10 +44,10 @@ if (!MODE_HINTS.civic.includes("four required CIVIC BRIEF headings")) {
 }
 const header = readFileSync(new URL("../src/components/ui/Header.jsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("../src/components/EvidenceWorkspace.jsx", import.meta.url), "utf8");
-if (!header.includes('src="/iseyc-logo.svg"')) {
-  console.error("FAIL: header does not use available interim logo");
+if (!header.includes('src="/iseyc-seal.svg"') || !header.includes('alt="ISEYC official seal"')) {
+  console.error("FAIL: header does not use the official ISEYC seal");
   failed++;
-} else console.log("OK: header uses existing logo asset");
+} else console.log("OK: header uses official ISEYC seal");
 for (const label of ["What is Civic Mandate?", "What is published so far?", "Health-related demands", "How Mandate + Brain work", "Published vs resolved"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
