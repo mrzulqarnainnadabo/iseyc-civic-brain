@@ -103,6 +103,12 @@ export default function Header({ tab, onTab }) {
         </a>
       </div>
 
+      <nav aria-label="ISEYC products" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18, minHeight: 36, padding: "0 14px", borderTop: "1px solid rgba(247,243,233,0.12)", fontSize: 11, fontWeight: 700 }}>
+        <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)", textDecoration: "none" }}>Mandate</a>
+        <a href="https://iseyc-civic-brain.vercel.app" aria-current="page" style={{ color: "var(--iseyc-gold)", textDecoration: "none" }}>Brain</a>
+        <a href={OBSERVATORY_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)", textDecoration: "none" }}>Observatory</a>
+      </nav>
+
       <nav
         aria-label="Civic Brain modes"
         style={{
