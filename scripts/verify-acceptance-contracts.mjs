@@ -18,6 +18,17 @@ function assert(cond, msg) {
   }
 }
 
+const headerNav = readFileSync(new URL('../src/components/ui/Header.jsx', import.meta.url), 'utf8');
+const footerNav = readFileSync(new URL('../src/components/ui/Footer.jsx', import.meta.url), 'utf8');
+const canonicalObservatory = 'https://iseyc-civic-intelligence-observatory.vercel.app';
+for (const [label, source] of [['header', headerNav], ['footer', footerNav]]) {
+  assert(source.includes(canonicalObservatory), `${label} uses canonical Observatory hostname`);
+  assert(!source.includes('iseyc-civic-intelligence-observator.vercel.app'), `${label} excludes misspelled Observatory hostname`);
+  for (const department of ['education', 'health', 'software-technology', 'civic']) {
+    assert(source.includes(department), `${label} links ${department} department`);
+  }
+}
+
 const prompt = SERVER_SYSTEM_PROMPT.toLowerCase();
 
 const snap = sanitizeSnapshot({
