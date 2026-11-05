@@ -6,6 +6,7 @@ import { sanitizeSnapshot, formatEvidenceBlock } from '../lib/civic-evidence.js'
 import { checkRateLimit, _resetRateLimitForTests } from '../lib/rate-limit.js';
 import { SERVER_SYSTEM_PROMPT } from '../lib/system-prompt.js';
 import { readFileSync } from 'fs';
+import { getClientIp } from '../lib/client-ip.js';
 
 let failed = 0;
 function assert(cond, msg) {
@@ -83,6 +84,8 @@ for (let i = 0; i < 25; i++) {
 }
 assert(hit > 0, 'rate limit eventually triggers in-memory');
 
+assert(getClientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.77' }, socket: { remoteAddress: '127.0.0.1' } }) === '203.0.113.10', 'prefer Vercel platform client IP over forwarded chain');
+assert(getClientIp({ headers: { 'x-forwarded-for': '198.51.100.77' }, socket: { remoteAddress: '127.0.0.1' } }) === '127.0.0.1', 'ignore untrusted forwarded header when platform IP is absent');
 assert(SERVER_SYSTEM_PROMPT.includes('Published'), 'server prompt mentions Published');
 assert(SERVER_SYSTEM_PROMPT.includes('No candidate rankings'), 'server prompt bans rankings');
 const chatSrc = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8');
