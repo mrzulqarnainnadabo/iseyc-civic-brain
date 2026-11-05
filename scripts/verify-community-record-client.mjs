@@ -123,4 +123,35 @@ assert.equal(paged.records.length, 2);
 assert.equal(paged.truncated, true);
 assert.ok(paged.limitations.some((x) => /upstream published feed is truncated/.test(x)));
 
+
+import { formatCommunityRecordsBlock } from '../lib/community-record-client.js';
+const formatted = formatCommunityRecordsBlock({
+  source: 'civic-mandate-community-records-v0.1',
+  fallbackReason: null,
+  contractVersion: '0.1.0',
+  total: 1,
+  records: [{ id: 'c1', sentence: 'Published demand', duty: 'Health', office: 'LGA',
+    state: 'Kaduna', lga: 'Kaduna South', verificationStatus: 'unverified', publishedAt: '2026-10-01' }],
+  limitations: ['Not a prevalence estimate.'],
+});
+assert.match(formatted, /civic-mandate-community-records-v0.1/);
+assert.match(formatted, /verification: unverified/);
+assert.match(formatted, /Not a prevalence estimate/);
+assert.doesNotMatch(formatted, /verified outcome/i);
+
+// Both sources unavailable → explicit combined reason and unavailable code.
+const bothUnavailable = await fetchPublishedCommunityRecords(async (url) => {
+  if (String(url).includes('community-records')) return { ok: false, status: 404, json: async () => ({}) };
+  return { ok: false, status: 503, json: async () => ({}) };
+}).then(() => null, (error) => error);
+assert.equal(bothUnavailable.code, 'PUBLIC_RECORDS_UNAVAILABLE');
+assert.equal(bothUnavailable.fallbackReason, 'community_record_http_404_and_pulse_http_503');
+
+// Network failure on primary is distinguishable from HTTP failure.
+const networkFallback = await fetchPublishedCommunityRecords(async (url) => {
+  if (String(url).includes('community-records')) throw new TypeError('fetch failed');
+  return { ok: true, json: async () => ({ voices: [], total: 0, truncated: false }) };
+});
+assert.equal(networkFallback.fallbackReason, 'community_record_network_error');
+
 console.log('verify-community-record-client: PASS');
