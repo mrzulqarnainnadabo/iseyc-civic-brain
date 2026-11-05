@@ -8,6 +8,7 @@
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from '../lib/system-prompt.js';
 import { validateChatBody } from '../lib/request-validate.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { getClientIp } from '../lib/client-ip.js';
 import { fetchCivicIntelligence, formatEvidenceBlock } from '../lib/civic-evidence.js';
 import { fetchPublishedCommunityObservations, formatCommunityObservationBlock } from '../lib/community-observation-client.js';
 import { fetchInecEvidence, formatInecEvidenceBlock } from '../lib/inec-evidence-client.js';
@@ -33,12 +34,6 @@ function setCors(res, req) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-function clientIp(req) {
-  const xf = req.headers?.['x-forwarded-for'];
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim().slice(0, 64);
-  return req.socket?.remoteAddress || 'unknown';
-}
-
 async function withTimeout(promise, ms, label) {
   let t;
   const timeout = new Promise((_, reject) => {
@@ -56,7 +51,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const ip = clientIp(req);
+  const ip = getClientIp(req);
   const rl = checkRateLimit(ip);
   if (!rl.ok) {
     res.setHeader('Retry-After', String(rl.retryAfterSec || 60));
