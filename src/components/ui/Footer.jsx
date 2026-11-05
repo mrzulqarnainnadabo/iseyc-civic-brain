@@ -1,4 +1,4 @@
-const MANDATE_URL = "https://2027-street-mandate.vercel.app";
+const MANDATE_URL = "https://2027-street-mandate.vercel.app";\nconst OBSERVATORY_URL = "https://iseyc-civic-intelligence-observator.vercel.app";
 
 export default function Footer() {
   return (
@@ -34,6 +34,23 @@ export default function Footer() {
           Explains published Civic Mandate records, reviewed community observations and official-source evidence.
           Institutional routing is for human review only. Does not contact officials. Not a poll. Not an endorsement.
         </p>
+        <nav aria-label="ISEYC products and methodology" style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px", margin: "0 0 12px" }}>
+          <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>Civic Mandate</a>
+          <a href="https://iseyc-civic-brain.vercel.app" aria-current="page" style={{ color: "var(--iseyc-gold)" }}>Civic Brain</a>
+          <a href={OBSERVATORY_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>Observatory</a>
+          <a href={`${MANDATE_URL}/methodology`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>Methodology</a>
+          <a href={`${MANDATE_URL}/about`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>Non-partisan charter</a>
+        </nav>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px", margin: "0 0 12px" }}>
+          {[
+            ["Education & Capacity Building", "education"],
+            ["Health & Well-being", "health"],
+            ["Software & Technology", "software-technology"],
+            ["Civic Department", "civic"],
+          ].map(([label, department]) => (
+            <a key={department} href={`${OBSERVATORY_URL}/#/departments/${department}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>{label}</a>
+          ))}
+        </div>
         <p style={{ margin: "0 0 8px" }}>
           <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-gold-soft)" }}>
             Civic Mandate Nigeria
