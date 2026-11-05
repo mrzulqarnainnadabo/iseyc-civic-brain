@@ -1,4 +1,5 @@
-const MANDATE_URL = "https://2027-street-mandate.vercel.app";\nconst OBSERVATORY_URL = "https://iseyc-civic-intelligence-observator.vercel.app";
+const MANDATE_URL = "https://2027-street-mandate.vercel.app";
+const OBSERVATORY_URL = "https://iseyc-civic-intelligence-observator.vercel.app";
 
 /** Official ISEYC seal + institutional header. */
 export default function Header({ tab, onTab }) {
