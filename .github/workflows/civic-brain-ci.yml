@@ -23,8 +23,10 @@ jobs:
         run: npm install
       - name: Generate CI-only dependency lock for audit
         run: npm install --package-lock-only --ignore-scripts
-      - name: Audit dependency vulnerabilities
-        run: npm audit --audit-level=high
+      - name: Audit dependency vulnerabilities and report affected packages
+        run: |
+          npm audit --json > npm-audit-report.json || true
+          node -e 'const r = require("./npm-audit-report.json"); const items = Object.entries(r.vulnerabilities || {}); console.log(JSON.stringify(items.map(([name, v]) => ({ name, severity: v.severity, direct: v.isDirect, range: v.range, fixAvailable: v.fixAvailable })), null, 2)); if (items.some(([, v]) => ["high", "critical"].includes(v.severity))) process.exit(1)'
       - name: Run security and acceptance checks
         run: npm test
       - name: Build production bundle
