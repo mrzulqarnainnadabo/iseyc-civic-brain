@@ -96,14 +96,16 @@ assert.equal(pulseCalled, false);
 
 // A broken contract must fail closed rather than silently falling back.
 let fallbackCalled = false;
-await assert.rejects(fetchPublishedCommunityRecords(async (url) => {
+const invalidContractError = await fetchPublishedCommunityRecords(async (url) => {
   if (String(url).includes('community-records')) return { ok: true, json: async () => ({
     contractVersion: '9.9.9', publicationBoundary: 'published-only',
     page: 1, pageSize: 50, total: 0, totalPages: 1, records: [],
   }) };
   fallbackCalled = true;
   throw new Error('Fallback must not mask contract errors');
-}), /Unsupported CommunityRecord v0.1 response/);
+}).then(() => null, (error) => error);
+assert.match(invalidContractError.message, /Unsupported CommunityRecord v0.1 response/);
+assert.equal(invalidContractError.fallbackReason, 'community_record_invalid_contract');
 assert.equal(fallbackCalled, false);
 
 // Follow all pages and preserve the upstream completeness flag.
