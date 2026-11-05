@@ -23,7 +23,7 @@ jobs:
         run: npm install
       - name: Generate CI-only dependency lock for audit
         run: npm install --package-lock-only --ignore-scripts
-      - name: Upload generated dependency lockfile for repository pinning
+      - name: Archive generated dependency lockfile for CI audit traceability
         uses: actions/upload-artifact@v4
         with:
           name: generated-npm-lockfile
