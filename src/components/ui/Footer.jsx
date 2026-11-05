@@ -1,5 +1,5 @@
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
-const OBSERVATORY_URL = "https://iseyc-civic-intelligence-observator.vercel.app";
+const OBSERVATORY_URL = "https://iseyc-civic-intelligence-observatory.vercel.app";
 const DEPARTMENTS = [
   ["Education & Capacity Building", "education"],
   ["Health & Well-being", "health"],
