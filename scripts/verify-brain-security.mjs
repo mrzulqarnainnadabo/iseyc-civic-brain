@@ -3,7 +3,7 @@
  */
 import { validateChatBody } from '../lib/request-validate.js';
 import { sanitizeSnapshot, formatEvidenceBlock } from '../lib/civic-evidence.js';
-import { checkRateLimit, _resetRateLimitForTests } from '../lib/rate-limit.js';
+import { checkRateLimit, _resetRateLimitForTests, _getRateLimitBucketCountForTests } from '../lib/rate-limit.js';
 import { SERVER_SYSTEM_PROMPT } from '../lib/system-prompt.js';
 import { readFileSync } from 'fs';
 
@@ -82,6 +82,11 @@ for (let i = 0; i < 25; i++) {
   if (!r.ok) hit++;
 }
 assert(hit > 0, 'rate limit eventually triggers in-memory');
+
+_resetRateLimitForTests();
+for (let i = 0; i < 6000; i++) checkRateLimit('unique-client-' + i);
+assert(_getRateLimitBucketCountForTests() <= 5000, 'rate limiter bounds memory under unique-client key churn');
+_resetRateLimitForTests();
 
 assert(SERVER_SYSTEM_PROMPT.includes('Published'), 'server prompt mentions Published');
 assert(SERVER_SYSTEM_PROMPT.includes('No candidate rankings'), 'server prompt bans rankings');
