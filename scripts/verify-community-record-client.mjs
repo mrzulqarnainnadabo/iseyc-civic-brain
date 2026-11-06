@@ -2,7 +2,6 @@
 import assert from 'node:assert/strict';
 import {
   fromCommunityRecord,
-  fromPulseVoice,
   fetchPublishedCommunityRecords,
 } from '../lib/community-record-client.js';
 
@@ -42,34 +41,44 @@ assert.equal(pulse.publicationStatus, 'published');
 assert.equal(pulse.verificationStatus, 'unverified');
 assert.equal(pulse.contractVersion, null);
 
-// CommunityRecord API missing → pulse fallback
-const bundle = await fetchPublishedCommunityRecords(async (url) => {
-  if (String(url).includes('community-records')) {
-    return { ok: false, status: 404, json: async () => ({}) };
-  }
-  return {
+// CommunityRecord outage must fail closed; legacy Pulse is never requested.
+await assert.rejects(
+  fetchPublishedCommunityRecords(async () => ({ ok: false, status: 503, json: async () => ({}) })),
+  (error) => error.code === 'PUBLIC_RECORDS_UNAVAILABLE',
+);
+
+
+// A later-page outage must not return a partial feed or switch to Pulse.
+let pageCalls = 0;
+await assert.rejects(
+  fetchPublishedCommunityRecords(async (url) => {
+    const page = Number(new URL(String(url)).searchParams.get('page') || 1);
+    pageCalls++;
+    if (page === 1) return {
+      ok: true,
+      json: async () => ({
+        contractVersion: '0.1.0', publicationBoundary: 'published-only',
+        page: 1, pageSize: 50, total: 51, totalPages: 2, truncatedUpstream: false,
+        records: [],
+      }),
+    };
+    return { ok: false, status: 503, json: async () => ({}) };
+  }),
+  (error) => error.code === 'PUBLIC_RECORDS_UNAVAILABLE',
+);
+assert.equal(pageCalls, 2);
+
+// An upstream-truncated page is not accepted as a complete feed.
+await assert.rejects(
+  fetchPublishedCommunityRecords(async () => ({
     ok: true,
     json: async () => ({
-      voices: [
-        {
-          id: 'p1',
-          sentence: 'Published only',
-          duty: 'Security',
-          office: 'President',
-          state: 'Kaduna',
-          lga: 'Igabi',
-          created: '2026-10-14T00:00:00.000Z',
-        },
-      ],
-      total: 1,
-      truncated: false,
-      states: 1,
+      contractVersion: '0.1.0', publicationBoundary: 'published-only',
+      page: 1, pageSize: 50, total: 60, totalPages: 2, truncatedUpstream: true, records: [],
     }),
-  };
-});
-assert.equal(bundle.source, 'civic-mandate-pulse-published-only');
-assert.equal(bundle.records.length, 1);
-assert.equal(bundle.records[0].verificationStatus, 'unverified');
+  })),
+  /Unsupported CommunityRecord v0.1 response/,
+);
 
 // Prefer CommunityRecord when present
 const preferred = await fetchPublishedCommunityRecords(async (url) => {
