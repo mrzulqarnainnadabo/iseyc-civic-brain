@@ -85,6 +85,24 @@ const chatSrc = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8')
 assert(chatSrc.includes('SERVER_SYSTEM_PROMPT'), 'chat uses server prompt');
 assert(chatSrc.includes('fetchCivicIntelligence'), 'chat retrieves mandate evidence');
 
+
+assert(prompt.includes('no candidate rankings') && prompt.includes('endorsements'), 'refuses candidate and party ranking or endorsement requests');
+assert(prompt.includes('never invent counts') || prompt.includes('never invent') || prompt.includes('do not invent counts'), 'refuses unsupported statistics');
+assert(prompt.includes('empty or unavailable') && prompt.includes('say that precisely'), 'empty and unavailable evidence must be disclosed honestly');
+assert(prompt.includes('never claim to have contacted') && prompt.includes('sent a referral'), 'never claims a referral was sent');
+
+const markdownSrc = readFileSync(new URL('../src/components/Markdown.jsx', import.meta.url), 'utf8');
+assert(markdownSrc.includes('function inline'), 'Markdown uses a dedicated inline formatter');
+assert(markdownSrc.includes('startsWith("```")'), 'Markdown renders fenced code blocks');
+assert(markdownSrc.includes('safeHref') && markdownSrc.includes("url.protocol === 'https:'"), 'Markdown links allow HTTPS only');
+assert(markdownSrc.includes('<ol') && markdownSrc.includes('<ul'), 'Markdown renders ordered and unordered lists');
+assert(markdownSrc.includes('<blockquote'), 'Markdown renders blockquotes');
+assert(!markdownSrc.includes('dangerouslySetInnerHTML'), 'Markdown does not inject raw HTML');
+
+assert(chatSrc.includes('const system = [') && chatSrc.includes('SERVER_SYSTEM_PROMPT'), 'server composes system instructions from server-owned prompt');
+assert(chatSrc.includes('validateChatBody(req.body)'), 'chat validates client payload before provider call');
+assert(!/req\.body\s*\.\s*system/.test(chatSrc), 'chat does not accept a client-owned system prompt');
+
 if (failed) {
   console.error(`\n${failed} acceptance contract(s) failed`);
   process.exit(1);
