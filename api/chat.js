@@ -206,6 +206,7 @@ export default async function handler(req, res) {
     communityRecordsBundle,
     observationBundle,
     inecBundle,
+    query: latestUserMessage,
   });
   const trustedSourceBlock = formatTrustedBriefSources(trustedSources);
 
