@@ -1,6 +1,6 @@
 /**
  * Published-only public records proxy for Civic Brain UI.
- * Prefers CommunityRecord v0.1; falls back to pulse if unavailable.
+ * Consumes CommunityRecord v0.1 only; returns unavailable when the contract feed fails.
  * Server-side fetch. Never returns unpublished Notion data.
  * Never invents verification status beyond what the source provides.
  */
