@@ -20,7 +20,7 @@ export default function Footer() {
             style={{ width: 34, height: 34, objectFit: "contain", background: "#fff", borderRadius: "50%", border: "1px solid var(--iseyc-gold)" }} />
           <div>
             <p style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}>ISEYC Civic Brain</p>
-            <p style={{ margin: 0, fontSize: 10, color: "var(--iseyc-gold-soft)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Strictly non-partisan</p>
+            <p style={{ margin: 0, fontSize: 10, color: "var(--iseyc-gold-soft)" }}>Initiative for Sustainable Evolution for Youth and Community</p>
           </div>
         </div>
         <p style={{ margin: "0 0 12px", color: "rgba(247,243,233,0.78)", lineHeight: 1.45 }}>
@@ -50,7 +50,7 @@ export default function Footer() {
           <a href="mailto:iseycglobal@gmail.com" style={linkStyle}>Contact</a>
         </nav>
         <p style={{ margin: "14px 0 0", color: "rgba(247,243,233,0.5)", fontSize: 11 }}>
-          Understanding Public Needs. Interpreting Evidence. Strengthening Accountability.
+          
         </p>
       </div>
     </footer>
