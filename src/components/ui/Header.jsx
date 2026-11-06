@@ -37,14 +37,14 @@ export default function Header({ tab, onTab }) {
         <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{
           flexShrink: 0, minHeight: 44, display: "inline-flex", alignItems: "center",
           padding: "0 12px", borderRadius: "var(--radius-md)",
-          border: "1px solid rgba(196,163,90,0.45)", color: "var(--iseyc-gold-soft)",
+          border: "1px solid rgba(167,131,63,0.45)", color: "var(--iseyc-gold-soft)",
           textDecoration: "none", fontSize: 12, fontWeight: 600,
         }}>Mandate ↗</a>
       </div>
 
       <nav aria-label="Civic Brain modes" style={{
         display: "flex", gap: 0, maxWidth: 960, width: "100%", margin: "0 auto",
-        padding: "0 14px", borderTop: "1px solid rgba(247,243,233,0.12)",
+        padding: "0 14px", borderTop: "1px solid rgba(250,249,245,0.12)",
       }}>
         {tabs.map((t) => {
           const active = tab === t.id;
@@ -52,7 +52,7 @@ export default function Header({ tab, onTab }) {
             aria-current={active ? "page" : undefined}
             style={{
               flex: 1, minHeight: 44, border: "none", background: "transparent",
-              color: active ? "var(--iseyc-gold)" : "rgba(247,243,233,0.7)",
+              color: active ? "var(--iseyc-cream)" : "rgba(250,249,245,0.7)",
               fontWeight: active ? 700 : 500, fontSize: 13, cursor: "pointer",
               borderBottom: active ? "2px solid var(--iseyc-gold)" : "2px solid transparent",
               fontFamily: "var(--font-body)",
