@@ -196,9 +196,13 @@ export default async function handler(req, res) {
     limitations: observationBundle.limitations || [],
   };
 
-  const communityRecordsBlock = communityRecordsBundle
+  const canonicalCommunityRecordsAvailable =
+    communityRecordsBundle?.source === 'civic-mandate-community-records-v0.1' &&
+    communityRecordsBundle.contractVersion === '0.1.0' &&
+    !communityRecordsBundle.fallbackReason;
+  const communityRecordsBlock = communityRecordsBundle && (!briefMode || canonicalCommunityRecordsAvailable)
     ? formatCommunityRecordsBlock(communityRecordsBundle)
-    : '[Published CommunityRecords unavailable. Do not invent or substitute community records.]';
+    : '[Canonical published CommunityRecord v0.1 unavailable for this response. Do not use legacy pulse records or invent or substitute community records.]';
 
   const trustedSources = buildTrustedBriefSources({
     snapshot: snapshotBundle,
