@@ -7,6 +7,7 @@ import { routeMandate } from '../lib/routing-engine.js';
 import { createCaseShell, canTransition } from '../lib/referral-lifecycle.js';
 import { buildReferralBriefDraft } from '../lib/operator-review.js';
 import { checkRateLimit } from '../lib/rate-limit.js';
+import { getClientIp } from '../lib/client-ip.js';
 
 function setCors(res, req) {
   const allowed = (process.env.CIVIC_BRAIN_ALLOWED_ORIGIN || '').trim();
@@ -22,18 +23,12 @@ function setCors(res, req) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-function clientIp(req) {
-  const xf = req.headers?.['x-forwarded-for'];
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim().slice(0, 64);
-  return req.socket?.remoteAddress || 'unknown';
-}
-
 export default async function handler(req, res) {
   setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const rl = checkRateLimit('route:' + clientIp(req));
+  const rl = checkRateLimit('route:' + getClientIp(req));
   if (!rl.ok) {
     res.setHeader('Retry-After', String(rl.retryAfterSec || 60));
     return res.status(429).json({ error: 'RATE_LIMITED' });

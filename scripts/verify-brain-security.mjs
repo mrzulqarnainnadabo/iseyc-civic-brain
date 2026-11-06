@@ -6,6 +6,7 @@ import { sanitizeSnapshot, formatEvidenceBlock } from '../lib/civic-evidence.js'
 import { checkRateLimit, _resetRateLimitForTests, _getRateLimitBucketCountForTests } from '../lib/rate-limit.js';
 import { SERVER_SYSTEM_PROMPT } from '../lib/system-prompt.js';
 import { readFileSync } from 'fs';
+import { getClientIp } from '../lib/client-ip.js';
 
 let failed = 0;
 function assert(cond, msg) {
@@ -86,6 +87,8 @@ assert(hit > 0, 'rate limit eventually triggers in-memory');
 _resetRateLimitForTests();
 for (let i = 0; i < 6000; i++) checkRateLimit('unique-client-' + i);
 assert(_getRateLimitBucketCountForTests() <= 5000, 'rate limiter bounds memory under unique-client key churn');
+assert(getClientIp({ headers: { 'x-real-ip': '203.0.113.10', 'x-forwarded-for': '198.51.100.77' }, socket: { remoteAddress: '127.0.0.1' } }) === '203.0.113.10', 'prefer Vercel platform client IP over forwarded chain');
+assert(getClientIp({ headers: { 'x-forwarded-for': '198.51.100.77' }, socket: { remoteAddress: '127.0.0.1' } }) === '127.0.0.1', 'ignore untrusted forwarded header when platform IP is absent');
 _resetRateLimitForTests();
 
 assert(SERVER_SYSTEM_PROMPT.includes('Published'), 'server prompt mentions Published');
