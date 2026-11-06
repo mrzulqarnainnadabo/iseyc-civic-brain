@@ -28,7 +28,7 @@ The model cannot author the source registry.
 
 Before calling the model, the server builds a per-request allowlist from the validated evidence bundles it actually retrieved:
 
-- Canonical Civic Mandate CommunityRecord v0.1 records only. The legacy pulse compatibility fallback is excluded from structured citations.
+- Canonical Civic Mandate CommunityRecord v0.1 records only. If the canonical feed is unavailable, legacy pulse records are excluded from both the structured citation allowlist and the structured brief's evidence context.
 - Published Community Observations that passed the source client's contract and publication checks.
 - INEC datasets returned by the allowlisted ISEYC Observatory endpoint and validated against official INEC source domains.
 - The Civic Mandate aggregate snapshot, kept distinct from record-level sources.
