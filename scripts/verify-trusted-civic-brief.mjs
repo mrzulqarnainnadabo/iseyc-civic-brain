@@ -113,6 +113,7 @@ const bundles = buildTrustedBriefSources({
   evidenceMeta: { ok: true, sourceUrl: 'https://2027-street-mandate.vercel.app/api/civic-intelligence' },
   communityRecordsBundle: {
     source: 'civic-mandate-community-records-v0.1',
+    contractVersion: '0.1.0',
     records: [{ id: 'cr-001', sentence: 'PHC medicine access', duty: 'Health', state: 'Kaduna', lga: 'Kaduna South', verificationStatus: 'unverified', publicUrl: 'https://2027-street-mandate.vercel.app/mandate/cr-001' }],
   },
   observationBundle: {
