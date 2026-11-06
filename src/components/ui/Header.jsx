@@ -26,12 +26,12 @@ export default function Header({ tab, onTab }) {
         gap: 12, padding: "10px 14px", maxWidth: 960, width: "100%", margin: "0 auto",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <img src="/iseyc-seal.svg" alt="ISEYC official seal" width={44} height={44}
-            style={{ width: 44, height: 44, objectFit: "contain", flexShrink: 0, borderRadius: "50%", background: "#fff", border: "1px solid var(--iseyc-gold)" }} />
+          <img src="/iseyc-seal.svg" alt="ISEYC official seal" width={32} height={32}
+            style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0, borderRadius: "50%", background: "#fff", border: "1px solid var(--iseyc-gold)" }} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, color: "var(--iseyc-gold)", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700 }}>ISEYC</div>
             <div className="display" style={{ fontSize: 16, fontWeight: 700, color: "var(--iseyc-cream)", lineHeight: 1.15 }}>Civic Brain</div>
-            <div style={{ fontSize: 10, color: "rgba(247,243,233,0.72)", lineHeight: 1.3 }}>Evidence-grounded civic explainer</div>
+            <div style={{ fontSize: 9, color: "rgba(250,249,245,0.72)", lineHeight: 1.25, maxWidth: 270 }}>Initiative for Sustainable Evolution for Youth and Community</div>
           </div>
         </div>
         <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{
