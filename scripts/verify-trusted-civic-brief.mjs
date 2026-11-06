@@ -21,7 +21,7 @@ function brief(overrides = {}) {
     whatIsHappening: 'One published community record describes a health concern.',
     geographicScope: 'Kaduna, Kaduna South',
     limitations: 'This is a published community report, not a prevalence estimate.',
-    communityReports: [{ classification: 'COMMUNITY_REPORT', recordId: 'cr-001' }],
+    communityReports: [{ classification: 'COMMUNITY_REPORT', sourceId: 'src-community-record:cr-001', recordId: 'cr-001', text: 'MODEL-FABRICATED REPORT TEXT' }],
     officialEvidence: [],
     findings: [{
       text: 'A published Health community record describes a concern in Kaduna.',
@@ -53,6 +53,8 @@ assert.equal(valid.brief.sources[0].publisher, trusted[0].publisher);
 assert.equal(valid.brief.sources[0].sourceType, 'community_submission');
 assert.equal(valid.brief.sources[0].sourceUrl, trusted[0].sourceUrl);
 assert.equal(valid.brief.sources[0].independentVerification, false);
+assert.equal(valid.brief.communityReports[0].text, trusted[0].excerpt);
+assert.notEqual(valid.brief.communityReports[0].text, 'MODEL-FABRICATED REPORT TEXT');
 
 const invented = validateCivicBrief(brief({
   sources: [{
