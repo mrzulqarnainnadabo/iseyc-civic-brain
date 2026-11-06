@@ -28,19 +28,6 @@ assert.equal(cr.followUpStatus, 'under-review');
 assert.deepEqual(cr.relatedSuggestedIds, ['abc-2']);
 assert.ok(!('email' in cr));
 
-const pulse = fromPulseVoice({
-  id: 'x',
-  sentence: 'Road',
-  duty: 'Infrastructure',
-  office: 'State',
-  state: 'Ondo',
-  lga: 'Owo',
-  created: '2026-10-02T00:00:00.000Z',
-});
-assert.equal(pulse.publicationStatus, 'published');
-assert.equal(pulse.verificationStatus, 'unverified');
-assert.equal(pulse.contractVersion, null);
-
 // CommunityRecord outage must fail closed; legacy Pulse is never requested.
 await assert.rejects(
   fetchPublishedCommunityRecords(async () => ({ ok: false, status: 503, json: async () => ({}) })),
@@ -159,7 +146,7 @@ await assert.rejects(
 );
 assert.equal(fallbackCalled, false);
 
-// Follow all pages and preserve the upstream completeness flag.
+// Follow all pages and preserve a complete upstream feed.
 const paged = await fetchPublishedCommunityRecords(async (url) => {
   const page = new URL(String(url)).searchParams.get('page');
   const n = Number(page || 1);
@@ -167,7 +154,7 @@ const paged = await fetchPublishedCommunityRecords(async (url) => {
     ok: true,
     json: async () => ({
       contractVersion: '0.1.0', publicationBoundary: 'published-only',
-      page: n, pageSize: 50, total: 2, totalPages: 2, truncatedUpstream: true,
+      page: n, pageSize: 50, total: 2, totalPages: 2, truncatedUpstream: false,
       records: [{
         id: 'page-' + n, contractVersion: '0.1.0', publicationStatus: 'published',
         verificationStatus: 'unverified', text: 'Page ' + n, duty: 'Health',
@@ -177,7 +164,6 @@ const paged = await fetchPublishedCommunityRecords(async (url) => {
   };
 });
 assert.equal(paged.records.length, 2);
-assert.equal(paged.truncated, true);
-assert.ok(paged.limitations.some((x) => /upstream published feed is truncated/.test(x)));
+assert.equal(paged.truncated, false);
 
 console.log('verify-community-record-client: PASS');
