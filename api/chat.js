@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   }
   const { messages, mode, format } = validation.value;
   const briefMode = format === 'civic_brief_v1';
-  const modeHint = MODE_HINTS[mode] || MODE_HINTS.civic;
+  const modeHint = briefMode ? '' : (MODE_HINTS[mode] || MODE_HINTS.civic);
 
   let evidenceBlock = '';
   let snapshotBundle = null;
