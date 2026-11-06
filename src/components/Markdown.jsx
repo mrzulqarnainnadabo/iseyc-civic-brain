@@ -71,7 +71,8 @@ export default function Markdown({ text }) {
         : level === 2
           ? { fontSize: 15, fontWeight: 600, margin: "10px 0 4px", borderBottom: "1px solid var(--iseyc-border)", paddingBottom: 2 }
           : { fontSize: 12, fontWeight: 700, margin: "8px 0 2px", textTransform: "uppercase", letterSpacing: 0.4, color: "var(--iseyc-ink-secondary)" };
-      blocks.push(<div key={`h-${blocks.length}`} className="display" style={style}>{inline(heading[2])}</div>);
+      const Heading = level === 1 ? "h2" : level === 2 ? "h3" : "h4";
+      blocks.push(<Heading key={`h-${blocks.length}`} className="display" style={style}>{inline(heading[2])}</Heading>);
       return;
     }
     if (/^---+$/.test(line.trim())) { flushParagraph(); flushList(); blocks.push(<hr key={`hr-${blocks.length}`} style={{ border: 0, borderTop: "1px solid var(--iseyc-border)", margin: "12px 0" }} />); return; }
