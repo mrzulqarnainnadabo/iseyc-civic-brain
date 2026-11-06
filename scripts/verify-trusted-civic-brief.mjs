@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { validateCivicBrief, BRIEF_SCHEMA_VERSION } from '../lib/civic-brief-engine.js';
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
+import { assessCitationRelevance, applyRelevanceToFindings } from '../lib/citation-relevance.js';
 
 const trusted = [{
   id: 'src-community-record:cr-001',
@@ -57,6 +58,16 @@ assert.equal(valid.brief.sources[0].sourceUrl, trusted[0].sourceUrl);
 assert.equal(valid.brief.sources[0].independentVerification, false);
 assert.equal(valid.brief.communityReports[0].text, trusted[0].excerpt);
 assert.notEqual(valid.brief.communityReports[0].text, 'MODEL-FABRICATED REPORT TEXT');
+const plausible = assessCitationRelevance(
+  { text: 'Health community record in Kaduna' },
+  { title: 'Civic Mandate Health record', publisher: 'Civic Mandate Nigeria', geoCoverage: 'Kaduna', subjectCategory: 'Health' },
+);
+const reviewed = applyRelevanceToFindings({
+  sources: [{ id: 'src', title: 'Civic Mandate Health record', publisher: 'Civic Mandate Nigeria', geoCoverage: 'Kaduna', subjectCategory: 'Health' }],
+  findings: [{ text: 'Health community record in Kaduna', classification: 'FACT', citations: ['src'] }],
+});
+assert.ok(plausible.related);
+assert.equal(reviewed.brief.findings[0].claimRelevance.requiresHumanReview, true);
 
 const invented = validateCivicBrief(brief({
   sources: [{
