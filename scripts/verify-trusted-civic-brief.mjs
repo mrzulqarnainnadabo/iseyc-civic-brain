@@ -130,6 +130,10 @@ assert.ok(bundles.some((source) => source.id === 'src-community-observation:obs-
 assert.ok(bundles.some((source) => source.id === 'src-inec:2023-pvc'));
 assert.equal(bundles.find((source) => source.id === 'src-community-observation:obs-1').sourceUrl, 'https://2027-street-mandate.vercel.app/api/v1/community-observations');
 assert.equal(bundles.some((source) => source.independentVerification === true), false);
+const legacyPulseSources = buildTrustedBriefSources({
+  communityRecordsBundle: { source: 'civic-mandate-pulse-published-only', fallbackReason: 'community_record_http_503', records: [{ id: 'legacy-1', sentence: 'Legacy fallback record' }] },
+});
+assert.equal(legacyPulseSources.some((source) => source.recordId === 'legacy-1'), false);
 assert.ok(formatTrustedBriefSources(bundles).includes('src-inec:2023-pvc'));
 
 import { validateChatBody } from '../lib/request-validate.js';
