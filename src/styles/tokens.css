@@ -1,19 +1,19 @@
 /** ISEYC design tokens — sync with Civic Mandate. See docs/DESIGN-SYSTEM.md */
 :root {
-  --iseyc-forest: #0b3d2e;
-  --iseyc-forest-deep: #072a20;
-  --iseyc-forest-mid: #0f4d34;
-  --iseyc-gold: #c4a35a;
-  --iseyc-gold-soft: #d4bc7a;
-  --iseyc-cream: #f7f3e9;
+  --iseyc-forest: #123b2f;
+  --iseyc-forest-deep: #123b2f;
+  --iseyc-forest-mid: #194b3b;
+  --iseyc-gold: #a7833f;
+  --iseyc-gold-soft: #a7833f;
+  --iseyc-cream: #faf9f5;
   --iseyc-white: #ffffff;
-  --iseyc-ink: #0f1a16;
-  --iseyc-ink-secondary: #3d4a44;
-  --iseyc-ink-muted: #6b756f;
-  --iseyc-border: rgba(11, 61, 46, 0.14);
-  --iseyc-border-strong: rgba(11, 61, 46, 0.28);
+  --iseyc-ink: #202923;
+  --iseyc-ink-secondary: #626d65;
+  --iseyc-ink-muted: #626d65;
+  --iseyc-border: #e4e6df;
+  --iseyc-border-strong: #194b3b;
   --iseyc-surface: #ffffff;
-  --iseyc-surface-muted: #f0ebe0;
+  --iseyc-surface-muted: #e8f0ea;
   --iseyc-danger-text: #5c2a2a;
   --iseyc-danger-bg: #f5e8e8;
   --font-display: "Source Serif 4", "Newsreader", Georgia, "Times New Roman", serif;
