@@ -97,6 +97,7 @@ assert(markdownSrc.includes('startsWith("```")'), 'Markdown renders fenced code 
 assert(markdownSrc.includes('safeHref') && markdownSrc.includes('https:'), 'Markdown links allow HTTPS only');
 assert(markdownSrc.includes('<ol') && markdownSrc.includes('<ul'), 'Markdown renders ordered and unordered lists');
 assert(markdownSrc.includes('<blockquote'), 'Markdown renders blockquotes');
+assert(markdownSrc.includes('const Heading =') && markdownSrc.includes('<Heading'), 'Markdown headings use semantic h2-h4 elements');
 assert(!markdownSrc.includes('dangerouslySetInnerHTML'), 'Markdown does not inject raw HTML');
 
 assert(chatSrc.includes('const system = [') && chatSrc.includes('SERVER_SYSTEM_PROMPT'), 'server composes system instructions from server-owned prompt');
