@@ -21,14 +21,15 @@ export default function Footer() {
           <div>
             <p style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}>ISEYC Civic Brain</p>
             <p style={{ margin: 0, fontSize: 10, color: "var(--iseyc-gold-soft)", letterSpacing: "0.06em", textTransform: "uppercase" }}>Strictly non-partisan</p>
+            <p style={{ margin: "2px 0 0", fontSize: 10, color: "rgba(250,249,245,0.72)" }}>Initiative for Sustainable Evolution for Youth and Community</p>
           </div>
         </div>
-        <p style={{ margin: "0 0 12px", color: "rgba(247,243,233,0.78)", lineHeight: 1.45 }}>
+        <p style={{ margin: "0 0 12px", color: "rgba(250,249,245,0.78)", lineHeight: 1.45 }}>
           Explains published Civic Mandate records, reviewed community observations and official-source evidence.
           Institutional routing is for human review only. Does not contact officials. Not a poll. Not an endorsement.
           Publication is not independent verification.
         </p>
-        <div style={{ borderTop: "1px solid rgba(247,243,233,.14)", paddingTop: 12, marginTop: 12 }}>
+        <div style={{ borderTop: "1px solid rgba(250,249,245,.14)", paddingTop: 12, marginTop: 12 }}>
           <p style={{ margin: "0 0 8px", color: "var(--iseyc-gold)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>ISEYC digital systems</p>
           <nav aria-label="ISEYC products" style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px" }}>
             <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={linkStyle}>Civic Mandate Nigeria</a>
@@ -49,7 +50,7 @@ export default function Footer() {
           <a href="https://www.iseyc.com.ng" target="_blank" rel="noopener noreferrer" style={linkStyle}>ISEYC website</a>
           <a href="mailto:iseycglobal@gmail.com" style={linkStyle}>Contact</a>
         </nav>
-        <p style={{ margin: "14px 0 0", color: "rgba(247,243,233,0.5)", fontSize: 11 }}>
+        <p style={{ margin: "14px 0 0", color: "rgba(250,249,245,0.58)", fontSize: 11 }}>
           Understanding Public Needs. Interpreting Evidence. Strengthening Accountability.
         </p>
       </div>
