@@ -87,6 +87,47 @@ assert.ok(invented.errors.some((error) => error.includes('untrusted_source_id'))
 assert.ok(invented.errors.some((error) => error.includes('unknown_or_untrusted_citation')));
 assert.ok(invented.errors.some((error) => error.includes('completion_claim_without_independent_source')));
 
+const trustedOfficial = {
+  id: 'src-inec:2023-pvc',
+  title: 'INEC 2023 PVC collection transcription',
+  publisher: 'Independent National Electoral Commission (INEC)',
+  sourceType: 'official_source',
+  sourceUrl: 'https://www.inecnigeria.org/report.pdf',
+  referenceDate: '2023-02-05',
+  geoCoverage: 'Nigeria',
+  subjectCategory: 'PVC collection',
+  verificationStatus: 'official_source_transcription',
+  excerpt: 'Official dataset methodology from the server bundle.',
+};
+const officialValid = validateCivicBrief(brief({
+  sources: [
+    { id: trusted[0].id, title: 'Fake community source title', sourceType: 'independently_verified' },
+    { id: trustedOfficial.id, title: 'Fake INEC source title', sourceType: 'independently_verified' },
+  ],
+  officialEvidence: [{ sourceId: trustedOfficial.id, title: 'Fake title', text: 'Model-authored official evidence.' }],
+}), [...trusted, trustedOfficial]);
+assert.equal(officialValid.ok, true, JSON.stringify(officialValid.errors));
+assert.equal(officialValid.brief.officialEvidence[0].title, trustedOfficial.title);
+assert.equal(officialValid.brief.officialEvidence[0].summary, trustedOfficial.excerpt);
+assert.equal('text' in officialValid.brief.officialEvidence[0], false);
+
+const unlistedCitation = validateCivicBrief(brief({
+  sources: [],
+  findings: [{
+    text: 'A claim cites a trusted ID not declared in sources.',
+    classification: 'FACT',
+    citations: ['src-community-record:cr-001'],
+  }],
+}), trusted);
+assert.equal(unlistedCitation.ok, false);
+assert.ok(unlistedCitation.errors.some((error) => error.includes('unknown_or_untrusted_citation')));
+
+const inventedImplementation = validateCivicBrief(brief({
+  verifiedImplementation: [{ text: 'A project is now operational.' }],
+}), trusted);
+assert.equal(inventedImplementation.ok, false);
+assert.ok(inventedImplementation.errors.includes('verified_implementation_without_independent_source'));
+
 const forgedIndependent = validateCivicBrief(brief({
   findings: [{
     text: 'The programme was successfully delivered.',
@@ -140,6 +181,13 @@ assert.ok(bundles.some((source) => source.id === 'src-civic-mandate-aggregate'))
 assert.ok(bundles.some((source) => source.id === 'src-community-record:cr-001'));
 assert.ok(bundles.some((source) => source.id === 'src-community-observation:obs-1'));
 assert.ok(bundles.some((source) => source.id === 'src-inec:2023-pvc'));
+const rejectedOfficial = buildTrustedBriefSources({
+  inecBundle: {
+    status: 'ready',
+    datasets: [{ datasetId: 'fake', title: 'Fake publisher data', publisher: 'Unknown publisher', sourceUrl: 'https://not-inec.example/report.pdf' }],
+  },
+});
+assert.equal(rejectedOfficial.length, 0);
 assert.equal(bundles.find((source) => source.id === 'src-community-observation:obs-1').sourceUrl, 'https://2027-street-mandate.vercel.app/api/v1/community-observations');
 assert.equal(bundles.some((source) => source.independentVerification === true), false);
 const legacyPulseSources = buildTrustedBriefSources({
@@ -154,5 +202,11 @@ assert.equal(structuredRequest.ok, true);
 assert.equal(structuredRequest.value.format, 'civic_brief_v1');
 const unsupportedFormat = validateChatBody({ format: 'untrusted_mode', messages: [{ role: 'user', content: 'Hello' }] });
 assert.equal(unsupportedFormat.ok, false);
+
+import { readFileSync } from 'node:fs';
+const chatSource = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8');
+assert.ok(chatSource.includes('validateCivicBrief(parsed, trustedSources)'));
+assert.ok(chatSource.includes('buildTrustedBriefSources'));
+assert.ok(chatSource.includes('!briefMode || canonicalCommunityRecordsAvailable'));
 
 console.log('Trusted Civic Brief source allowlist checks passed.');
