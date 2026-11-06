@@ -12,6 +12,8 @@ const trusted = [{
   geoCoverage: 'Kaduna, Kaduna South',
   subjectCategory: 'Health',
   verificationStatus: 'unverified',
+  recordId: 'cr-001',
+  excerpt: 'A published health record exists in Kaduna.',
 }];
 
 function brief(overrides = {}) {
@@ -84,6 +86,24 @@ const forgedIndependent = validateCivicBrief(brief({
 assert.equal(forgedIndependent.ok, false);
 assert.ok(forgedIndependent.errors.some((error) => error.includes('completion_claim_without_independent_source')));
 
+const fabricatedOfficial = validateCivicBrief(brief({
+  officialEvidence: [{ sourceId: 'src-invented-official', title: 'Fake INEC report', text: 'A false official claim.' }],
+}), trusted);
+assert.equal(fabricatedOfficial.ok, false);
+assert.ok(fabricatedOfficial.errors.some((error) => error.includes('official_evidence_untrusted_source')));
+
+const fabricatedCommitment = validateCivicBrief(brief({
+  publicCommitments: [{ text: 'The ministry committed to deliver next month.' }],
+}), trusted);
+assert.equal(fabricatedCommitment.ok, false);
+assert.ok(fabricatedCommitment.errors.includes('public_commitments_require_dedicated_trusted_source'));
+
+const claimedResponsibility = validateCivicBrief(brief({
+  institutionalResponsibilities: [{ institution: 'Ministry', verificationStatus: 'verified', legalOrAdminSource: 'Model says so' }],
+}), trusted);
+assert.equal(claimedResponsibility.ok, false);
+assert.ok(claimedResponsibility.errors.some((error) => error.includes('model_cannot_verify_institutional_responsibility')));
+
 const missingAllowlist = validateCivicBrief(brief());
 assert.equal(missingAllowlist.ok, false);
 assert.ok(missingAllowlist.errors.includes('trusted_source_allowlist_missing'));
@@ -111,5 +131,12 @@ assert.ok(bundles.some((source) => source.id === 'src-inec:2023-pvc'));
 assert.equal(bundles.find((source) => source.id === 'src-community-observation:obs-1').sourceUrl, 'https://2027-street-mandate.vercel.app/api/v1/community-observations');
 assert.equal(bundles.some((source) => source.independentVerification === true), false);
 assert.ok(formatTrustedBriefSources(bundles).includes('src-inec:2023-pvc'));
+
+import { validateChatBody } from '../lib/request-validate.js';
+const structuredRequest = validateChatBody({ format: 'civic_brief_v1', messages: [{ role: 'user', content: 'What is published for Kaduna?' }] });
+assert.equal(structuredRequest.ok, true);
+assert.equal(structuredRequest.value.format, 'civic_brief_v1');
+const unsupportedFormat = validateChatBody({ format: 'untrusted_mode', messages: [{ role: 'user', content: 'Hello' }] });
+assert.equal(unsupportedFormat.ok, false);
 
 console.log('Trusted Civic Brief source allowlist checks passed.');
