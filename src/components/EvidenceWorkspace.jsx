@@ -241,6 +241,22 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national indicator was available for this question. No substitute values were used.</p>}
                 </section>
               )}
+              {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
+                <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National source snapshots · {m.evidence.observatorySnapshots.status}</div>
+                  {m.evidence.observatorySnapshots.records?.length ? (
+                    <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
+                      {m.evidence.observatorySnapshots.records.map((item) => {
+                        const href = safeEvidenceHref(item.sourceUrl);
+                        return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                          {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
+                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.referencePeriod, item.geography?.label, item.evidenceType].filter(Boolean).join(" · ")}</p>
+                        </li>;
+                      })}
+                    </ul>
+                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No curated snapshot was available for this question. No substitute values were used.</p>}
+                </section>
+              )}
             </Card>
           )
         )}
