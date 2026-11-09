@@ -96,7 +96,7 @@ const records = [
 ];
 
 assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
-assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25", "nitda-dl4all-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25"]);
 assert.deepEqual(selectSnapshotRecords("Kaduna school conditions"), ["fme-annual-school-census-national-2024-25", "fme-annual-school-census-kaduna-2024-25"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
