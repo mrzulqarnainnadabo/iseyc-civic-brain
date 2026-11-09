@@ -10,6 +10,7 @@ const DEPARTMENTS = [
 /** Official ISEYC seal, product navigation and department entry points. */
 export default function Header({ tab, onTab }) {
   const tabs = [
+    { id: "overview", label: "Intelligence" },
     { id: "evidence", label: "Ask Civic Brain" },
     { id: "routing", label: "Institutional routing" },
   ];
