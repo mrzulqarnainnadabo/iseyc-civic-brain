@@ -107,7 +107,9 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
     }
   };
 
-  const newAnalysis = () => { if (busy) return; setMsgs([{ role: "assistant", content: INTRO }]); setInput(""); setError(""); };\n\n  const onKey = (e) => {
+  const newAnalysis = () => { if (busy) return; setMsgs([{ role: "assistant", content: INTRO }]); setInput(""); setError(""); };
+
+  const onKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send(input);
