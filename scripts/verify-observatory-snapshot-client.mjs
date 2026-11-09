@@ -7,6 +7,16 @@ import {
 
 const records = [
   {
+    id: "fme-annual-school-census-2024-25", title: "Federal Ministry of Education · Annual School Census 2024/2025",
+    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
+    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
+    geography: { level: "national", label: "Nigeria" },
+    evidenceType: "Government education management information system · annual school census administrative reporting",
+    metrics: [{ label: "School reporting rate", value: "53.7%", unit: "of listed schools", period: "2024/2025", measurementType: "administrative reporting" }],
+    limitations: ["Reported administrative records only; 53.7% school reporting rate means these are not complete national totals."],
+    interpretation: "National administrative baseline only; keep reporting completeness visible.",
+  },
+  {
     id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
     publisher: "World Health Organization", sourceId: "who-gho-nigeria",
     sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
@@ -66,7 +76,7 @@ const records = [
 ];
 
 assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
-assert.deepEqual(selectSnapshotRecords("education access"), ["nitda-dl4all-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-2024-25", "nitda-dl4all-2026-10"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
 assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
