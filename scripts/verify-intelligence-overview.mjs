@@ -30,6 +30,11 @@ for (const token of [
   'Evidence discipline',
   'Civic Mandate Nigeria',
   'Civic Intelligence Observatory',
+  'Department intelligence',
+  'Education & Capacity',
+  'Health & Well-being',
+  'Software & Technology',
+  'Civic Affairs',
   'statusLabel',
 ]) assert.ok(view.includes(token), 'overview UI must include ' + token);
 
