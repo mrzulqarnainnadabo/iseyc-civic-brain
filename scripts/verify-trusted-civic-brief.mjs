@@ -190,11 +190,11 @@ const observatorySnapshotSources = buildTrustedBriefSources({
       publisher: 'World Health Organization',
       sourceId: 'who-gho-nigeria',
       sourceUrl: 'https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria',
-      referencePeriod: 'Indicator-specific · 2022–2025',
+      referencePeriod: 'Indicator-specific · 2021–2023',
       geography: { level: 'national', label: 'Nigeria' },
-      evidenceType: 'WHO statistical estimates',
-      metrics: [{ label: 'New HIV infections', value: '0.27', unit: 'per 1,000 uninfected population', period: '2025', interval: '0.21–0.39' }],
-      limitations: ['Statistical estimates, not direct counts.'],
+      evidenceType: 'WHO country profile · indicator-specific estimates and reported series',
+      metrics: [{ label: 'New HIV infections', value: '0.27', unit: 'per 1,000 uninfected population', period: '2025', interval: '77.5–153.8' }],
+      limitations: ['WHO statistical estimates; preserve uncertainty intervals and reference periods.'],
       interpretation: 'National context only.',
     }],
   },
@@ -202,7 +202,7 @@ const observatorySnapshotSources = buildTrustedBriefSources({
 assert.equal(observatorySnapshotSources.length, 1);
 assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2021-23');
 assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
-assert.match(observatorySnapshotSources[0].excerpt, /0.21–0.39/);
+assert.match(observatorySnapshotSources[0].excerpt, /77.5–153.8/);
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
