@@ -1,7 +1,6 @@
 import { fetchPublishedCommunityRecords } from '../lib/community-record-client.js';
 import { fetchPublishedCommunityObservations } from '../lib/community-observation-client.js';
 import { fetchInecEvidence } from '../lib/inec-evidence-client.js';
-import { fetchCivicIntelligence } from '../lib/civic-evidence.js';
 
 const OBSERVATORY = 'https://iseyc-civic-intelligence-observatory.vercel.app';
 
@@ -9,6 +8,8 @@ function safeStatus(value) {
   return ['ready', 'partial', 'empty', 'unavailable', 'invalid', 'incomplete', 'skipped'].includes(value)
     ? value : 'unavailable';
 }
+
+const timedFetch = (input, init = {}) => fetch(input, { ...init, signal: AbortSignal.timeout(9000) });
 
 async function fetchIndicatorCatalog() {
   const controller = new AbortController();
@@ -46,24 +47,21 @@ export default async function handler(req, res) {
   }
 
   const results = await Promise.allSettled([
-    fetchPublishedCommunityRecords(),
-    fetchPublishedCommunityObservations(),
-    fetchInecEvidence('Nigeria voter register PVC collection and Continuous Voter Registration'),
-    fetchCivicIntelligence(),
+    fetchPublishedCommunityRecords(timedFetch),
+    fetchPublishedCommunityObservations(timedFetch, { timeoutMs: 9000 }),
+    fetchInecEvidence('Nigeria voter register PVC collection and Continuous Voter Registration', timedFetch, { timeoutMs: 6000 }),
     fetchIndicatorCatalog(),
   ]);
   const value = (index) => results[index].status === 'fulfilled' ? results[index].value : null;
   const records = value(0);
   const observations = value(1);
   const inec = value(2);
-  const snapshot = value(3);
-  const indicators = value(4);
+  const indicators = value(3);
 
   const communityReady = Boolean(records && Array.isArray(records.records));
   const observationStatus = safeStatus(observations?.status);
   const inecStatus = safeStatus(inec?.status);
   const indicatorStatus = safeStatus(indicators?.status);
-  const snapshotReady = Boolean(snapshot && !snapshot.error);
 
   res.status(200).json({
     contractVersion: '1.0.0',
@@ -100,13 +98,6 @@ export default async function handler(req, res) {
         count: Array.isArray(indicators?.indicators) ? indicators.indicators.length : null,
         indicators: Array.isArray(indicators?.indicators) ? indicators.indicators : [],
         note: 'Indicator catalog availability does not mean every series has a current observation.',
-      },
-      mandateSnapshot: {
-        status: snapshotReady ? 'ready' : 'unavailable',
-        generatedAt: snapshotReady ? snapshot.generatedAt : null,
-        publishedCount: snapshotReady ? snapshot.publishedCount : null,
-        statesRepresented: snapshotReady ? snapshot.statesRepresented : null,
-        lgasRepresented: snapshotReady ? snapshot.lgasRepresented : null,
       },
     },
     systemBoundary: [
