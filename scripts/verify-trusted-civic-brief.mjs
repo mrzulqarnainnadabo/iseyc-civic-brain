@@ -185,7 +185,7 @@ const observatorySnapshotSources = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
     records: [{
-      id: 'who-nigeria-health-2025',
+      id: 'who-nigeria-health-2021-23',
       title: 'WHO · Nigeria health indicators',
       publisher: 'World Health Organization',
       sourceId: 'who-gho-nigeria',
@@ -200,7 +200,7 @@ const observatorySnapshotSources = buildTrustedBriefSources({
   },
 });
 assert.equal(observatorySnapshotSources.length, 1);
-assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2025');
+assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2021-23');
 assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
 assert.match(observatorySnapshotSources[0].excerpt, /0.21–0.39/);
 const untrustedSnapshotSource = buildTrustedBriefSources({
