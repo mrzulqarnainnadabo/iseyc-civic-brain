@@ -181,6 +181,41 @@ assert.ok(bundles.some((source) => source.id === 'src-civic-mandate-aggregate'))
 assert.ok(bundles.some((source) => source.id === 'src-community-record:cr-001'));
 assert.ok(bundles.some((source) => source.id === 'src-community-observation:obs-1'));
 assert.ok(bundles.some((source) => source.id === 'src-inec:2023-pvc'));
+const observatorySnapshotSources = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'who-nigeria-health-2025',
+      title: 'WHO · Nigeria health indicators',
+      publisher: 'World Health Organization',
+      sourceId: 'who-gho-nigeria',
+      sourceUrl: 'https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria',
+      referencePeriod: 'Indicator-specific · 2022–2025',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'WHO statistical estimates',
+      metrics: [{ label: 'New HIV infections', value: '0.27', unit: 'per 1,000 uninfected population', period: '2025', interval: '0.21–0.39' }],
+      limitations: ['Statistical estimates, not direct counts.'],
+      interpretation: 'National context only.',
+    }],
+  },
+});
+assert.equal(observatorySnapshotSources.length, 1);
+assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2025');
+assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
+assert.match(observatorySnapshotSources[0].excerpt, /0.21–0.39/);
+const untrustedSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'fake', title: 'Fake', publisher: 'Fake publisher', sourceUrl: 'https://attacker.example/fake',
+      referencePeriod: '2026', geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'fake', metrics: [{ label: 'Fake', value: '999', unit: 'people', period: '2026' }],
+      limitations: ['Untrusted'], interpretation: 'Untrusted',
+    }],
+  },
+});
+assert.equal(untrustedSnapshotSource.length, 0);
+
 const rejectedOfficial = buildTrustedBriefSources({
   inecBundle: {
     status: 'ready',
@@ -207,6 +242,9 @@ import { readFileSync } from 'node:fs';
 const chatSource = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8');
 assert.ok(chatSource.includes('validateCivicBrief(parsed, trustedSources)'));
 assert.ok(chatSource.includes('buildTrustedBriefSources'));
+assert.ok(chatSource.includes('fetchObservatorySnapshots'));
+assert.ok(chatSource.includes('observatorySnapshotsBundle'));
+assert.ok(chatSource.includes('CURATED NATIONAL SOURCE SNAPSHOTS'));
 assert.ok(chatSource.includes('!briefMode || canonicalCommunityRecordsAvailable'));
 
 console.log('Trusted Civic Brief source allowlist checks passed.');
