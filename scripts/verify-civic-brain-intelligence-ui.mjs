@@ -18,6 +18,7 @@ assert(workspace.includes("buildBoundedChatHistory(next)"), "chat sends bounded 
 assert(workspace.includes("New analysis"), "chat can reset to a new analysis");
 assert(workspace.includes("<details"), "published-record explorer is collapsible");
 assert(workspace.includes("observatoryIndicators"), "chat displays national indicator provenance");
+assert(workspace.includes("observatorySnapshots"), "chat displays curated national snapshot provenance");
 
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
@@ -27,6 +28,7 @@ assert(briefCard.includes("What remains unknown"), "structured brief exposes evi
 
 const api = read("api/chat.js");
 assert(api.includes("fetchObservatoryIndicators"), "chat retrieves Observatory national indicators");
+assert(api.includes("fetchObservatorySnapshots"), "chat retrieves curated national snapshots");
 assert(api.includes("observatoryIndicatorsBundle"), "retrieved indicator bundle is passed to source validation");
 assert(api.includes("observatoryIndicators: observatoryIndicatorsMeta"), "chat response exposes indicator provenance");
 assert(api.includes("MAX_BRIEF_OUTPUT_TOKENS = 2600"), "structured brief has a larger output budget");
@@ -34,6 +36,7 @@ assert(api.includes("briefMode ? MAX_BRIEF_OUTPUT_TOKENS : MAX_OUTPUT_TOKENS"), 
 
 const prompt = read("lib/system-prompt.js");
 assert(prompt.includes("OBSERVATORY NATIONAL INDICATOR RULES"), "server prompt includes indicator interpretation rules");
+assert(prompt.includes("OBSERVATORY CURATED NATIONAL SNAPSHOT RULES"), "server prompt includes curated snapshot interpretation rules");
 assert(prompt.includes("Never infer state, LGA, ward, facility, community or household values"), "national-only geography boundary is explicit");
 assert(prompt.includes("modelled"), "measurement types must be preserved");
 
