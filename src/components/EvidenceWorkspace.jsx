@@ -295,6 +295,31 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   )}
                 </div>
               )}
+              {m.evidence?.nationalSnapshots && m.evidence.nationalSnapshots.status !== "empty" && (
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
+                    National source snapshots · {m.evidence.nationalSnapshots.status}
+                  </div>
+                  <p style={{ margin: "0 0 8px", lineHeight: 1.5 }}>
+                    Curated source transcriptions, not live feeds. Reference period and source geography remain attached to each item.
+                  </p>
+                  {m.evidence.sources?.filter((source) => source.id?.startsWith("src-national-snapshot:")).map((source) => (
+                    <div key={source.id} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
+                      <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                        {source.title}
+                      </a>
+                      <span>· {[source.publisher, source.referenceDate, source.geoCoverage, source.sourceType?.replaceAll("_", " ")].filter(Boolean).join(" · ")}</span>
+                    </div>
+                  ))}
+                  {m.evidence.nationalSnapshots.catalogueOnly?.map((source) => (
+                    <div key={source.id} style={{ marginTop: 5 }}>
+                      <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>{source.title}</a>
+                      <span> · catalogue only; no numeric observation integrated</span>
+                    </div>
+                  ))}
+                  {m.evidence.nationalSnapshots.status === "unavailable" && <div>No curated national snapshot was available. No substitute statistics were used.</div>}
+                </div>
+              )}
             </Card>
           )
         )}
