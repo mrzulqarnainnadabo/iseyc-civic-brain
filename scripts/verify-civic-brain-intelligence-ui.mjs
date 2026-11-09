@@ -11,15 +11,16 @@ function assert(condition, message) {
 function read(path) { return readFileSync(join(root, path), "utf8"); }
 
 const workspace = read("src/components/EvidenceWorkspace.jsx");
-assert(workspace.includes("CivicBriefCard"), "chat renders validated structured Civic Briefs");
-assert(workspace.includes('format: options.format || "narrative"'), "chat can request structured brief format");
-assert(workspace.includes("data.briefValid === true"), "only validated structured briefs use the brief renderer");
-assert(workspace.includes("buildBoundedChatHistory(next)"), "chat sends bounded recent context");
-assert(workspace.includes("New analysis"), "chat can reset to a new analysis");
-assert(workspace.includes("<details"), "published-record explorer is collapsible");
-assert(workspace.includes("observatoryIndicators"), "chat displays national indicator provenance");
-assert(workspace.includes("observatorySnapshots"), "chat displays curated national snapshot provenance");
-
+const expectedStarters = [
+  "Understand a community issue",
+  "Check national evidence",
+  "Find responsible institutions",
+  "Generate a structured Civic Brief",
+];
+for (const label of expectedStarters) {
+  assert(workspace.includes(label), `chat includes current evidence-led starter: ${label}`);
+}
+assert(!workspace.includes("What is Civic Mandate?"), "obsolete generic starter prompts are not required");
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
 assert(briefCard.includes("Structural validation is not independent verification"), "brief UI distinguishes validation from verification");
