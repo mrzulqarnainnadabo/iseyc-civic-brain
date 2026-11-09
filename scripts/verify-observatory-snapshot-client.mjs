@@ -10,10 +10,10 @@ const records = [
     id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
     publisher: "World Health Organization", sourceId: "who-gho-nigeria",
     sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
-    referencePeriod: "Indicator-specific · 2022–2025", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "WHO statistical estimates",
-    metrics: [{ label: "New HIV infections", value: "0.27", unit: "per 1,000 uninfected population", period: "2025", interval: "0.21–0.39" }],
-    limitations: ["Statistical estimates, not direct counts."], interpretation: "National context only.",
+    referencePeriod: "Indicator-specific · 2021–2023", retrievedAt: "2026-11-09",
+    geography: { level: "national", label: "Nigeria" }, evidenceType: "WHO country profile · indicator-specific estimates and reported series",
+    metrics: [{ label: "Under-five mortality", value: "108.1", unit: "per 1,000 live births", period: "2022", interval: "77.5–153.8" }],
+    limitations: ["WHO statistical estimates; preserve uncertainty intervals and reference periods."], interpretation: "National context only.",
   },
   {
     id: "nimc-enrolment-2025-10", title: "NIMC · National identity enrolment",
@@ -78,7 +78,7 @@ assert.equal(bundle.status, "ready");
 assert.equal(bundle.records[0].id, "who-nigeria-health-2021-23");
 assert.match(requested, /api\/evidence\/snapshots/);
 assert.match(requested, /catalog=0/);
-assert.match(formatObservatorySnapshotBlock(bundle), /0.21–0.39/);
+assert.match(formatObservatorySnapshotBlock(bundle), /77.5–153.8/);
 assert.match(formatObservatorySnapshotBlock(bundle), /not a live feed/);
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
