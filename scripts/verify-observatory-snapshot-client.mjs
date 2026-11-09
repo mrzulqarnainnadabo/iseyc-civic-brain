@@ -12,7 +12,7 @@ const records = [
     sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
     referencePeriod: "Indicator-specific · 2021–2023", retrievedAt: "2026-11-09",
     geography: { level: "national", label: "Nigeria" }, evidenceType: "WHO country profile · indicator-specific estimates and reported series",
-    metrics: [{ label: "Under-five mortality", value: "108.1", unit: "per 1,000 live births", period: "2022", interval: "77.5–153.8" }],
+    metrics: [{ label: "Under-five mortality", value: "108.1", unit: "per 1,000 live births", period: "2022", interval: "77.5–153.8", measurementType: "estimated" }],
     limitations: ["WHO statistical estimates; preserve uncertainty intervals and reference periods."], interpretation: "National context only.",
   },
   {
@@ -79,6 +79,7 @@ assert.equal(bundle.records[0].id, "who-nigeria-health-2021-23");
 assert.match(requested, /api\/evidence\/snapshots/);
 assert.match(requested, /catalog=0/);
 assert.match(formatObservatorySnapshotBlock(bundle), /77.5–153.8/);
+assert.match(formatObservatorySnapshotBlock(bundle), /measurement type: estimated/);
 assert.match(formatObservatorySnapshotBlock(bundle), /not a live feed/);
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
