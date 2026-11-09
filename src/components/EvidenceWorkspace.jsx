@@ -3,6 +3,7 @@ import Markdown from "./Markdown.jsx";
 import Card from "./ui/Card.jsx";
 import EvidenceExplorer from "./EvidenceExplorer.jsx";
 import CivicBriefCard from "./CivicBriefCard.jsx";
+import { buildBoundedChatHistory } from "../../lib/chat-history.js";
 
 const SUGGESTIONS = [
   { label: "Understand a community issue", prompt: "Explain what published community reports and official evidence show about health service gaps in Kaduna. Separate community reports, official facts, estimates and unknowns." },
@@ -60,7 +61,7 @@ export default function EvidenceWorkspace() {
         body: JSON.stringify({
           mode: "civic",
           format: options.format || "narrative",
-          messages: next.map((m) => ({ role: m.role, content: m.content })),
+          messages: buildBoundedChatHistory(next),
         }),
       });
       const raw = await res.text();
@@ -325,6 +326,7 @@ export default function EvidenceWorkspace() {
             placeholder="Ask Civic Brain about the evidence, a community issue or an institution…"
             disabled={busy}
             rows={1}
+            maxLength={4000}
             style={{
               flex: 1,
               minHeight: 44,
