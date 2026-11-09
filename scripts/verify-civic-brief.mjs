@@ -48,6 +48,9 @@ if (!header.includes('src="/iseyc-wordmark.svg"') || !header.includes('ISEYC —
   console.error("FAIL: header does not use the approved ISEYC wordmark");
   failed++;
 } else console.log("OK: header uses approved ISEYC wordmark");
+for (const label of ["Civic Mandate", "Civic Intelligence", "Civic Brain", "Education", "Health", "Software", "Civic Department", "Digital Operations Centre"]) {
+  if (!architecture.includes(label)) throw new Error(`ISEYC system map is missing ${label}`);
+}
 for (const label of ["Understand a community issue", "Check national evidence", "Find responsible institutions", "Generate a structured Civic Brief"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
