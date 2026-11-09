@@ -2,50 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import Markdown from "./Markdown.jsx";
 import Card from "./ui/Card.jsx";
 import EvidenceExplorer from "./EvidenceExplorer.jsx";
+import CivicBriefCard from "./CivicBriefCard.jsx";
 
 const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
 const SUGGESTIONS = [
-  {
-    label: "What is Civic Mandate?",
-    prompt:
-      "Explain Civic Mandate Nigeria in plain language: what it is, what it is not, how a demand becomes Published, and how Civic Brain uses the public record. Keep it short.",
-  },
-  {
-    label: "What is published so far?",
-    prompt:
-      "Using only the current published Civic Mandate evidence, summarise totals, states represented, and main duties. Say clearly if coverage is thin and that this is pilot data.",
-  },
-  {
-    label: "INEC voter register and PVCs",
-    prompt:
-      "What do official INEC sources say about registered voters and PVCs? Separate the 2023 validated register from 2025–2026 CVR registrations, cite source dates, and explain what remains unknown.",
-  },
-  {
-    label: "Current CVR status",
-    prompt:
-      "What is known about the 2025–2026 Continuous Voter Registration exercise? Explain the official phase-one counts, the two-voter discrepancy, and whether a final validated national register is available.",
-  },
-  {
-    label: "Health-related demands",
-    prompt:
-      "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses or claim referrals were sent.",
-  },
-  {
-    label: "Who may be responsible?",
-    prompt:
-      "In general, how does Civic Brain recommend a responsible institution? Stress human review, jurisdiction uncertainty, and that a recommendation is not a referral sent.",
-  },
-  {
-    label: "Published vs resolved",
-    prompt:
-      "What is the difference between a published civic demand and a resolved issue? Use only ISEYC product rules — do not invent government outcomes.",
-  },
-  {
-    label: "How Mandate + Brain work",
-    prompt:
-      "How should a citizen use Civic Mandate and Civic Brain together? Submit → human review → Published → understand evidence. Non-partisan only.",
-  },
+  { label: "Understand a community issue", prompt: "Explain what published community reports and official evidence show about health service gaps in Kaduna. Separate community reports, official facts, estimates and unknowns." },
+  { label: "Check national evidence", prompt: "What official national indicators are available for Nigeria in health, education, employment and digital access? State reference years and distinguish measured, estimated and modelled values." },
+  { label: "Find responsible institutions", prompt: "For a health service concern in Kaduna, explain which public institutions may have responsibilities and what evidence is needed to confirm jurisdiction. Do not claim a referral was sent." },
+  { label: "Generate a structured Civic Brief", format: "civic_brief_v1", prompt: "Prepare a structured Civic Brief about public education conditions in Nigeria using only sources retrieved for this request and published community records. Keep national and subnational evidence separate. If evidence is insufficient, state the gaps." },
 ];
 
 function safeEvidenceHref(value) {
@@ -68,7 +33,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.\n\nI cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.`;
+const INTRO = `I connect published community records with available official evidence. I separate facts, community reports, estimates, analysis and unknowns. I can explain possible institutional responsibilities, but I cannot contact officials or declare an issue resolved.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
@@ -82,7 +47,7 @@ export default function EvidenceWorkspace() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, busy]);
 
-  const send = async (content) => {
+  const send = async (content, options = {}) => {
     if (!content.trim() || busy) return;
     const next = [...msgs, { role: "user", content: content.trim() }];
     setMsgs(next);
@@ -119,7 +84,7 @@ export default function EvidenceWorkspace() {
       }
       const reply = data?.content?.find((b) => b.type === "text")?.text;
       if (reply) {
-        setMsgs((prev) => [...prev, { role: "assistant", content: reply, evidence: data.evidence || null }]);
+        setMsgs((prev) => [...prev, { role: "assistant", content: reply, evidence: data.evidence || null, brief: data.briefValid === true ? data.brief : null, format: data.format || "narrative" }]);
       } else {
         setMsgs((prev) => [
           ...prev,
@@ -138,7 +103,7 @@ export default function EvidenceWorkspace() {
     }
   };
 
-  const onKey = (e) => {
+  const newAnalysis = () => { if (busy) return; setMsgs([{ role: "assistant", content: INTRO }]); setInput(""); setError(""); };\n\n  const onKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send(input);
@@ -154,57 +119,24 @@ export default function EvidenceWorkspace() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-      <EvidenceExplorer onAsk={(prompt) => send(prompt)} />
+
       <div
         role="log"
         aria-live="polite"
         aria-relevant="additions"
         style={{ flex: 1, overflowY: "auto", padding: "16px 12px", maxWidth: 900, width: "100%", margin: "0 auto" }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8, marginBottom: 14 }}>
-          <a
-            href={MANDATE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              textDecoration: "none",
-              borderRadius: 8,
-              border: "1px solid var(--iseyc-border)",
-              background: "var(--iseyc-white)",
-              padding: "12px 10px",
-              color: "inherit",
-            }}
-          >
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "var(--iseyc-gold)", textTransform: "uppercase" }}>
-              Civic Mandate
-            </div>
-            <div style={{ marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, color: "var(--iseyc-forest)" }}>
-              Record the demand
-            </div>
-            <div style={{ marginTop: 4, fontSize: 11, color: "var(--iseyc-ink-secondary)", lineHeight: 1.4 }}>
-              Submit → human review → Published
-            </div>
-          </a>
-          <div
-            style={{
-              borderRadius: 8,
-              border: "1px solid var(--iseyc-border)",
-              background: "var(--iseyc-forest)",
-              padding: "12px 10px",
-              color: "var(--iseyc-cream)",
-            }}
-          >
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", color: "var(--iseyc-gold)", textTransform: "uppercase" }}>
-              Civic Brain
-            </div>
-            <div style={{ marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14 }}>
-              Understand the record
-            </div>
-            <div style={{ marginTop: 4, fontSize: 11, opacity: 0.85, lineHeight: 1.4 }}>
-              What published evidence shows — and cannot prove
-            </div>
+        <section style={{ borderRadius: 8, background: "var(--iseyc-forest-deep)", padding: "16px", color: "var(--iseyc-cream)", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+            <div><p style={{ margin: 0, color: "var(--iseyc-gold-soft)", fontSize: 9, fontWeight: 800, letterSpacing: ".15em", textTransform: "uppercase" }}>ISEYC · Evidence intelligence</p><h1 className="display" style={{ margin: "4px 0 0", color: "var(--iseyc-cream)", fontSize: 22 }}>Ask Civic Brain</h1></div>
+            <button type="button" onClick={newAnalysis} disabled={busy || msgs.length <= 1} style={{ minHeight: 36, padding: "0 10px", border: "1px solid rgba(220,203,155,.45)", borderRadius: 6, background: "transparent", color: "var(--iseyc-gold-soft)", fontSize: 11, fontWeight: 700, cursor: busy || msgs.length <= 1 ? "not-allowed" : "pointer", opacity: msgs.length <= 1 ? .5 : 1 }}>New analysis</button>
           </div>
-        </div>
+          <p style={{ margin: "8px 0 0", maxWidth: 660, fontSize: 12, lineHeight: 1.5, color: "rgba(250,249,245,.78)" }}>Evidence-led explanations. Source dates, geography and uncertainty stay visible.</p>
+        </section>
+        <details style={{ marginBottom: 14, border: "1px solid var(--iseyc-border)", borderRadius: 8, background: "var(--iseyc-white)", padding: "10px 12px" }}>
+          <summary style={{ cursor: "pointer", color: "var(--iseyc-forest)", fontSize: 12, fontWeight: 700 }}>Explore published community records</summary>
+          <div style={{ marginTop: 10 }}><EvidenceExplorer onAsk={(prompt) => send(prompt)} /></div>
+        </details>
 
         {msgs.map((m, i) =>
           m.role === "user" ? (
@@ -237,7 +169,7 @@ export default function EvidenceWorkspace() {
               >
                 Civic Brief
               </div>
-              <Markdown text={m.content} />
+              {m.brief ? <CivicBriefCard brief={m.brief} /> : <Markdown text={m.content} />}
               {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
                 <section
                   aria-label="Evidence sources retrieved for this response"
@@ -337,7 +269,7 @@ export default function EvidenceWorkspace() {
               key={s.label}
               type="button"
               disabled={busy}
-              onClick={() => send(s.prompt)}
+              onClick={() => send(s.prompt, { format: s.format })}
               style={{
                 minHeight: 44,
                 textAlign: "left",
@@ -367,7 +299,7 @@ export default function EvidenceWorkspace() {
       >
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 900, margin: "0 auto" }}>
           <label htmlFor="civic-q" className="sr-only">
-            Ask about public civic evidence
+            Ask Civic Brain about public evidence
           </label>
           <textarea
             id="civic-q"
@@ -375,7 +307,7 @@ export default function EvidenceWorkspace() {
             value={input}
             onChange={onInput}
             onKeyDown={onKey}
-            placeholder="Ask what the public evidence shows…"
+            placeholder="Ask Civic Brain about the evidence, a community issue or an institution…"
             disabled={busy}
             rows={1}
             style={{
