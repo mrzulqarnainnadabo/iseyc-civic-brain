@@ -48,6 +48,15 @@ const SUGGESTIONS = [
   },
 ];
 
+function safeEvidenceHref(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function friendlyError(errMsg, status) {
   const m = (errMsg || "").toLowerCase();
   if (m.includes("rate") || status === 429)
@@ -229,6 +238,35 @@ export default function EvidenceWorkspace() {
                 Civic Brief
               </div>
               <Markdown text={m.content} />
+              {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
+                <section
+                  aria-label="Sources used in this response"
+                  style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}
+                >
+                  <h3 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)" }}>
+                    Sources used · {m.evidence.sources.length}
+                  </h3>
+                  <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
+                    {m.evidence.sources.map((source) => {
+                      const href = safeEvidenceHref(source.sourceUrl);
+                      return (
+                        <li key={source.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                          {href ? (
+                            <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                              {source.title}
+                            </a>
+                          ) : (
+                            <span style={{ color: "var(--iseyc-forest)", fontWeight: 650 }}>{source.title}</span>
+                          )}
+                          <p style={{ margin: "3px 0 0", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
+                            {[source.publisher, source.sourceType?.replaceAll("_", " "), source.referenceDate, source.geoCoverage, source.verificationStatus].filter(Boolean).join(" · ")}
+                          </p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              )}
               {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
                 <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
                   <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
