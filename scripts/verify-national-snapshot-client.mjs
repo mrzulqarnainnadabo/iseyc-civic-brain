@@ -36,13 +36,19 @@ const education = {
   interpretation: 'State-level administrative data only; not Kaduna South or an individual school.',
   limitations: ['The national school reporting rate is 57.9%.'],
 };
+const educationNational = {
+  ...education, id: 'fme-asc-schools-reported-2024-25',
+  title: 'Schools reported in Annual School Census', value: 124543,
+  unit: 'schools', geoLevel: 'national', geographicCoverage: 'Nigeria',
+  interpretation: 'National school census count with incomplete reporting.',
+};
 function response(body, ok = true) {
   return { ok, status: ok ? 200 : 503, text: async () => JSON.stringify(body) };
 }
 
 const fetchMock = async () => response({
   contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-09',
-  observations: [health, civic, education], catalogOnlySources: [nbs], limitations: ['Manual snapshots, not live feeds.'],
+  observations: [health, civic, educationNational, education], catalogOnlySources: [nbs], limitations: ['Manual snapshots, not live feeds.'],
 });
 const healthResult = await fetchNationalSnapshots('health', fetchMock);
 assert.equal(healthResult.status, 'ready');
@@ -54,8 +60,8 @@ assert.match(formatNationalSnapshotBlock(healthResult), /59.5 deaths per 1,000 l
 
 const educationResult = await fetchNationalSnapshots('education school Kaduna', fetchMock);
 assert.equal(educationResult.status, 'ready');
-assert.equal(educationResult.observations.length, 1);
-assert.equal(educationResult.observations[0].id, education.id);
+assert.equal(educationResult.observations.length, 2);
+assert.equal(educationResult.observations[0].id, education.id, 'Kaduna State evidence must rank ahead of national context when Kaduna is requested');
 assert.match(formatNationalSnapshotBlock(educationResult), /GEOGRAPHY: Kaduna State/);
 assert.match(formatNationalSnapshotBlock(educationResult), /SOURCE_UPDATE_DATE: 2026-07-18/);
 
