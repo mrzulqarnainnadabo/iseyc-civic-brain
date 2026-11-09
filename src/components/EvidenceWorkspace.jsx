@@ -4,8 +4,6 @@ import Card from "./ui/Card.jsx";
 import EvidenceExplorer from "./EvidenceExplorer.jsx";
 import CivicBriefCard from "./CivicBriefCard.jsx";
 
-const MANDATE_URL = "https://2027-street-mandate.vercel.app";
-
 const SUGGESTIONS = [
   { label: "Understand a community issue", prompt: "Explain what published community reports and official evidence show about health service gaps in Kaduna. Separate community reports, official facts, estimates and unknowns." },
   { label: "Check national evidence", prompt: "What official national indicators are available for Nigeria in health, education, employment and digital access? State reference years and distinguish measured, estimated and modelled values." },
@@ -344,7 +342,7 @@ export default function EvidenceWorkspace() {
               cursor: busy || !input.trim() ? "not-allowed" : "pointer",
             }}
           >
-            Ask
+            Analyse
           </button>
         </div>
       </div>
