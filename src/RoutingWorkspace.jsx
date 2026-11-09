@@ -25,8 +25,8 @@ const labelStyle = {
 export default function RoutingWorkspace() {
   const [routeForm, setRouteForm] = useState({
     mandateText: "",
-    duty: "Health",
-    state: "Kaduna",
+    duty: "",
+    state: "",
     lga: "",
     roadClass: "unknown",
   });
@@ -96,23 +96,23 @@ export default function RoutingWorkspace() {
               disabled={routeBusy}
               style={{ ...field, marginTop: 6 }}
             >
-              {["Health", "Education", "Security", "Roads", "Water", "Electricity", "Sanitation", "Other"].map(
-                (d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                )
+              <option value="">Choose a duty</option>
+              {["Health", "Education", "Security", "Power", "Water", "Roads & Transport", "Agriculture", "Jobs & Economy", "Housing", "Environment", "Justice", "Transparency", "Public Finance", "Youth Development"].map(
+                (d) => <option key={d} value={d}>{d}</option>
               )}
             </select>
           </label>
           <label style={labelStyle}>
             State
-            <input
+            <select
               value={routeForm.state}
               onChange={(e) => setRouteForm({ ...routeForm, state: e.target.value })}
               disabled={routeBusy}
               style={{ ...field, marginTop: 6 }}
-            />
+            >
+              <option value="">Select state / FCT</option>
+              {["Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno","Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT","Gombe","Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba","Yobe","Zamfara"].map((state) => <option key={state} value={state}>{state}</option>)}
+            </select>
           </label>
           <label style={labelStyle}>
             LGA (optional)
@@ -201,7 +201,7 @@ export default function RoutingWorkspace() {
           {r.primary ? (
             <div style={{ marginBottom: 10 }}>
               <div style={{ fontSize: 12, color: "var(--iseyc-ink-muted)", marginBottom: 4 }}>
-                Recommended institution
+                Potential responsible institution
               </div>
               <div style={{ fontSize: 16, fontWeight: 600, color: "var(--iseyc-forest)" }}>
                 {r.primary.institutionalName}
