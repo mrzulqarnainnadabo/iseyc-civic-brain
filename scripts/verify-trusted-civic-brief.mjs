@@ -193,7 +193,7 @@ const observatorySnapshotSources = buildTrustedBriefSources({
       referencePeriod: 'Indicator-specific · 2021–2023',
       geography: { level: 'national', label: 'Nigeria' },
       evidenceType: 'WHO country profile · indicator-specific estimates and reported series',
-      metrics: [{ label: 'New HIV infections', value: '0.27', unit: 'per 1,000 uninfected population', period: '2025', interval: '77.5–153.8' }],
+      metrics: [{ label: 'Under-five mortality', value: '108.1', unit: 'per 1,000 live births', period: '2022', interval: '77.5–153.8' }],
       limitations: ['WHO statistical estimates; preserve uncertainty intervals and reference periods.'],
       interpretation: 'National context only.',
     }],
