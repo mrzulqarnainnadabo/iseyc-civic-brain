@@ -42,7 +42,7 @@ function setCors(res, req) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-async function withTimeout(run, ms, label) {
+async function withTimeout(operation, ms, label) {
   const controller = new AbortController();
   let t;
   const timeout = new Promise((_, reject) => {
@@ -52,13 +52,16 @@ async function withTimeout(run, ms, label) {
     }, ms);
   });
   try {
-    return await Promise.race([run(controller.signal), timeout]);
+    const pending = typeof operation === 'function'
+      ? operation(controller.signal)
+      : operation;
+    return await Promise.race([pending, timeout]);
   } finally {
     clearTimeout(t);
   }
 }
 
-export default async function handler(req, res) {
+export const config = {\n  api: { bodyParser: { sizeLimit: '128kb' } },\n};\n\nexport default async function handler(req, res) {
   setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
