@@ -46,6 +46,15 @@ const records = [
     limitations: ["Announcement is not evidence of disbursement."], interpretation: "Programme terms only.",
   },
   {
+    id: "isn-innovation-hub-assessment-2026", title: "ISN · Nigerian Innovation Hub Assessment",
+    publisher: "Innovation Support Network (ISN)", sourceId: "isn-hub-assessment-2026",
+    sourceUrl: "https://isnhubs.org.ng/nigerias-innovation-landmark-isn-launches-comprehensive-hub-assessment-report-and-unveils-2026-2030-strategic-outlook/",
+    referencePeriod: "Summary released 22 May 2026", retrievedAt: "2026-11-09",
+    geography: { level: "national", label: "Nigeria" }, evidenceType: "Industry ecosystem assessment summary",
+    metrics: [{ label: "Hubs offering structured training", value: "90%", unit: "of respondents", period: "2026 summary", measurementType: "survey respondent share" }],
+    limitations: ["Geographic percentages are respondent shares, not a national census."], interpretation: "Survey summary only.",
+  },
+  {
     id: "nbs-gdp-q1-2026", title: "NBS · Real GDP growth",
     publisher: "National Bureau of Statistics", sourceId: "nbs-gdp-quarterly",
     sourceUrl: "https://microdata.nigerianstat.gov.ng/index.php/catalog/147/related-materials",
@@ -60,6 +69,7 @@ assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-healt
 assert.deepEqual(selectSnapshotRecords("education access"), ["nitda-dl4all-2026-10"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
+assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
 assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026"]);
 assert.equal(selectSnapshotRecords("unrelated question").length, 0);
 
