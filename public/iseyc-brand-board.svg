@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">ISEYC institutional brand board</title>
+<desc id="desc">A visual brand system showing the official ISEYC wordmark, institutional colours, four department accents and three civic intelligence products.</desc>
+<defs>
+ <linearGradient id="forest" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071F18"/><stop offset="1" stop-color="#123B2F"/></linearGradient>
+ <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#F4F3ED"/></linearGradient>
+ <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#DCE4DC" stroke-width="1"/></pattern>
+</defs>
+<rect width="1600" height="1000" fill="#F7F6F0"/>
+<rect width="1600" height="260" fill="url(#forest)"/>
+<path d="M0 240H1600" stroke="#A7833F" stroke-width="5"/>
+<path d="M1180 0L1600 0L1600 260L1380 260Z" fill="#FFFFFF" opacity=".035"/>
+<image href="/iseyc-wordmark.svg" x="86" y="70" width="590" height="122"/>
+<text x="86" y="226" fill="#DCCB9B" font-family="Arial,sans-serif" font-size="17" letter-spacing="4">INSTITUTIONAL IDENTITY SYSTEM · 2026</text>
+<text x="1510" y="104" fill="#DCCB9B" font-family="Georgia,serif" font-size="25" text-anchor="end">Empowering Youth,</text>
+<text x="1510" y="139" fill="#DCCB9B" font-family="Georgia,serif" font-size="25" text-anchor="end">Shaping Communities</text>
+<text x="1510" y="204" fill="#FFFFFF" opacity=".7" font-family="Arial,sans-serif" font-size="13" text-anchor="end" letter-spacing="2">NON-PARTISAN · EVIDENCE-LED · PEOPLE-CENTRED</text>
+<text x="86" y="330" fill="#0B2D22" font-family="Georgia,serif" font-size="38" font-weight="700">One institution. One identity. Distinct working experiences.</text>
+<text x="86" y="368" fill="#4E5D54" font-family="Arial,sans-serif" font-size="18">The official seal remains the source of truth. The system creates consistency without replacing the emblem.</text>
+<rect x="86" y="410" width="1428" height="230" rx="20" fill="url(#paper)" stroke="#E4E6DF"/>
+<text x="122" y="458" fill="#80621F" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">CORE INSTITUTIONAL PALETTE</text>
+<g font-family="Arial,sans-serif">
+ <rect x="122" y="485" width="180" height="92" rx="12" fill="#071F18"/><text x="122" y="605" fill="#202923" font-size="15" font-weight="700">Forest 950</text><text x="122" y="625" fill="#4E5D54" font-size="13">#071F18</text>
+ <rect x="326" y="485" width="180" height="92" rx="12" fill="#0B2D22"/><text x="326" y="605" fill="#202923" font-size="15" font-weight="700">Forest 900</text><text x="326" y="625" fill="#4E5D54" font-size="13">#0B2D22</text>
+ <rect x="530" y="485" width="180" height="92" rx="12" fill="#123B2F"/><text x="530" y="605" fill="#202923" font-size="15" font-weight="700">Forest 800</text><text x="530" y="625" fill="#4E5D54" font-size="13">#123B2F</text>
+ <rect x="734" y="485" width="180" height="92" rx="12" fill="#194B3B"/><text x="734" y="605" fill="#202923" font-size="15" font-weight="700">Forest 700</text><text x="734" y="625" fill="#4E5D54" font-size="13">#194B3B</text>
+ <rect x="938" y="485" width="180" height="92" rx="12" fill="#FAF9F5" stroke="#E4E6DF"/><text x="938" y="605" fill="#202923" font-size="15" font-weight="700">Paper</text><text x="938" y="625" fill="#4E5D54" font-size="13">#FAF9F5</text>
+ <rect x="1142" y="485" width="150" height="92" rx="12" fill="#A7833F"/><text x="1142" y="605" fill="#202923" font-size="15" font-weight="700">Gold</text><text x="1142" y="625" fill="#4E5D54" font-size="13">#A7833F</text>
+ <rect x="1316" y="485" width="160" height="92" rx="12" fill="#287A70"/><text x="1316" y="605" fill="#202923" font-size="15" font-weight="700">Health teal</text><text x="1316" y="625" fill="#4E5D54" font-size="13">#287A70</text>
+</g>
+<text x="86" y="710" fill="#80621F" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">FOUR DEPARTMENT IDENTITIES</text>
+<g font-family="Arial,sans-serif">
+ <rect x="86" y="738" width="340" height="126" rx="16" fill="#FFFFFF" stroke="#E4E6DF"/><rect x="86" y="738" width="12" height="126" rx="6" fill="#194B3B"/><circle cx="143" cy="790" r="23" fill="#E8F0EA"/><path d="M132 782h22v18h-22zM136 777h14" fill="none" stroke="#194B3B" stroke-width="3"/><text x="180" y="788" fill="#0B2D22" font-size="19" font-weight="700">Education</text><text x="180" y="817" fill="#4E5D54" font-size="14">Learning · Capacity · Knowledge</text>
+ <rect x="454" y="738" width="340" height="126" rx="16" fill="#FFFFFF" stroke="#E4E6DF"/><rect x="454" y="738" width="12" height="126" rx="6" fill="#287A70"/><circle cx="511" cy="790" r="23" fill="#E5F1EE"/><path d="M511 774v32M495 790h32M500 779l22 22M522 779l-22 22" fill="none" stroke="#287A70" stroke-width="2.5"/><text x="548" y="788" fill="#0B2D22" font-size="19" font-weight="700">Health &amp; Well-being</text><text x="548" y="817" fill="#4E5D54" font-size="14">Care · Systems · Public health</text>
+ <rect x="822" y="738" width="340" height="126" rx="16" fill="#FFFFFF" stroke="#E4E6DF"/><rect x="822" y="738" width="12" height="126" rx="6" fill="#34423D"/><circle cx="879" cy="790" r="23" fill="#EDF0ED"/><path d="M867 780l-8 10 8 10M891 780l8 10-8 10M884 776l-10 28" fill="none" stroke="#34423D" stroke-width="2.5"/><text x="916" y="788" fill="#0B2D22" font-size="19" font-weight="700">Software &amp; Technology</text><text x="916" y="817" fill="#4E5D54" font-size="14">Digital systems · Innovation</text>
+ <rect x="1190" y="738" width="324" height="126" rx="16" fill="#FFFFFF" stroke="#E4E6DF"/><rect x="1190" y="738" width="12" height="126" rx="6" fill="#A7833F"/><circle cx="1247" cy="790" r="23" fill="#F7F0E0"/><path d="M1234 802h26M1237 802v-18h20v18M1243 784v-6h8v6" fill="none" stroke="#80621F" stroke-width="2.5"/><text x="1284" y="788" fill="#0B2D22" font-size="19" font-weight="700">Civic Department</text><text x="1284" y="817" fill="#4E5D54" font-size="14">Rights · Institutions · Accountability</text>
+</g>
+<rect x="86" y="895" width="1428" height="70" rx="14" fill="#0B2D22"/>
+<text x="120" y="937" fill="#DCCB9B" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">MANDATE</text>
+<text x="270" y="937" fill="#FFFFFF" font-family="Georgia,serif" font-size="21">Citizen entry</text>
+<path d="M495 918h48" stroke="#A7833F" stroke-width="2"/>
+<text x="590" y="937" fill="#DCCB9B" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">BRAIN</text>
+<text x="690" y="937" fill="#FFFFFF" font-family="Georgia,serif" font-size="21">Interpretation</text>
+<path d="M890 918h48" stroke="#A7833F" stroke-width="2"/>
+<text x="985" y="937" fill="#DCCB9B" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">OBSERVATORY</text>
+<text x="1150" y="937" fill="#FFFFFF" font-family="Georgia,serif" font-size="21">Evidence foundation</text>
+</svg>
