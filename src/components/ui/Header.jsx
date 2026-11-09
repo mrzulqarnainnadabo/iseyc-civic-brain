@@ -10,8 +10,8 @@ const DEPARTMENTS = [
 /** Official ISEYC seal, product navigation and department entry points. */
 export default function Header({ tab, onTab }) {
   const tabs = [
-    { id: "evidence", label: "Evidence" },
-    { id: "routing", label: "Routing" },
+    { id: "evidence", label: "Ask Civic Brain" },
+    { id: "routing", label: "Institutional routing" },
   ];
 
   return (
@@ -31,7 +31,7 @@ export default function Header({ tab, onTab }) {
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, color: "var(--iseyc-gold)", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700 }}>ISEYC</div>
             <div className="display" style={{ fontSize: 16, fontWeight: 700, color: "var(--iseyc-cream)", lineHeight: 1.15 }}>Civic Brain</div>
-            <div style={{ fontSize: 10, color: "rgba(247,243,233,0.72)", lineHeight: 1.3 }}>Evidence-grounded civic explainer</div>
+            <div style={{ fontSize: 10, color: "rgba(247,243,233,0.72)", lineHeight: 1.3 }}>Evidence-grounded civic intelligence</div>
           </div>
         </div>
         <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer" style={{
