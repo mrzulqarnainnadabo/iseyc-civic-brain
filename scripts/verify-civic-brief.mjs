@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from "../lib/system-prompt.js";
 
 const prompt = SERVER_SYSTEM_PROMPT;
+const architecture = readFileSync(new URL("../public/iseyc-system-architecture.svg", import.meta.url), "utf8");
 const headings = [
   "**What the public record shows**",
   "**What it does not mean**",
