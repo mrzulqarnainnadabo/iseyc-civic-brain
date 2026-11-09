@@ -214,7 +214,7 @@ const nationalSources = buildTrustedBriefSources({
       departments: ['health'],
       interpretation: 'National estimate only.',
       limitations: ['Not a Kaduna South or facility measure.'],
-,
+    },
     {
       id: 'fme-asc-kaduna-learner-teacher-ratio-2024-25',
       title: 'Kaduna State learner–teacher ratio',
@@ -231,7 +231,7 @@ const nationalSources = buildTrustedBriefSources({
       departments: ['education'],
       interpretation: 'State-level administrative data only.',
       limitations: ['Not a Kaduna South or individual-school measure.'],
-    }    }],
+    }],
   },
 });
 const whoSource = nationalSources.find((source) => source.id === 'src-national-snapshot:who-nga-under5-mortality-2024');
