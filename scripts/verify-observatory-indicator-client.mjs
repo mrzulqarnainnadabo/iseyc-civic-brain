@@ -30,7 +30,7 @@ const fixture = {
   },
   observations: [
     { indicatorId, referencePeriod: "2022", value: 40, unit: "percent of population", geoLevel: "national", geoCode: "NGA", sourceAttribution: "World Bank — World Development Indicators", sourceUrl, retrievedAt: "2026-11-09T00:00:00.000Z" },
-    { indicatorId, referencePeriod: "2023", value: 45, unit: "percent of population", geoLevel: "national", geoCode: "NGA", sourcePublisher: "World Bank — World Development Indicators", sourceUrl },
+    { indicatorId, referencePeriod: "2023", value: 45, unit: "percent of population", geoLevel: "national", geoCode: "NGA", sourceAttribution: "World Bank — World Development Indicators", sourceUrl },
   ],
   receipt: { retrievedAt: "2026-11-09T00:00:00.000Z" },
 };
