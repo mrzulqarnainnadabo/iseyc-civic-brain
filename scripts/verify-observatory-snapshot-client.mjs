@@ -70,6 +70,7 @@ assert.deepEqual(selectSnapshotRecords("education access"), ["nitda-dl4all-2026-
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
 assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
+assert.deepEqual(selectSnapshotRecords("software ecosystem"), ["nitda-dl4all-2026-10", "isn-innovation-hub-assessment-2026"]);
 assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026"]);
 assert.equal(selectSnapshotRecords("unrelated question").length, 0);
 
