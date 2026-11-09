@@ -10,9 +10,9 @@ for (const token of [
   'fetchPublishedCommunityRecords',
   'fetchPublishedCommunityObservations',
   'fetchInecEvidence',
-  'fetchCivicIntelligence',
   'fetchIndicatorCatalog',
   'Promise.allSettled',
+  'AbortSignal.timeout(9000)',
   'systemBoundary',
   'publishedCommunityRecords',
   'communityObservations',
@@ -39,4 +39,5 @@ assert.match(app, /initialPrompt=\{initialPrompt\}/);
 for (const token of ['overview', 'evidence', 'routing']) assert.ok(header.includes('id: "' + token + '"'), 'header must expose ' + token);
 assert.ok(!view.includes('2,783,731'), 'dashboard must not hardcode changing source totals');
 assert.ok(!view.includes('100% connected'), 'dashboard must not claim unsupported system completeness');
+assert.ok(!route.includes('fetchCivicIntelligence'), 'overview must not add an unbounded duplicate snapshot request');
 console.log('Civic Brain intelligence overview contracts passed.');
