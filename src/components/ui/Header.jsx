@@ -49,7 +49,7 @@ export default function Header({ tab, onTab }) {
         {tabs.map((t) => {
           const active = tab === t.id;
           return <button key={t.id} type="button" onClick={() => onTab(t.id)}
-            aria-current={active ? "page" : undefined}
+            aria-pressed={active}
             style={{
               flex: 1, minHeight: 44, border: "none", background: "transparent",
               color: active ? "var(--iseyc-gold)" : "rgba(247,243,233,0.7)",
