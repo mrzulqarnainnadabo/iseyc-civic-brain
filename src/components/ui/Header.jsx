@@ -11,7 +11,7 @@ const DEPARTMENTS = [
 export default function Header({ tab, onTab }) {
   const tabs = [
     { id: "overview", label: "Intelligence" },
-    { id: "evidence", label: "Evidence desk" },
+    { id: "evidence", label: "Ask Civic Brain" },
     { id: "routing", label: "Institutional routing" },
   ];
 
