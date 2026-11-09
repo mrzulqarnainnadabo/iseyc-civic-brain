@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { fetchNationalSnapshots, formatNationalSnapshotBlock } from '../lib/national-snapshot-client.js';
+import fs from 'node:fs';
 
 const health = {
   id: 'who-nga-under5-mortality-2024', title: 'Under-five mortality rate',
@@ -55,3 +56,11 @@ assert.equal(malicious.status, 'invalid');
 assert.equal(malicious.observations.length, 0);
 
 console.log('National snapshot client security and interpretation checks passed.');
+
+const chatSource = fs.readFileSync('api/chat.js', 'utf8');
+const promptSource = fs.readFileSync('lib/system-prompt.js', 'utf8');
+assert.match(chatSource, /fetchNationalSnapshots/);
+assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
+assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
+assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
+assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
