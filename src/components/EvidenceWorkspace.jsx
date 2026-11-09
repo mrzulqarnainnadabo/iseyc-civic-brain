@@ -42,7 +42,9 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
   const endRef = useRef(null);
   const taRef = useRef(null);
 
-  useEffect(() => { if (initialPrompt) setInput(initialPrompt); }, [initialPrompt]);
+  useEffect(() => {
+    if (initialPrompt) setInput(initialPrompt);
+  }, [initialPrompt]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
