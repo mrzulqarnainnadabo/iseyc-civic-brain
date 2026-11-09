@@ -425,7 +425,7 @@ async function callAnthropic(apiKey, messages, system, signal, maxTokens = MAX_O
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: maxTokens,
       system,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     }),
@@ -453,7 +453,7 @@ async function callXAI(apiKey, messages, system, signal, maxTokens = MAX_OUTPUT_
     body: JSON.stringify({
       model: 'grok-3',
       messages: openAIMessages,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: maxTokens,
       temperature: 0.4,
     }),
   });
