@@ -48,7 +48,7 @@ if (!header.includes('src="/iseyc-seal.svg"') || !header.includes('alt="ISEYC of
   console.error("FAIL: header does not use the official ISEYC seal");
   failed++;
 } else console.log("OK: header uses official ISEYC seal");
-for (const label of ["What is Civic Mandate?", "What is published so far?", "Health-related demands", "How Mandate + Brain work", "Published vs resolved", "INEC voter register and PVCs", "Current CVR status"]) {
+for (const label of ["Understand a community issue", "Check national evidence", "Find responsible institutions", "Generate a structured Civic Brief"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
     failed++;
