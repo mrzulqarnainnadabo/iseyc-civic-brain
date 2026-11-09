@@ -34,13 +34,15 @@ function friendlyError(errMsg, status) {
 
 const INTRO = `I connect published community records with available official evidence. I separate facts, community reports, estimates, analysis and unknowns. I can explain possible institutional responsibilities, but I cannot contact officials or declare an issue resolved.`;
 
-export default function EvidenceWorkspace() {
+export default function EvidenceWorkspace({ initialPrompt = "" }) {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const endRef = useRef(null);
   const taRef = useRef(null);
+
+  useEffect(() => { if (initialPrompt) setInput(initialPrompt); }, [initialPrompt]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
