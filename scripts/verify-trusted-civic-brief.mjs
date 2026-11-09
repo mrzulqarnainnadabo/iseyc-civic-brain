@@ -226,6 +226,29 @@ assert.equal(isnSnapshotSource.length, 1);
 assert.equal(isnSnapshotSource[0].id, 'src-observatory-snapshot:isn-innovation-hub-assessment-2026');
 assert.match(isnSnapshotSource[0].excerpt, /survey respondent share/);
 
+const worldBankSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'worldbank-ndu-2026-10',
+      title: 'World Bank Development Update',
+      publisher: 'World Bank',
+      sourceId: 'worldbank-ndu-2026-10',
+      sourceUrl: 'https://www.worldbank.org/en/publication/global-economic-prospects',
+      referencePeriod: 'October 2026',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'World Bank publication transcription',
+      metrics: [{ label: 'Foreign reserves', value: '12.3', unit: 'USD billion', period: 'October 2026', measurementType: 'published estimate' }],
+      limitations: ['Published estimate; retain the source period and methodology.'],
+      interpretation: 'National context only.',
+    }],
+  },
+});
+assert.equal(worldBankSnapshotSource.length, 1);
+assert.equal(worldBankSnapshotSource[0].id, 'src-observatory-snapshot:worldbank-ndu-2026-10');
+assert.equal(worldBankSnapshotSource[0].sourceUrl, 'https://www.worldbank.org/en/publication/global-economic-prospects');
+assert.match(worldBankSnapshotSource[0].excerpt, /published estimate/);
+
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
