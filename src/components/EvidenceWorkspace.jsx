@@ -70,7 +70,7 @@ function friendlyError(errMsg, status) {
 
 const INTRO = `I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.\n\nI cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.`;
 
-export default function EvidenceWorkspace() {
+export default function EvidenceWorkspace({ initialPrompt = "" }) {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -81,6 +81,10 @@ export default function EvidenceWorkspace() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs, busy]);
+
+  useEffect(() => {
+    if (initialPrompt) setInput(initialPrompt);
+  }, [initialPrompt]);
 
   const send = async (content) => {
     if (!content.trim() || busy) return;
