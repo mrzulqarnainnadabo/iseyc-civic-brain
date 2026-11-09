@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node scripts/verify-brain-security.mjs && node scripts/verify-routing.mjs && node scripts/verify-acceptance-contracts.mjs && node scripts/verify-civic-brief.mjs && node scripts/verify-evidence-explorer.mjs && node scripts/verify-community-record-client.mjs && node scripts/verify-community-observation-client.mjs && node scripts/verify-community-observation-context.mjs && node scripts/verify-inec-evidence-client.mjs && node scripts/verify-trusted-civic-brief.mjs && node scripts/verify-observatory-indicator-client.mjs && node scripts/verify-civic-brain-intelligence-ui.mjs && node --check api/chat.js && node --check lib/inec-evidence-client.js && node --check lib/observatory-indicator-client.js"
+    "test": "node scripts/verify-brain-security.mjs && node scripts/verify-routing.mjs && node scripts/verify-acceptance-contracts.mjs && node scripts/verify-civic-brief.mjs && node scripts/verify-evidence-explorer.mjs && node scripts/verify-community-record-client.mjs && node scripts/verify-community-observation-client.mjs && node scripts/verify-community-observation-context.mjs && node scripts/verify-inec-evidence-client.mjs && node scripts/verify-trusted-civic-brief.mjs && node scripts/verify-observatory-indicator-client.mjs && node scripts/verify-observatory-snapshot-client.mjs && node scripts/verify-civic-brain-intelligence-ui.mjs && node --check api/chat.js && node --check lib/inec-evidence-client.js && node --check lib/observatory-indicator-client.js"
   },
   "dependencies": {
     "react": "^18.2.0",
