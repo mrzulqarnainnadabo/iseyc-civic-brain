@@ -7,7 +7,7 @@ import {
 
 const records = [
   {
-    id: "who-nigeria-health-2025", title: "WHO · Nigeria health indicators",
+    id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
     publisher: "World Health Organization", sourceId: "who-gho-nigeria",
     sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
     referencePeriod: "Indicator-specific · 2022–2025", retrievedAt: "2026-11-09",
@@ -56,7 +56,7 @@ const records = [
   },
 ];
 
-assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2025"]);
+assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
 assert.deepEqual(selectSnapshotRecords("education access"), ["nitda-dl4all-2026-10"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
@@ -75,7 +75,7 @@ const fetchMock = async (url) => {
 };
 const bundle = await fetchObservatorySnapshots("health", fetchMock);
 assert.equal(bundle.status, "ready");
-assert.equal(bundle.records[0].id, "who-nigeria-health-2025");
+assert.equal(bundle.records[0].id, "who-nigeria-health-2021-23");
 assert.match(requested, /api\/evidence\/snapshots/);
 assert.match(requested, /catalog=0/);
 assert.match(formatObservatorySnapshotBlock(bundle), /0.21–0.39/);
