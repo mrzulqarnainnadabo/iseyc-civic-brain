@@ -286,7 +286,7 @@ export default function EvidenceWorkspace() {
             gridTemplateColumns: "1fr 1fr",
             gap: 8,
             padding: "0 12px 12px",
-            maxWidth: 720,
+            maxWidth: 900,
             width: "100%",
             margin: "0 auto",
           }}
@@ -324,7 +324,7 @@ export default function EvidenceWorkspace() {
           padding: "10px 12px 14px",
         }}
       >
-        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", maxWidth: 900, margin: "0 auto" }}>
           <label htmlFor="civic-q" className="sr-only">
             Ask about public civic evidence
           </label>
