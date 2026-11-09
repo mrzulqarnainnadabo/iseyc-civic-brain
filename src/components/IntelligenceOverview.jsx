@@ -132,6 +132,16 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
         </aside>
       </section>
 
+      <section className="brain-department-strip">
+        <div><span className="brain-kicker brain-kicker--dark">Department intelligence</span><h2>Explore evidence by responsibility</h2></div>
+        <div className="brain-department-links">
+          <a href={OBSERVATORY_URL + "/#/departments/education"} target="_blank" rel="noopener noreferrer">Education & Capacity <span>↗</span></a>
+          <a href={OBSERVATORY_URL + "/#/departments/health"} target="_blank" rel="noopener noreferrer">Health & Well-being <span>↗</span></a>
+          <a href={OBSERVATORY_URL + "/#/departments/software-technology"} target="_blank" rel="noopener noreferrer">Software & Technology <span>↗</span></a>
+          <a href={OBSERVATORY_URL + "/#/departments/civic"} target="_blank" rel="noopener noreferrer">Civic Affairs <span>↗</span></a>
+        </div>
+      </section>
+
       <section className="brain-boundary">
         <strong>Evidence discipline</strong>
         <p>Published does not mean verified. A national statistic does not prove a local condition. A routing recommendation does not mean an institution was contacted or an issue was resolved.</p>
