@@ -286,6 +286,7 @@ export default async function handler(req, res) {
           communityRecords: communityRecordsMeta,
           communityObservations: observationMeta,
           nationalEvidence: inecMeta,
+          sources: JSON.parse(trustedSourceBlock),
         };
 
         if (briefMode) {
