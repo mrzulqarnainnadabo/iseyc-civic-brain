@@ -214,7 +214,24 @@ const nationalSources = buildTrustedBriefSources({
       departments: ['health'],
       interpretation: 'National estimate only.',
       limitations: ['Not a Kaduna South or facility measure.'],
-    }],
+,
+    {
+      id: 'fme-asc-kaduna-learner-teacher-ratio-2024-25',
+      title: 'Kaduna State learner–teacher ratio',
+      value: 51.3,
+      unit: 'learners per teacher',
+      referencePeriod: '2024/2025',
+      sourceUpdateDate: '2026-07-18',
+      measurementType: 'Annual School Census administrative ratio',
+      geographicCoverage: 'Kaduna State',
+      sourceId: 'fme-education-emis-asc-2024-25',
+      sourceType: 'official_source',
+      sourcePublisher: 'Federal Ministry of Education — Digital Nigeria EMIS',
+      sourceUrl: 'https://emis.education.gov.ng/portal/',
+      departments: ['education'],
+      interpretation: 'State-level administrative data only.',
+      limitations: ['Not a Kaduna South or individual-school measure.'],
+    }    }],
   },
 });
 const whoSource = nationalSources.find((source) => source.id === 'src-national-snapshot:who-nga-under5-mortality-2024');
@@ -222,6 +239,10 @@ assert.ok(whoSource, 'national snapshot must enter the server-owned source allow
 assert.equal(whoSource.sourceType, 'official_source');
 assert.equal(whoSource.referenceDate, '2024');
 assert.ok(whoSource.excerpt.includes('59.5 deaths per 1,000 live births'));
+const fmeSource = nationalSources.find((source) => source.id === 'src-national-snapshot:fme-asc-kaduna-learner-teacher-ratio-2024-25');
+assert.ok(fmeSource);
+assert.equal(fmeSource.referenceDate, '2024/2025');
+assert.equal(fmeSource.sourceUpdateDate, '2026-07-18');
 const nationalBrief = validateCivicBrief(brief({
   communityReports: [],
   sources: [{ id: whoSource.id, title: 'Model-authored title', sourceType: 'fake' }],
