@@ -204,6 +204,28 @@ assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nig
 assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
 assert.match(observatorySnapshotSources[0].excerpt, /77.5–153.8/);
 assert.match(observatorySnapshotSources[0].excerpt, /measurement: estimated/);
+const isnSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'isn-innovation-hub-assessment-2026',
+      title: 'ISN · Nigerian Innovation Hub Assessment',
+      publisher: 'Innovation Support Network (ISN)',
+      sourceId: 'isn-hub-assessment-2026',
+      sourceUrl: 'https://isnhubs.org.ng/nigerias-innovation-landmark-isn-launches-comprehensive-hub-assessment-report-and-unveils-2026-2030-strategic-outlook/',
+      referencePeriod: 'Summary released 22 May 2026',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'Industry ecosystem assessment summary',
+      metrics: [{ label: 'Hubs offering structured training', value: '90%', unit: 'of respondents', period: '2026 summary', measurementType: 'survey respondent share' }],
+      limitations: ['Geographic percentages are respondent shares, not a national census.'],
+      interpretation: 'Survey summary only.',
+    }],
+  },
+});
+assert.equal(isnSnapshotSource.length, 1);
+assert.equal(isnSnapshotSource[0].id, 'src-observatory-snapshot:isn-innovation-hub-assessment-2026');
+assert.match(isnSnapshotSource[0].excerpt, /survey respondent share/);
+
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
