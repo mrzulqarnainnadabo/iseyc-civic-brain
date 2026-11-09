@@ -266,7 +266,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                             <span style={{ color: "var(--iseyc-forest)", fontWeight: 650 }}>{source.title}</span>
                           )}
                           <p style={{ margin: "3px 0 0", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
-                            {[source.publisher, source.sourceType?.replaceAll("_", " "), source.referenceDate, source.geoCoverage, source.verificationStatus].filter(Boolean).join(" · ")}
+                            {[source.publisher, source.sourceType?.replaceAll("_", " "), source.referenceDate, source.sourceUpdateDate ? 'source updated ' + source.sourceUpdateDate : null, source.geoCoverage, source.verificationStatus].filter(Boolean).join(" · ")}
                           </p>
                         </li>
                       );
