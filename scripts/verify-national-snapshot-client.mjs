@@ -55,7 +55,6 @@ const malicious = await fetchNationalSnapshots('health', async () => response({
 assert.equal(malicious.status, 'invalid');
 assert.equal(malicious.observations.length, 0);
 
-console.log('National snapshot client security and interpretation checks passed.');
 
 const chatSource = fs.readFileSync('api/chat.js', 'utf8');
 const promptSource = fs.readFileSync('lib/system-prompt.js', 'utf8');
@@ -64,3 +63,5 @@ assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
 assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
+
+console.log('National snapshot client security and interpretation checks passed.');
