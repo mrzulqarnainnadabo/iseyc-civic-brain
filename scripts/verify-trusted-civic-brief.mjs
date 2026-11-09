@@ -196,6 +196,67 @@ const legacyPulseSources = buildTrustedBriefSources({
 assert.equal(legacyPulseSources.some((source) => source.recordId === 'legacy-1'), false);
 assert.ok(formatTrustedBriefSources(bundles).includes('src-inec:2023-pvc'));
 
+const nationalSources = buildTrustedBriefSources({
+  nationalSnapshotsBundle: {
+    status: 'ready',
+    observations: [{
+      id: 'who-nga-under5-mortality-2024',
+      title: 'Under-five mortality rate',
+      value: 59.5,
+      unit: 'deaths per 1,000 live births',
+      referencePeriod: '2024',
+      measurementType: 'WHO estimate',
+      geographicCoverage: 'Nigeria',
+      sourceId: 'who-gho-nigeria',
+      sourceType: 'official_source',
+      sourcePublisher: 'WHO Regional Office for Africa',
+      sourceUrl: 'https://www.afro.who.int/node/992',
+      departments: ['health'],
+      interpretation: 'National estimate only.',
+      limitations: ['Not a Kaduna South or facility measure.'],
+    },
+    {
+      id: 'fme-asc-kaduna-learner-teacher-ratio-2024-25',
+      title: 'Kaduna State learner–teacher ratio',
+      value: 51.3,
+      unit: 'learners per teacher',
+      referencePeriod: '2024/2025',
+      sourceUpdateDate: '2026-07-18',
+      measurementType: 'Annual School Census administrative ratio',
+      geographicCoverage: 'Kaduna State',
+      sourceId: 'fme-education-emis-asc-2024-25',
+      sourceType: 'official_source',
+      sourcePublisher: 'Federal Ministry of Education — Digital Nigeria EMIS',
+      sourceUrl: 'https://emis.education.gov.ng/portal/',
+      departments: ['education'],
+      interpretation: 'State-level administrative data only.',
+      limitations: ['Not a Kaduna South or individual-school measure.'],
+    }],
+  },
+});
+const whoSource = nationalSources.find((source) => source.id === 'src-national-snapshot:who-nga-under5-mortality-2024');
+assert.ok(whoSource, 'national snapshot must enter the server-owned source allowlist');
+assert.equal(whoSource.sourceType, 'official_source');
+assert.equal(whoSource.referenceDate, '2024');
+assert.ok(whoSource.excerpt.includes('59.5 deaths per 1,000 live births'));
+const fmeSource = nationalSources.find((source) => source.id === 'src-national-snapshot:fme-asc-kaduna-learner-teacher-ratio-2024-25');
+assert.ok(fmeSource);
+assert.equal(fmeSource.referenceDate, '2024/2025');
+assert.equal(fmeSource.sourceUpdateDate, '2026-07-18');
+const nationalBrief = validateCivicBrief(brief({
+  communityReports: [],
+  sources: [{ id: whoSource.id, title: 'Model-authored title', sourceType: 'fake' }],
+  officialEvidence: [{ sourceId: whoSource.id, title: 'Model-authored evidence' }],
+  findings: [{
+    text: 'WHO reports a national under-five mortality estimate for 2024.',
+    classification: 'FACT',
+    citations: [whoSource.id],
+  }],
+}), nationalSources);
+assert.equal(nationalBrief.ok, true, JSON.stringify(nationalBrief.errors));
+assert.equal(nationalBrief.brief.officialEvidence[0].title, whoSource.title);
+assert.ok(nationalBrief.brief.officialEvidence[0].summary.includes('59.5 deaths per 1,000 live births'));
+
 import { validateChatBody } from '../lib/request-validate.js';
 const structuredRequest = validateChatBody({ format: 'civic_brief_v1', messages: [{ role: 'user', content: 'What is published for Kaduna?' }] });
 assert.equal(structuredRequest.ok, true);
