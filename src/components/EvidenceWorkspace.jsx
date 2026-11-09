@@ -222,6 +222,22 @@ export default function EvidenceWorkspace() {
                   )}
                 </div>
               )}
+              {m.evidence?.observatoryIndicators && m.evidence.observatoryIndicators.status !== "skipped" && (
+                <section aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National indicators · {m.evidence.observatoryIndicators.status}</div>
+                  {m.evidence.observatoryIndicators.indicators?.length ? (
+                    <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
+                      {m.evidence.observatoryIndicators.indicators.map((item) => {
+                        const href = safeEvidenceHref(item.sourceUrl);
+                        return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                          {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
+                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.latestReferencePeriod, item.measurementType, "Nigeria national aggregate only"].filter(Boolean).join(" · ")}</p>
+                        </li>;
+                      })}
+                    </ul>
+                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national indicator was available for this question. No substitute values were used.</p>}
+                </section>
+              )}
             </Card>
           )
         )}
