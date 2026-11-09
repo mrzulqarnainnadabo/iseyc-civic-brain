@@ -23,13 +23,26 @@ const nbs = {
   url: 'https://microdata.nigerianstat.gov.ng/index.php/catalog/154/related-materials',
   note: 'Catalogue only; no current numeric observation integrated.',
 };
+const education = {
+  id: 'fme-asc-kaduna-learner-teacher-ratio-2024-25',
+  title: 'Kaduna State learner–teacher ratio',
+  value: 51.3, unit: 'learners per teacher', referencePeriod: '2024/2025',
+  sourceUpdateDate: '2026-07-18', measurementType: 'Annual School Census administrative ratio',
+  geoLevel: 'state', geographicCoverage: 'Kaduna State',
+  sourceId: 'fme-education-emis-asc-2024-25', sourceType: 'official_source',
+  sourcePublisher: 'Federal Ministry of Education — Digital Nigeria EMIS',
+  sourceUrl: 'https://emis.education.gov.ng/portal/',
+  departments: ['education'],
+  interpretation: 'State-level administrative data only; not Kaduna South or an individual school.',
+  limitations: ['The national school reporting rate is 57.9%.'],
+};
 function response(body, ok = true) {
   return { ok, status: ok ? 200 : 503, text: async () => JSON.stringify(body) };
 }
 
 const fetchMock = async () => response({
   contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-09',
-  observations: [health, civic], catalogOnlySources: [nbs], limitations: ['Manual snapshots, not live feeds.'],
+  observations: [health, civic, education], catalogOnlySources: [nbs], limitations: ['Manual snapshots, not live feeds.'],
 });
 const healthResult = await fetchNationalSnapshots('health', fetchMock);
 assert.equal(healthResult.status, 'ready');
@@ -38,6 +51,13 @@ assert.equal(healthResult.observations[0].id, health.id);
 assert.match(formatNationalSnapshotBlock(healthResult), /not live feeds/i);
 assert.match(formatNationalSnapshotBlock(healthResult), /REFERENCE_PERIOD: 2024/);
 assert.match(formatNationalSnapshotBlock(healthResult), /59.5 deaths per 1,000 live births/);
+
+const educationResult = await fetchNationalSnapshots('education school Kaduna', fetchMock);
+assert.equal(educationResult.status, 'ready');
+assert.equal(educationResult.observations.length, 1);
+assert.equal(educationResult.observations[0].id, education.id);
+assert.match(formatNationalSnapshotBlock(educationResult), /GEOGRAPHY: Kaduna State/);
+assert.match(formatNationalSnapshotBlock(educationResult), /SOURCE_UPDATE_DATE: 2026-07-18/);
 
 const inflationResult = await fetchNationalSnapshots('inflation CPI', fetchMock);
 assert.equal(inflationResult.observations.length, 0);
