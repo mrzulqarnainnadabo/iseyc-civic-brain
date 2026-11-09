@@ -193,7 +193,7 @@ const observatorySnapshotSources = buildTrustedBriefSources({
       referencePeriod: 'Indicator-specific · 2021–2023',
       geography: { level: 'national', label: 'Nigeria' },
       evidenceType: 'WHO country profile · indicator-specific estimates and reported series',
-      metrics: [{ label: 'Under-five mortality', value: '108.1', unit: 'per 1,000 live births', period: '2022', interval: '77.5–153.8' }],
+      metrics: [{ label: 'Under-five mortality', value: '108.1', unit: 'per 1,000 live births', period: '2022', interval: '77.5–153.8', measurementType: 'estimated' }],
       limitations: ['WHO statistical estimates; preserve uncertainty intervals and reference periods.'],
       interpretation: 'National context only.',
     }],
@@ -203,6 +203,7 @@ assert.equal(observatorySnapshotSources.length, 1);
 assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2021-23');
 assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
 assert.match(observatorySnapshotSources[0].excerpt, /77.5–153.8/);
+assert.match(observatorySnapshotSources[0].excerpt, /measurement: estimated/);
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
