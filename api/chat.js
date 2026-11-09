@@ -61,7 +61,11 @@ async function withTimeout(operation, ms, label) {
   }
 }
 
-export const config = {\n  api: { bodyParser: { sizeLimit: '128kb' } },\n};\n\nexport default async function handler(req, res) {
+export const config = {
+  api: { bodyParser: { sizeLimit: '128kb' } },
+};
+
+export default async function handler(req, res) {
   setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
