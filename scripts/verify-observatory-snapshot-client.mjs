@@ -7,7 +7,7 @@ import {
 
 const records = [
   {
-    id: "fme-annual-school-census-2024-25", title: "Federal Ministry of Education · Annual School Census 2024/2025",
+    id: "fme-annual-school-census-national-2024-25", title: "Federal Ministry of Education · Annual School Census 2024/2025",
     publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
     sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
     geography: { level: "national", label: "Nigeria" },
@@ -86,7 +86,7 @@ const records = [
 ];
 
 assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
-assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-2024-25", "nitda-dl4all-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25", "nitda-dl4all-2026-10"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
 assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
