@@ -123,7 +123,8 @@ export default function RoutingWorkspace() {
               style={{ ...field, marginTop: 6 }}
             />
           </label>
-          {routeForm.duty === "Roads & Transport" ? (\n          <label style={labelStyle}>
+          {routeForm.duty === "Roads & Transport" ? (
+          <label style={labelStyle}>
             Road class
             <select
               value={routeForm.roadClass}
@@ -136,7 +137,8 @@ export default function RoutingWorkspace() {
               <option value="state">State</option>
               <option value="local">Local</option>
             </select>
-          </label>\n          ) : null}
+          </label>
+          ) : null}
         </div>
         <button
           type="button"
