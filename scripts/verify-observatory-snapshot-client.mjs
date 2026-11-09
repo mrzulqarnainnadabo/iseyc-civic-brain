@@ -17,6 +17,16 @@ const records = [
     interpretation: "National administrative baseline only; keep reporting completeness visible.",
   },
   {
+    id: "fme-annual-school-census-kaduna-2024-25", title: "Federal Ministry of Education · Kaduna State school indicators",
+    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
+    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
+    geography: { level: "state", label: "Kaduna State" },
+    evidenceType: "Government education management information system · state-level administrative school census",
+    metrics: [{ label: "Learner–teacher ratio", value: "51.3", unit: "learners per teacher", period: "2024/2025" }],
+    limitations: ["Kaduna State is not Kaduna South; do not infer LGA or school conditions."],
+    interpretation: "State-level context only.",
+  },
+  {
     id: "worldbank-ndu-2026-10", title: "World Bank · Nigeria Development Update",
     publisher: "World Bank", sourceId: "worldbank-ndu-2026-10",
     sourceUrl: "https://www.worldbank.org/en/news/press-release/2026/10/08/higher-revenues-better-lives-strengthening-state-spending-growth-jobs-services",
@@ -87,6 +97,7 @@ const records = [
 
 assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
 assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25", "nitda-dl4all-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("Kaduna school conditions"), ["fme-annual-school-census-national-2024-25", "fme-annual-school-census-kaduna-2024-25"]);
 assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
 assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
