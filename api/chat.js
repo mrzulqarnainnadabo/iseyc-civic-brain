@@ -42,17 +42,28 @@ function setCors(res, req) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-async function withTimeout(promise, ms, label) {
+async function withTimeout(operation, ms, label) {
+  const controller = new AbortController();
   let t;
   const timeout = new Promise((_, reject) => {
-    t = setTimeout(() => reject(new Error(label + '_TIMEOUT')), ms);
+    t = setTimeout(() => {
+      controller.abort();
+      reject(new Error(label + '_TIMEOUT'));
+    }, ms);
   });
   try {
-    return await Promise.race([promise, timeout]);
+    const pending = typeof operation === 'function'
+      ? operation(controller.signal)
+      : operation;
+    return await Promise.race([pending, timeout]);
   } finally {
     clearTimeout(t);
   }
 }
+
+export const config = {
+  api: { bodyParser: { sizeLimit: '128kb' } },
+};
 
 export default async function handler(req, res) {
   setCors(res, req);
@@ -249,9 +260,9 @@ export default async function handler(req, res) {
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const xaiKey = process.env.XAI_API_KEY;
   const providers = [];
-  if (groqKey) providers.push(() => callGroq(groqKey, messages, system));
-  if (anthropicKey) providers.push(() => callAnthropic(anthropicKey, messages, system));
-  if (xaiKey) providers.push(() => callXAI(xaiKey, messages, system));
+  if (groqKey) providers.push((signal) => callGroq(groqKey, messages, system, signal));
+  if (anthropicKey) providers.push((signal) => callAnthropic(anthropicKey, messages, system, signal));
+  if (xaiKey) providers.push((signal) => callXAI(xaiKey, messages, system, signal));
 
   if (!providers.length) {
     return res.status(503).json({
@@ -262,7 +273,7 @@ export default async function handler(req, res) {
 
   for (const run of providers) {
     try {
-      const result = await withTimeout(run(), PROVIDER_TIMEOUT_MS, 'PROVIDER');
+      const result = await withTimeout(run, PROVIDER_TIMEOUT_MS, 'PROVIDER');
       if (result.ok) {
         const evidencePayload = {
           available: evidenceMeta.ok,
@@ -332,13 +343,14 @@ export default async function handler(req, res) {
   });
 }
 
-async function callGroq(apiKey, messages, system) {
+async function callGroq(apiKey, messages, system, signal) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
 
   let lastError = 'groq_error';
   for (const model of GROQ_MODELS) {
     const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      signal,
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
       body: JSON.stringify({
@@ -370,8 +382,9 @@ async function callGroq(apiKey, messages, system) {
   return { ok: false, error: lastError, provider: 'groq' };
 }
 
-async function callAnthropic(apiKey, messages, system) {
+async function callAnthropic(apiKey, messages, system, signal) {
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -398,10 +411,11 @@ async function callAnthropic(apiKey, messages, system) {
   return { ok: true, text: textBlock.text, model: data.model || 'claude-sonnet-4', provider: 'anthropic' };
 }
 
-async function callXAI(apiKey, messages, system) {
+async function callXAI(apiKey, messages, system, signal) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
   const upstream = await fetch('https://api.x.ai/v1/chat/completions', {
+      signal,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
     body: JSON.stringify({

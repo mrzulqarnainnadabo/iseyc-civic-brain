@@ -97,6 +97,12 @@ const chatSrc = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8')
 assert(!chatSrc.includes("Access-Control-Allow-Origin', '*'"), 'chat.js must not use open CORS *');
 assert(chatSrc.includes('SERVER_SYSTEM_PROMPT'), 'chat uses server system prompt');
 assert(chatSrc.includes('validateChatBody'), 'chat validates body');
+assert(chatSrc.includes("bodyParser: { sizeLimit: '128kb' }"), 'chat endpoint caps raw request body size');
+assert(chatSrc.includes('controller.abort()'), 'provider timeout aborts the active request');
+assert(chatSrc.includes('typeof operation === \'function\''), 'timeout helper supports cancellable provider functions');
+assert(chatSrc.includes(': operation;'), 'timeout helper preserves promise-based evidence retrieval');
+assert(chatSrc.includes("withTimeout(fetchCivicIntelligence(), 8000"), 'evidence retrieval timeout path remains intact');
+
 
 if (failed) {
   console.error(`\n${failed} check(s) failed`);
