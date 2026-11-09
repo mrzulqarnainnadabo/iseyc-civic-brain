@@ -61,6 +61,7 @@ export default function EvidenceWorkspace() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "civic",
+          format: options.format || "narrative",
           messages: next.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
