@@ -17,6 +17,16 @@ const records = [
     interpretation: "National administrative baseline only; keep reporting completeness visible.",
   },
   {
+    id: "worldbank-ndu-2026-10", title: "World Bank · Nigeria Development Update",
+    publisher: "World Bank", sourceId: "worldbank-ndu-2026-10",
+    sourceUrl: "https://www.worldbank.org/en/news/press-release/2026/10/08/higher-revenues-better-lives-strengthening-state-spending-growth-jobs-services",
+    referencePeriod: "H1 2026 GDP; Q1 2026 current account; end-July 2026 reserves", retrievedAt: "2026-11-10",
+    geography: { level: "national", label: "Nigeria" },
+    evidenceType: "International development institution assessment · national macroeconomic indicators",
+    metrics: [{ label: "Real GDP growth", value: "4.2%", unit: "year-on-year growth", period: "H1 2026", measurementType: "reported estimate" }],
+    limitations: ["National aggregate only; not a state or LGA growth rate."], interpretation: "National context only.",
+  },
+  {
     id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
     publisher: "World Health Organization", sourceId: "who-gho-nigeria",
     sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
@@ -81,7 +91,8 @@ assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enro
 assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
 assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
 assert.deepEqual(selectSnapshotRecords("software ecosystem"), ["nitda-dl4all-2026-10", "isn-innovation-hub-assessment-2026"]);
-assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026"]);
+assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026", "worldbank-ndu-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("foreign reserves Nigeria"), ["worldbank-ndu-2026-10"]);
 assert.equal(selectSnapshotRecords("unrelated question").length, 0);
 
 let requested = "";
