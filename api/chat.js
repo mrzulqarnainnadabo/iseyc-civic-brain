@@ -13,6 +13,7 @@ import { fetchCivicIntelligence, formatEvidenceBlock } from '../lib/civic-eviden
 import { fetchPublishedCommunityRecords, formatCommunityRecordsBlock } from '../lib/community-record-client.js';
 import { fetchPublishedCommunityObservations, formatCommunityObservationBlock } from '../lib/community-observation-client.js';
 import { fetchInecEvidence, formatInecEvidenceBlock } from '../lib/inec-evidence-client.js';
+import { fetchObservatoryIndicators, formatObservatoryIndicatorBlock } from '../lib/observatory-indicator-client.js';
 import {
   briefModeSystemAppendix,
   extractJsonBrief,
@@ -100,11 +101,12 @@ export default async function handler(req, res) {
   };
 
   const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
-  const [snapshotResult, communityRecordsResult, observationResult, inecResult] = await Promise.allSettled([
+  const [snapshotResult, communityRecordsResult, observationResult, inecResult, observatoryIndicatorsResult] = await Promise.allSettled([
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
     withTimeout(fetchPublishedCommunityRecords(fetch), 8000, 'COMMUNITY_RECORDS'),
     withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
     withTimeout(fetchInecEvidence(latestUserMessage), 8000, 'INEC_EVIDENCE'),
+    withTimeout(fetchObservatoryIndicators(latestUserMessage), 8000, 'OBSERVATORY_INDICATORS'),
   ]);
 
   if (snapshotResult.status === 'fulfilled' && snapshotResult.value && !snapshotResult.value.error) {
@@ -176,6 +178,28 @@ export default async function handler(req, res) {
       errorCode: 'INEC_EVIDENCE_RETRIEVAL_FAILED',
     };
   }
+
+  let observatoryIndicatorsBundle = { status: 'unavailable', indicators: [], limitations: ['Observatory national indicators were not retrieved.'], errorCode: 'OBSERVATORY_INDICATOR_RETRIEVAL_FAILED' };
+  if (observatoryIndicatorsResult.status === 'fulfilled' && observatoryIndicatorsResult.value) {
+    observatoryIndicatorsBundle = observatoryIndicatorsResult.value;
+  }
+  const observatoryIndicatorsBlock = formatObservatoryIndicatorBlock(observatoryIndicatorsBundle);
+  const observatoryIndicatorsMeta = {
+    status: observatoryIndicatorsBundle.status,
+    indicatorIds: (observatoryIndicatorsBundle.indicators || []).map((item) => item.id),
+    indicators: (observatoryIndicatorsBundle.indicators || []).map((item) => ({
+      id: item.id,
+      title: item.title,
+      publisher: item.sourcePublisher,
+      sourceUrl: item.sourceUrl,
+      latestReferencePeriod: item.observations?.[item.observations.length - 1]?.referencePeriod || null,
+      measurementType: item.measurementType,
+      geoLevel: item.geoLevel,
+    })),
+    fetchedAt: observatoryIndicatorsBundle.fetchedAt || new Date().toISOString(),
+    errorCode: observatoryIndicatorsBundle.errorCode || null,
+    limitations: observatoryIndicatorsBundle.limitations || [],
+  };
 
   const inecBlock = formatInecEvidenceBlock(inecBundle);
   const inecMeta = {
