@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 190" role="img" aria-labelledby="title desc">
+  <title id="title">ISEYC — Initiative for Sustainable Evolution for Youth and Community</title>
+  <desc id="desc">The official ISEYC seal paired with the institution's full name and tagline.</desc>
+  <image href="/iseyc-seal.svg" x="0" y="4" width="174" height="174" preserveAspectRatio="xMidYMid meet"/>
+  <text x="202" y="78" fill="#0B2D22" font-family="Georgia, 'Times New Roman', serif" font-size="66" font-weight="700" letter-spacing="1">ISEYC</text>
+  <path d="M204 94H882" stroke="#A7833F" stroke-width="2"/>
+  <text x="204" y="119" fill="#0B2D22" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="1.2">INITIATIVE FOR SUSTAINABLE EVOLUTION</text>
+  <text x="204" y="145" fill="#0B2D22" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="1.2">FOR YOUTH AND COMMUNITY</text>
+  <text x="204" y="174" fill="#80621F" font-family="Georgia, 'Times New Roman', serif" font-size="19" font-style="italic">Empowering Youth, Shaping Communities</text>
+</svg>
