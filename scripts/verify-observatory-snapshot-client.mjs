@@ -117,7 +117,7 @@ assert.equal(bad.status, "unavailable");
 assert.equal(bad.records.length, 0);
 
 const badSource = structuredClone(records);
-badSource[0].sourceUrl = "https://example.com/fake";
+badSource.find((record) => record.id === "who-nigeria-health-2021-23").sourceUrl = "https://example.com/fake";
 const rejected = await fetchObservatorySnapshots("health", async () => ({
   ok: true, status: 200, text: async () => JSON.stringify({
     contractVersion: "1.0.0", status: "ok", source: "iseyc-observatory-national-snapshots-v1",
