@@ -59,9 +59,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = "I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.
-
-I cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.";
+const INTRO = `I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.\n\nI cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.`;
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
