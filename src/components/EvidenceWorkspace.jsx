@@ -59,21 +59,9 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `**ISEYC Civic Brain** explains public civic evidence from Civic Mandate, reviewed community observations and official-source publications.
+const INTRO = "I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.
 
-**What you can do here**
-- Understand published community demands and reports
-- Ask about INEC voter-register and PVC figures, with source dates and limitations
-- Separate official statistics, community experience, commitments and verified outcomes
-- Identify responsible institutions for human review
-
-**What this tool cannot do**
-- Contact government for you
-- Mark a public issue as resolved
-- See unpublished or private submissions
-- Turn partial evidence into national conclusions
-
-[Open Civic Mandate Nigeria](${MANDATE_URL}) to submit a demand or browse published records. Pick a starter below.`;
+I cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.";
 
 export default function EvidenceWorkspace() {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
@@ -164,9 +152,9 @@ export default function EvidenceWorkspace() {
         role="log"
         aria-live="polite"
         aria-relevant="additions"
-        style={{ flex: 1, overflowY: "auto", padding: "16px 12px", maxWidth: 720, width: "100%", margin: "0 auto" }}
+        style={{ flex: 1, overflowY: "auto", padding: "16px 12px", maxWidth: 900, width: "100%", margin: "0 auto" }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8, marginBottom: 14 }}>
           <a
             href={MANDATE_URL}
             target="_blank"
