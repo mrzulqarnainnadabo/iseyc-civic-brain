@@ -181,6 +181,87 @@ assert.ok(bundles.some((source) => source.id === 'src-civic-mandate-aggregate'))
 assert.ok(bundles.some((source) => source.id === 'src-community-record:cr-001'));
 assert.ok(bundles.some((source) => source.id === 'src-community-observation:obs-1'));
 assert.ok(bundles.some((source) => source.id === 'src-inec:2023-pvc'));
+const observatorySnapshotSources = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'who-nigeria-health-2021-23',
+      title: 'WHO · Nigeria health indicators',
+      publisher: 'World Health Organization',
+      sourceId: 'who-gho-nigeria',
+      sourceUrl: 'https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria',
+      referencePeriod: 'Indicator-specific · 2021–2023',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'WHO country profile · indicator-specific estimates and reported series',
+      metrics: [{ label: 'Under-five mortality', value: '108.1', unit: 'per 1,000 live births', period: '2022', interval: '77.5–153.8', measurementType: 'estimated' }],
+      limitations: ['WHO statistical estimates; preserve uncertainty intervals and reference periods.'],
+      interpretation: 'National context only.',
+    }],
+  },
+});
+assert.equal(observatorySnapshotSources.length, 1);
+assert.equal(observatorySnapshotSources[0].id, 'src-observatory-snapshot:who-nigeria-health-2021-23');
+assert.equal(observatorySnapshotSources[0].sourceType, 'official_source');
+assert.match(observatorySnapshotSources[0].excerpt, /77.5–153.8/);
+assert.match(observatorySnapshotSources[0].excerpt, /measurement: estimated/);
+const isnSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'isn-innovation-hub-assessment-2026',
+      title: 'ISN · Nigerian Innovation Hub Assessment',
+      publisher: 'Innovation Support Network (ISN)',
+      sourceId: 'isn-hub-assessment-2026',
+      sourceUrl: 'https://isnhubs.org.ng/nigerias-innovation-landmark-isn-launches-comprehensive-hub-assessment-report-and-unveils-2026-2030-strategic-outlook/',
+      referencePeriod: 'Summary released 22 May 2026',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'Industry ecosystem assessment summary',
+      metrics: [{ label: 'Hubs offering structured training', value: '90%', unit: 'of respondents', period: '2026 summary', measurementType: 'survey respondent share' }],
+      limitations: ['Geographic percentages are respondent shares, not a national census.'],
+      interpretation: 'Survey summary only.',
+    }],
+  },
+});
+assert.equal(isnSnapshotSource.length, 1);
+assert.equal(isnSnapshotSource[0].id, 'src-observatory-snapshot:isn-innovation-hub-assessment-2026');
+assert.match(isnSnapshotSource[0].excerpt, /survey respondent share/);
+
+const worldBankSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'worldbank-ndu-2026-10',
+      title: 'World Bank Development Update',
+      publisher: 'World Bank',
+      sourceId: 'worldbank-ndu-2026-10',
+      sourceUrl: 'https://www.worldbank.org/en/publication/global-economic-prospects',
+      referencePeriod: 'October 2026',
+      geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'World Bank publication transcription',
+      metrics: [{ label: 'Foreign reserves', value: '12.3', unit: 'USD billion', period: 'October 2026', measurementType: 'published estimate' }],
+      limitations: ['Published estimate; retain the source period and methodology.'],
+      interpretation: 'National context only.',
+    }],
+  },
+});
+assert.equal(worldBankSnapshotSource.length, 1);
+assert.equal(worldBankSnapshotSource[0].id, 'src-observatory-snapshot:worldbank-ndu-2026-10');
+assert.equal(worldBankSnapshotSource[0].sourceUrl, 'https://www.worldbank.org/en/publication/global-economic-prospects');
+assert.match(worldBankSnapshotSource[0].excerpt, /published estimate/);
+
+const untrustedSnapshotSource = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    records: [{
+      id: 'fake', title: 'Fake', publisher: 'Fake publisher', sourceUrl: 'https://attacker.example/fake',
+      referencePeriod: '2026', geography: { level: 'national', label: 'Nigeria' },
+      evidenceType: 'fake', metrics: [{ label: 'Fake', value: '999', unit: 'people', period: '2026' }],
+      limitations: ['Untrusted'], interpretation: 'Untrusted',
+    }],
+  },
+});
+assert.equal(untrustedSnapshotSource.length, 0);
+
 const rejectedOfficial = buildTrustedBriefSources({
   inecBundle: {
     status: 'ready',
@@ -207,6 +288,9 @@ import { readFileSync } from 'node:fs';
 const chatSource = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8');
 assert.ok(chatSource.includes('validateCivicBrief(parsed, trustedSources)'));
 assert.ok(chatSource.includes('buildTrustedBriefSources'));
+assert.ok(chatSource.includes('fetchObservatorySnapshots'));
+assert.ok(chatSource.includes('observatorySnapshotsBundle'));
+assert.ok(chatSource.includes('CURATED NATIONAL SOURCE SNAPSHOTS'));
 assert.ok(chatSource.includes('!briefMode || canonicalCommunityRecordsAvailable'));
 
 console.log('Trusted Civic Brief source allowlist checks passed.');

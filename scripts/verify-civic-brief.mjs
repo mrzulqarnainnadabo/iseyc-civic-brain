@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { SERVER_SYSTEM_PROMPT, MODE_HINTS } from "../lib/system-prompt.js";
 
 const prompt = SERVER_SYSTEM_PROMPT;
+const architecture = readFileSync(new URL("../public/iseyc-system-architecture.svg", import.meta.url), "utf8");
 const headings = [
   "**What the public record shows**",
   "**What it does not mean**",
@@ -44,11 +45,14 @@ if (!MODE_HINTS.civic.includes("four required CIVIC BRIEF headings")) {
 }
 const header = readFileSync(new URL("../src/components/ui/Header.jsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("../src/components/EvidenceWorkspace.jsx", import.meta.url), "utf8");
-if (!header.includes('src="/iseyc-seal.svg"') || !header.includes('alt="ISEYC official seal"')) {
-  console.error("FAIL: header does not use the official ISEYC seal");
+if (!header.includes('src="/iseyc-wordmark.svg"') || !header.includes('ISEYC — Initiative for Sustainable Evolution for Youth and Community')) {
+  console.error("FAIL: header does not use the approved ISEYC wordmark");
   failed++;
-} else console.log("OK: header uses official ISEYC seal");
-for (const label of ["What is Civic Mandate?", "What is published so far?", "Health-related demands", "How Mandate + Brain work", "Published vs resolved", "INEC voter register and PVCs", "Current CVR status"]) {
+} else console.log("OK: header uses approved ISEYC wordmark");
+for (const label of ["Civic Mandate", "Civic Intelligence", "Civic Brain", "Education", "Health", "Software", "Civic Department", "Digital Operations Centre"]) {
+  if (!architecture.includes(label)) throw new Error(`ISEYC system map is missing ${label}`);
+}
+for (const label of ["Understand a community issue", "Check national evidence", "Find responsible institutions", "Generate a structured Civic Brief"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
     failed++;
