@@ -41,7 +41,7 @@ const prompt = read("lib/system-prompt.js");
 assert(prompt.includes("OBSERVATORY NATIONAL INDICATOR RULES"), "server prompt includes indicator interpretation rules");
 assert(prompt.includes("OBSERVATORY CURATED NATIONAL SNAPSHOT RULES"), "server prompt includes curated snapshot interpretation rules");
 assert(prompt.includes("OBSERVATORY NATIONAL SOURCE OBSERVATION RULES"), "server prompt includes source observation and state-budget boundaries");
-assert(prompt.includes("20 states remain unreviewed"), "server prompt preserves incomplete state source discovery");
+assert(prompt.includes("18 states remain unreviewed"), "server prompt preserves incomplete state source discovery");
 assert(prompt.includes("ISN hub-assessment percentages are survey respondent shares"), "server prompt preserves ISN survey-sample limits");
 assert(prompt.includes("Never infer state, LGA, ward, facility, community or household values"), "national-only geography boundary is explicit");
 assert(prompt.includes("modelled"), "measurement types must be preserved");
