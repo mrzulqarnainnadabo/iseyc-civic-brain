@@ -25,6 +25,18 @@ const observations = [
     limitations: ["Not an independent audit.", "Does not establish service quality."]
   },
   {
+    id: "budgit-h1-2026-health-total", title: "Combined state health expenditure · earlier infographic total (superseded)",
+    value: 614.55, unit: "₦ billion", referencePeriod: "H1 2026 (through Q2)",
+    measurementType: "Actual health expenditure reported in earlier published infographic",
+    geoLevel: "varies", geographicCoverage: "34 of 36 states; Rivers and Osun excluded",
+    sourceId: "budgit-state-health-h1-2026", sourcePublisher: "BudgIT Foundation",
+    sourceUrl: "https://budgit.org/post_infographics/h1-2026-health-expenditure-performance-by-state/",
+    sourceType: "published_research", departments: ["health", "civic"], recordStatus: "superseded",
+    supersededBy: "budgit-health-spending",
+    interpretation: "Earlier 21 October infographic total; retained only for explicit reconciliation.",
+    limitations: ["Superseded by later detailed report total; do not use as current aggregate."]
+  },
+  {
     id: "kaduna-education-budget", title: "Kaduna approved education budget share", value: 25, unit: "%",
     referencePeriod: "2026 approved budget", measurementType: "Budget allocation share", geoLevel: "state",
     geographicCoverage: "Kaduna State", sourceId: "kdsg-budget", sourcePublisher: "Kaduna State Government",
