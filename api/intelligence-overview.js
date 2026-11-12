@@ -1,6 +1,7 @@
 import { fetchPublishedCommunityRecords } from '../lib/community-record-client.js';
 import { fetchPublishedCommunityObservations } from '../lib/community-observation-client.js';
 import { fetchInecEvidence } from '../lib/inec-evidence-client.js';
+import { fetchNationalSnapshots } from '../lib/national-snapshot-client.js';
 
 const OBSERVATORY = 'https://iseyc-civic-intelligence-observatory.vercel.app';
 
@@ -51,17 +52,20 @@ export default async function handler(req, res) {
     fetchPublishedCommunityObservations(timedFetch, { timeoutMs: 9000 }),
     fetchInecEvidence('Nigeria voter register PVC collection and Continuous Voter Registration', timedFetch, { timeoutMs: 6000 }),
     fetchIndicatorCatalog(),
+    fetchNationalSnapshots('national state budget fiscal transparency education health technology', timedFetch, { timeoutMs: 7000 }),
   ]);
   const value = (index) => results[index].status === 'fulfilled' ? results[index].value : null;
   const records = value(0);
   const observations = value(1);
   const inec = value(2);
   const indicators = value(3);
+  const nationalEvidence = value(4);
 
   const communityReady = Boolean(records && Array.isArray(records.records));
   const observationStatus = safeStatus(observations?.status);
   const inecStatus = safeStatus(inec?.status);
   const indicatorStatus = safeStatus(indicators?.status);
+  const nationalEvidenceStatus = safeStatus(nationalEvidence?.status);
 
   res.status(200).json({
     contractVersion: '1.0.0',
@@ -99,12 +103,22 @@ export default async function handler(req, res) {
         indicators: Array.isArray(indicators?.indicators) ? indicators.indicators : [],
         note: 'Indicator catalog availability does not mean every series has a current observation.',
       },
+      nationalEvidence: {
+        status: nationalEvidenceStatus,
+        observationCount: typeof nationalEvidence?.availableObservationCount === 'number' ? nationalEvidence.availableObservationCount : null,
+        selectedCount: typeof nationalEvidence?.selectedCount === 'number' ? nationalEvidence.selectedCount : null,
+        catalogueOnlyCount: Array.isArray(nationalEvidence?.catalogOnlySources) ? nationalEvidence.catalogOnlySources.length : null,
+        checkedAt: nationalEvidence?.checkedAt || null,
+        stateBudgetCoverage: nationalEvidence?.stateBudgetCoverage || null,
+        limitations: Array.isArray(nationalEvidence?.limitations) ? nationalEvidence.limitations.slice(0, 3) : ['National evidence retrieval is unavailable.'],
+      },
     },
     systemBoundary: [
       'Published community records are not representative survey results.',
       'Community observations are reports, not official administrative evidence unless separately corroborated.',
       'INEC datasets are transcriptions of cited official publications, not a live INEC API.',
       'National indicators cannot establish state, LGA, ward or facility conditions.',
+      'Fiscal disclosure scores and budget execution figures do not establish service quality or completed delivery.',
       'A published demand, evidence retrieval or routing recommendation does not mean an institution was contacted or an issue was resolved.',
     ],
   });
