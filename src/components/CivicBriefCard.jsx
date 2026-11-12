@@ -20,9 +20,9 @@ export default function CivicBriefCard({ brief }) {
   const reports = Array.isArray(brief.communityReports) ? brief.communityReports : [];
 
   return (
-    <section aria-label="Structured Civic Brief" style={{ border: "1px solid var(--iseyc-border-strong)", borderTop: "3px solid var(--iseyc-gold)", borderRadius: 8, background: "var(--iseyc-white)", overflow: "hidden" }}>
+    <section aria-label="Structured Evidence brief" style={{ border: "1px solid var(--iseyc-border-strong)", borderTop: "3px solid var(--iseyc-gold)", borderRadius: 8, background: "var(--iseyc-white)", overflow: "hidden" }}>
       <div style={{ padding: "12px 14px", background: "var(--iseyc-forest-deep)", color: "var(--iseyc-cream)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-        <div><div style={{ color: "var(--iseyc-gold-soft)", fontSize: 9, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>ISEYC · Civic Intelligence</div><h2 className="display" style={{ margin: "3px 0 0", color: "var(--iseyc-cream)", fontSize: 19 }}>Civic Brief</h2></div>
+        <div><div style={{ color: "var(--iseyc-gold-soft)", fontSize: 9, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>ISEYC · Evidence intelligence</div><h2 className="display" style={{ margin: "3px 0 0", color: "var(--iseyc-cream)", fontSize: 19 }}>Civic Brief</h2></div>
         <Pill>Draft · Human review</Pill>
       </div>
       <div style={{ padding: 14 }}>
