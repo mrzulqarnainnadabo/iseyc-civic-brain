@@ -35,7 +35,7 @@ npm run dev
 
 See `docs/DEPLOY-TOGETHER.md` (deploy Mandate + Brain in one window).
 
-Active branch: `feat/secure-evidence-grounded-brain` (PR #6)
+Current evidence/response work: `feat/concise-observatory-evidence` (draft PR #44).
 
 
 ## National evidence and concise answers
@@ -44,11 +44,11 @@ Civic Brain reads two separate Observatory evidence surfaces:
 - `/api/evidence/snapshots` for the existing National Department Snapshot contract.
 - `/api/evidence/source-snapshots` for source-attributed national observations, catalogue-only research leads, reconciliation notes and state-budget source coverage.
 
-The source-observation client is read-only and uses fixed endpoint, source-ID and publisher-host allowlists. It selects at most six relevant observations, three catalogue leads and three relevant reconciliation notes. Catalogue entries are never treated as numeric evidence.
+The source-observation client is read-only and uses fixed endpoint, source-ID and publisher-host allowlists. The Observatory pack contains 93 curated observations from 15 observation sources, 28 catalogue-only or partially integrated sources and 103 registered source entries. Brain selects at most six relevant observations, three catalogue leads and three relevant reconciliation notes. Catalogue entries are never treated as numeric evidence.
 
-Current source coverage is deliberately partial: 15 official state budget portals and one additional official appropriation announcement have been located; 20 states remain unreviewed in this discovery pass. The fiscal-transparency availability table covers all 36 states, while H1 2026 sector-spending comparisons cover 34 states. The FCT is tracked separately.
+Current source coverage is deliberately partial: 15 official state budget portals and three additional official state budget documents have been located; 18 states remain unreviewed in this discovery pass. The fiscal-transparency availability table covers all 36 states; Agora Policy's 2025 state fiscal outturn table covers 35 states (Rivers excluded); H1 2026 sector-spending comparisons cover 34 states. The FCT is tracked separately.
 
-The latest BudgIT H1 2026 health report reports ₦621.34bn across 34 states; an earlier infographic reported ₦614.55bn. The discrepancy remains unresolved and is disclosed in answers where relevant.
+The latest BudgIT H1 2026 health report reports ₦621.34bn across 34 states; an earlier infographic reported ₦614.55bn. The discrepancy remains unresolved and is disclosed in answers where relevant. Agora Policy cites Lagos 2025 IGR at ₦1.85tn while BudgIT cites ₦1.71tn; both are retained with a reconciliation note. Anambra's official Q3 2026 BIR is also available for state-specific fiscal questions.
 
 ### Response standard
 
