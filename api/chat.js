@@ -23,7 +23,8 @@ import {
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
 
 const PROVIDER_TIMEOUT_MS = 20000;
-const MAX_OUTPUT_TOKENS = 384;
+const MAX_NARRATIVE_TOKENS = 384;
+const MAX_BRIEF_TOKENS = 1024;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
 
@@ -84,6 +85,7 @@ export default async function handler(req, res) {
   }
   const { messages, mode, format } = validation.value;
   const briefMode = format === 'civic_brief_v1';
+  const maxOutputTokens = briefMode ? MAX_BRIEF_TOKENS : MAX_NARRATIVE_TOKENS;
   const modeHint = briefMode ? '' : (MODE_HINTS[mode] || MODE_HINTS.civic);
 
   let evidenceBlock = '';
@@ -290,9 +292,9 @@ export default async function handler(req, res) {
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const xaiKey = process.env.XAI_API_KEY;
   const providers = [];
-  if (groqKey) providers.push((signal) => callGroq(groqKey, messages, system, signal));
-  if (anthropicKey) providers.push((signal) => callAnthropic(anthropicKey, messages, system, signal));
-  if (xaiKey) providers.push((signal) => callXAI(xaiKey, messages, system, signal));
+  if (groqKey) providers.push((signal) => callGroq(groqKey, messages, system, signal, maxOutputTokens));
+  if (anthropicKey) providers.push((signal) => callAnthropic(anthropicKey, messages, system, signal, maxOutputTokens));
+  if (xaiKey) providers.push((signal) => callXAI(xaiKey, messages, system, signal, maxOutputTokens));
 
   if (!providers.length) {
     return res.status(503).json({
@@ -375,7 +377,7 @@ export default async function handler(req, res) {
   });
 }
 
-async function callGroq(apiKey, messages, system, signal) {
+async function callGroq(apiKey, messages, system, signal, maxTokens = MAX_NARRATIVE_TOKENS) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
 
@@ -388,7 +390,7 @@ async function callGroq(apiKey, messages, system, signal) {
       body: JSON.stringify({
         model,
         messages: openAIMessages,
-        max_tokens: MAX_OUTPUT_TOKENS,
+        max_tokens: maxTokens,
         temperature: 0.4,
       }),
     });
@@ -414,7 +416,7 @@ async function callGroq(apiKey, messages, system, signal) {
   return { ok: false, error: lastError, provider: 'groq' };
 }
 
-async function callAnthropic(apiKey, messages, system, signal) {
+async function callAnthropic(apiKey, messages, system, signal, maxTokens = MAX_NARRATIVE_TOKENS) {
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       signal,
     method: 'POST',
@@ -425,7 +427,7 @@ async function callAnthropic(apiKey, messages, system, signal) {
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: maxTokens,
       system,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     }),
@@ -443,7 +445,7 @@ async function callAnthropic(apiKey, messages, system, signal) {
   return { ok: true, text: textBlock.text, model: data.model || 'claude-sonnet-4', provider: 'anthropic' };
 }
 
-async function callXAI(apiKey, messages, system, signal) {
+async function callXAI(apiKey, messages, system, signal, maxTokens = MAX_NARRATIVE_TOKENS) {
   const openAIMessages = [{ role: 'system', content: system }];
   for (const m of messages) openAIMessages.push({ role: m.role, content: m.content });
   const upstream = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -453,7 +455,7 @@ async function callXAI(apiKey, messages, system, signal) {
     body: JSON.stringify({
       model: 'grok-3',
       messages: openAIMessages,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: maxTokens,
       temperature: 0.4,
     }),
   });
