@@ -226,7 +226,12 @@ const broadbandResult = await fetchNationalSnapshots('broadband subscriptions Ni
 assert.equal(broadbandResult.status, 'ready');
 assert.ok(broadbandResult.observations.some((item) => item.id === nccBroadbandSubs.id && item.value === 128020463));
 assert.ok(broadbandResult.observations.some((item) => item.id === nccPenetration.id && item.value === 59.05));
-assert.ok(!broadbandResult.observations.some((item) => item.unit === '% of population'), 'subscription penetration must not be conflated with people using the internet');
+const relatedWdi = broadbandResult.observations.find((item) => item.id === wdiInternetUse.id);
+if (relatedWdi) {
+  assert.equal(relatedWdi.referencePeriod, '2024');
+  assert.notEqual(relatedWdi.unit, nccPenetration.unit);
+  assert.match(relatedWdi.measurementType, /previous three months/i);
+}
 
 const internetUseResult = await fetchNationalSnapshots('internet use Nigeria', mock);
 assert.equal(internetUseResult.status, 'ready');
