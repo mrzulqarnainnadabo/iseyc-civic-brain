@@ -7,49 +7,28 @@ const MANDATE_URL = "https://2027-street-mandate.vercel.app";
 
 const SUGGESTIONS = [
   {
-    label: "What is Civic Mandate?",
-    prompt:
-      "Explain Civic Mandate Nigeria in plain language: what it is, what it is not, how a demand becomes Published, and how Civic Brain uses the public record. Keep it short.",
-  },
-  {
     label: "What is published so far?",
-    prompt:
-      "Using only the current published Civic Mandate evidence, summarise totals, states represented, and main duties. Say clearly if coverage is thin and that this is pilot data.",
+    prompt: "Summarise current published Civic Mandate records in three short points. Separate community reports from independently verified outcomes; state geography and limits.",
   },
   {
-    label: "INEC voter register and PVCs",
-    prompt:
-      "What do official INEC sources say about registered voters and PVCs? Separate the 2023 validated register from 2025–2026 CVR registrations, cite source dates, and explain what remains unknown.",
+    label: "National health evidence",
+    prompt: "What do current official and published sources say about Nigeria's health system? Use up to three relevant values with their periods and geographies. State what remains unknown.",
   },
   {
-    label: "Current CVR status",
-    prompt:
-      "What is known about the 2025–2026 Continuous Voter Registration exercise? Explain the official phase-one counts, the two-voter discrepancy, and whether a final validated national register is available.",
+    label: "State budget execution",
+    prompt: "Summarise H1 2026 state budget execution. Use the BudgIT 34-state sample, the 24.4% combined expenditure figure and each source's own coverage. Do not infer service delivery.",
   },
   {
-    label: "State health and education budgets",
-    prompt:
-      "What do the NGF 2026 original state-budget aggregates show for education and health? Give the share, naira amount, 36-state scope and key limitations. Distinguish planned allocations from actual spending and verified services.",
+    label: "Education spending",
+    prompt: "What do H1 2026 state education expenditure figures show? Give the 34-state total, selected state figures and what spending cannot prove.",
   },
   {
-    label: "Health-related demands",
-    prompt:
-      "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses or claim referrals were sent.",
+    label: "All-state fiscal disclosure",
+    prompt: "Explain BudgIT's Q2 2026 fiscal information availability scores across all 36 states. Explain the components and state clearly that this is not a service-delivery ranking.",
   },
   {
-    label: "Who may be responsible?",
-    prompt:
-      "In general, how does Civic Brain recommend a responsible institution? Stress human review, jurisdiction uncertainty, and that a recommendation is not a referral sent.",
-  },
-  {
-    label: "Published vs resolved",
-    prompt:
-      "What is the difference between a published civic demand and a resolved issue? Use only ISEYC product rules — do not invent government outcomes.",
-  },
-  {
-    label: "How Mandate + Brain work",
-    prompt:
-      "How should a citizen use Civic Mandate and Civic Brain together? Submit → human review → Published → understand evidence. Non-partisan only.",
+    label: "Who is responsible?",
+    prompt: "Identify the institution that may hold responsibility for a documented public-service issue. Give the source basis, uncertainty and one human-review step.",
   },
 ];
 
@@ -73,7 +52,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `I explain published Civic Mandate records and official evidence, including source dates, geography and limitations.\n\nI cannot publish demands, contact government or confirm that a public issue has been resolved. Choose a starter question below, or ask in your own words.`;
+const INTRO = `Ask about a published record or public evidence. I will give you the finding, source and key limitation. I cannot contact government or confirm resolution.`;
 
 export default function EvidenceWorkspace({ initialPrompt = "" }) {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
