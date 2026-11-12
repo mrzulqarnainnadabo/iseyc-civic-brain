@@ -137,7 +137,7 @@ const inflationResult = await fetchNationalSnapshots('inflation CPI', mock);
 assert.equal(inflationResult.status, 'ready');
 assert.equal(inflationResult.observations.length, 0);
 assert.ok(inflationResult.catalogOnlySources.some((item) => item.id === 'nbs-cpi-monthly'));
-assert.match(formatNationalSnapshotBlock(inflationResult), /no relevant curated observation selected/i);
+assert.match(formatNationalSnapshotBlock(inflationResult), /CATALOGUE ONLY \(catalogue\): NBS CPI catalogue/i);
 
 let called = false;
 const skipped = await fetchNationalSnapshots('unrelated question', async () => { called = true; });
@@ -146,7 +146,7 @@ assert.equal(called, false);
 
 const blocked = await fetchNationalSnapshots('health', async () => { called = true; }, { url: 'https://evil.example/snapshots' });
 assert.equal(blocked.status, 'invalid');
-assert.equal(called, true);
+assert.equal(called, false);
 
 const maliciousBody = { ...sourceBody, observations: [{ ...healthSpend, sourceUrl: 'https://evil.example/fake' }] };
 const malicious = await fetchNationalSnapshots('health', async () => response(maliciousBody));
