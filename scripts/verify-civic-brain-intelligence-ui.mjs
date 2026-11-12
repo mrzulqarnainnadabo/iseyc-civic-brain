@@ -31,7 +31,7 @@ const chatApi = read("api/chat.js");
 assert(chatApi.includes("PROVIDER_TIMEOUT_MS = 20000"), "provider wait is bounded to 20 seconds");
 assert(chatApi.includes("MAX_OUTPUT_TOKENS = 384"), "narrative answers use a concise token budget");
 const snapshotClient = read("lib/observatory-snapshot-client.js");
-assert(snapshotClient.includes("ngf-public-finance-database") || snapshotClient.includes("ngf-state-budget-health-2026"), "state-budget records are routed into the evidence client");
+assert(snapshotClient.includes("publicfinance.ngf.org.ng"), "NGF publisher domain is allowlisted for state-budget evidence");
 
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
