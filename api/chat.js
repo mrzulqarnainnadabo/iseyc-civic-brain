@@ -22,8 +22,8 @@ import {
 } from '../lib/civic-brief-engine.js';
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
 
-const PROVIDER_TIMEOUT_MS = 25000;
-const MAX_OUTPUT_TOKENS = 1024;
+const PROVIDER_TIMEOUT_MS = 20000;
+const MAX_OUTPUT_TOKENS = 384;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
 
