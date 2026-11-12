@@ -24,7 +24,6 @@ import {
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
 import { fetchNationalSnapshots, formatNationalSnapshotBlock } from '../lib/national-snapshot-client.js';
 import { compactNarrative } from '../lib/response-length.js';
-import { compactNarrative } from '../lib/response-length.js';
 
 const PROVIDER_TIMEOUT_MS = 25000;
 const MAX_OUTPUT_TOKENS = 256;
