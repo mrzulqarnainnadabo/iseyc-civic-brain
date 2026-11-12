@@ -74,6 +74,7 @@ const fetchMock = async (url) => {
 const health = await fetchObservatorySnapshots("health in Nigeria", fetchMock);
 assert.equal(health.status, "ready");
 assert.equal(health.records.length, 2);
+assert.ok(!health.records.some((record) => record.recordStatus === "superseded"), "superseded totals stay out of normal answers");
 assert.equal(health.records[1].metrics[0].value, "621.34");
 assert.match(requested, /api\/evidence\/source-snapshots/);
 assert.match(formatObservatorySnapshotBlock(health), /H1 2026/);
@@ -90,6 +91,9 @@ const budgetHealth = await fetchObservatorySnapshots("health budget 2026", fetch
 assert.equal(budgetHealth.status, "ready");
 assert.equal(budgetHealth.records.length, 1, "budget questions should not be diluted by unrelated health indicators");
 assert.equal(budgetHealth.records[0].id, "budgit-health-spending");
+const reconciliation = await fetchObservatorySnapshots("health expenditure discrepancy compare sources", fetchMock);
+assert.ok(reconciliation.records.some((record) => record.recordStatus === "superseded" && record.metrics[0].value === "614.55"));
+assert.match(formatObservatorySnapshotBlock(reconciliation), /RECORD_STATUS: superseded/);
 
 
 const education = await fetchObservatorySnapshots("education budget Kaduna", fetchMock);
