@@ -22,9 +22,10 @@ import {
   narrativeFallbackFromFailure,
 } from '../lib/civic-brief-engine.js';
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
+import { compactNarrative } from '../lib/response-length.js';
 
 const PROVIDER_TIMEOUT_MS = 25000;
-const MAX_OUTPUT_TOKENS = 1024;
+const MAX_OUTPUT_TOKENS = 256;
 const MAX_BRIEF_OUTPUT_TOKENS = 2600;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
@@ -385,8 +386,9 @@ export default async function handler(req, res) {
           });
         }
 
+        const conciseText = compactNarrative(result.text);
         return res.status(200).json({
-          content: [{ type: 'text', text: result.text }],
+          content: [{ type: 'text', text: conciseText }],
           provider: result.provider,
           model: result.model,
           format: 'narrative',
