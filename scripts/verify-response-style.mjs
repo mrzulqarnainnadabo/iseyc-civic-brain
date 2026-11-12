@@ -19,4 +19,6 @@ assert.match(api, /const PROVIDER_TIMEOUT_MS = 20000;/);
 assert.match(engine, /\*\*Answer\*\*/);
 assert.match(engine, /\*\*Limit\*\*/);
 assert.match(engine, /\*\*Next step\*\*/);
+assert.match(ui, /Evidence and source notes/);
+assert.match(ui, /<details/);
 console.log('Civic Brain concise-response contracts passed.');
