@@ -85,6 +85,45 @@ const records = [
     limitations: ["Geographic percentages are respondent shares, not a national census."], interpretation: "Survey summary only.",
   },
   {
+    id: "ngf-state-budget-education-2026", title: "NGF · Education in 2026 original state budgets",
+    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
+    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
+    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
+    evidenceType: "NGF harmonised state-budget aggregate · original budget",
+    metrics: [
+      { label: "Share of aggregate 36-state original expenditure", value: "14.4", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" },
+      { label: "Aggregate education allocation", value: "5.19", unit: "₦ trillion", period: "2026 original budgets", measurementType: "budget allocation" },
+    ],
+    limitations: ["Original budget is planned expenditure, not actual expenditure or verified service delivery."],
+    interpretation: "NGF reports ₦5.19 trillion (14.4%) for education across the 36 states.",
+    departmentId: "education",
+  },
+  {
+    id: "ngf-state-budget-health-2026", title: "NGF · Health in 2026 original state budgets",
+    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
+    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
+    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
+    evidenceType: "NGF harmonised state-budget aggregate · original budget",
+    metrics: [
+      { label: "Share of aggregate 36-state original expenditure", value: "9.3", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" },
+      { label: "Aggregate health allocation", value: "3.34", unit: "₦ trillion", period: "2026 original budgets", measurementType: "budget allocation" },
+    ],
+    limitations: ["Original budget is planned expenditure, not actual expenditure or verified service delivery."],
+    interpretation: "NGF reports ₦3.34 trillion (9.3%) for health across the 36 states.",
+    departmentId: "health",
+  },
+  {
+    id: "ngf-state-budget-functional-profile-2026", title: "NGF · Functional distribution of 2026 original state budgets",
+    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
+    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
+    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
+    evidenceType: "NGF harmonised state-budget aggregate · original budget",
+    metrics: [{ label: "Economic Affairs", value: "33.2", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" }],
+    limitations: ["Economic Affairs is a broad function, not a technology budget.", "Original budget is planned expenditure, not actual expenditure."],
+    interpretation: "The broad Economic Affairs function is not a standalone technology or digital-economy allocation.",
+    departmentId: "civic",
+  },
+  {
     id: "nbs-gdp-q1-2026", title: "NBS · Real GDP growth",
     publisher: "National Bureau of Statistics", sourceId: "nbs-gdp-quarterly",
     sourceUrl: "https://microdata.nigerianstat.gov.ng/index.php/catalog/147/related-materials",
@@ -104,6 +143,10 @@ assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-in
 assert.deepEqual(selectSnapshotRecords("software ecosystem"), ["nitda-dl4all-2026-10", "isn-innovation-hub-assessment-2026"]);
 assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026", "worldbank-ndu-2026-10"]);
 assert.deepEqual(selectSnapshotRecords("foreign reserves Nigeria"), ["worldbank-ndu-2026-10"]);
+assert.deepEqual(selectSnapshotRecords("health budget 2026"), ["who-nigeria-health-2021-23", "ngf-state-budget-health-2026"]);
+assert.deepEqual(selectSnapshotRecords("education budget 2026"), ["fme-annual-school-census-national-2024-25", "ngf-state-budget-education-2026"]);
+assert.deepEqual(selectSnapshotRecords("state budget profile"), ["ngf-state-budget-functional-profile-2026"]);
+
 assert.equal(selectSnapshotRecords("unrelated question").length, 0);
 
 let requested = "";
@@ -124,6 +167,12 @@ assert.match(requested, /catalog=0/);
 assert.match(formatObservatorySnapshotBlock(bundle), /77.5–153.8/);
 assert.match(formatObservatorySnapshotBlock(bundle), /measurement type: estimated/);
 assert.match(formatObservatorySnapshotBlock(bundle), /not a live feed/);
+const budgetBundle = await fetchObservatorySnapshots("health budget 2026", fetchMock);
+assert.equal(budgetBundle.status, "ready");
+assert.deepEqual(budgetBundle.records.map((record) => record.id), ["who-nigeria-health-2021-23", "ngf-state-budget-health-2026"]);
+assert.match(formatObservatorySnapshotBlock(budgetBundle), /₦3.34 trillion/);
+assert.match(formatObservatorySnapshotBlock(budgetBundle), /planned expenditure/);
+
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
 assert.equal(skipped.status, "skipped");
