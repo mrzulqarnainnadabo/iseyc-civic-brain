@@ -69,7 +69,8 @@ function shouldFetchInecEvidence(query) {
 }
 
 function shouldFetchNationalEvidence(query) {
-  return /\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities)\b/i.test(String(query || ''));
+  const text = String(query || '');
+  return /\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities|kaduna|kano|lagos|abuja|fct|jos|plateau|rivers|oyo|ekiti|bauchi|enugu|nasarawa|niger|kwara|ogun|ondo|osun|sokoto|kebbi|jigawa|adamawa|taraba|yobe|zamfara|borno|gombe|benue|ebonyi|anambra|imo|abia|delta|bayelsa|cross river|akwa ibom|katsina|kogi)\b/i.test(text);
 }
 
 export const config = {
