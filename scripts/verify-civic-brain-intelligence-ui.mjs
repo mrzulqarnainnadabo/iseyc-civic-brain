@@ -16,11 +16,23 @@ const expectedStarters = [
   "Check national evidence",
   "Find responsible institutions",
   "Generate a structured Civic Brief",
+  "Read state budgets",
 ];
 for (const label of expectedStarters) {
   assert(workspace.includes(label), `chat includes current evidence-led starter: ${label}`);
 }
 assert(!workspace.includes("What is Civic Mandate?"), "obsolete generic starter prompts are not required");
+assert(workspace.includes("Evidence and source notes"), "source metadata is collapsed behind a concise disclosure");
+assert(workspace.includes("<details"), "evidence metadata does not crowd the default answer");
+const promptStandard = read("lib/system-prompt.js");
+assert(promptStandard.includes("Default to 45–90 words"), "ordinary answers default to concise output");
+assert(!promptStandard.includes("Always use the four required CIVIC BRIEF headings"), "ordinary answers are not forced into four long sections");
+const chatApi = read("api/chat.js");
+assert(chatApi.includes("PROVIDER_TIMEOUT_MS = 20000"), "provider wait is bounded to 20 seconds");
+assert(chatApi.includes("MAX_OUTPUT_TOKENS = 384"), "narrative answers use a concise token budget");
+const snapshotClient = read("lib/observatory-snapshot-client.js");
+assert(snapshotClient.includes("ngf-public-finance-database") || snapshotClient.includes("ngf-state-budget-health-2026"), "state-budget records are routed into the evidence client");
+
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
 assert(briefCard.includes("Structural validation is not independent verification"), "brief UI distinguishes validation from verification");
