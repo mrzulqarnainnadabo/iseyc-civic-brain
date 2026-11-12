@@ -150,7 +150,7 @@ assert.equal(healthResult.stateBudgetCoverage.fiscalTransparencyCoverage, 36);
 assert.equal(healthResult.stateBudgetCoverage.agora2025Coverage, 35);
 assert.match(formatNationalSnapshotBlock(healthResult), /curated, dated source transcriptions/i);
 assert.match(formatNationalSnapshotBlock(healthResult), /15\/36 official state portals located/i);
-assert.match(formatNationalSnapshotBlock(healthResult), /3 additional official appropriation sources located/i);
+assert.match(formatNationalSnapshotBlock(healthResult), /3 additional official state budget documents located/i);
 assert.match(formatNationalSnapshotBlock(healthResult), /2025 state fiscal outturns cover 35 states/i);
 assert.equal(healthResult.stateBudgetCoverage.officialDocumentsLocated, 3);
 assert.equal(healthResult.stateBudgetCoverage.statesNotReviewed, 18);
