@@ -179,13 +179,13 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
               </div>
               {m.brief ? <CivicBriefCard brief={m.brief} /> : <Markdown text={m.content} />}
               {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
-                <section
+                <details
                   aria-label="Evidence sources retrieved for this response"
                   style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}
                 >
-                  <h3 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)" }}>
-                    Evidence sources retrieved · {m.evidence.sources.length}
-                  </h3>
+                  <summary style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)", cursor: "pointer" }}>
+                    Sources retrieved · {m.evidence.sources.length}
+                  </summary>
                   <p style={{ margin: "0 0 8px", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
                     Retrieved source records available to the response. This list does not claim that every item was cited in the generated explanation.
                   </p>
@@ -211,10 +211,10 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                 </details>
               )}
               {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
-                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
-                    INEC public evidence · {m.evidence.nationalEvidence.status}
-                  </div>
+                <details style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
+                  <summary style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6, cursor: "pointer" }}>
+                    INEC evidence · {m.evidence.nationalEvidence.status}
+                  </summary>
                   {m.evidence.nationalEvidence.datasets?.map((source) => (
                     <div key={source.datasetId} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5 }}>
                       <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
@@ -232,8 +232,8 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                 </details>
               )}
               {m.evidence?.observatoryIndicators && m.evidence.observatoryIndicators.status !== "skipped" && (
-                <section aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National indicators · {m.evidence.observatoryIndicators.status}</div>
+                <details aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <summary style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6, cursor: "pointer" }}>National indicators · {m.evidence.observatoryIndicators.status}</summary>
                   {m.evidence.observatoryIndicators.indicators?.length ? (
                     <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
                       {m.evidence.observatoryIndicators.indicators.map((item) => {
@@ -248,11 +248,11 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                 </details>
               )}
               {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
-                <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National source snapshots · {m.evidence.observatorySnapshots.status}</div>
-                  {m.evidence.observatorySnapshots.records?.length ? (
+                <details aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <summary style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6, cursor: "pointer" }}>National source evidence · {m.evidence.observatorySnapshots.status} · {m.evidence.observatorySnapshots.observations?.length || 0} selected</summary>
+                  {m.evidence.observatorySnapshots.observations?.length ? (
                     <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
-                      {m.evidence.observatorySnapshots.records.map((item) => {
+                      {m.evidence.observatorySnapshots.observations.map((item) => {
                         const href = safeEvidenceHref(item.sourceUrl);
                         return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
                           {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
