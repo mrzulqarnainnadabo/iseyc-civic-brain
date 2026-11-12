@@ -20,6 +20,8 @@ for (const required of [
   '₦621.34 billion',
   '₦614.55 billion',
   'The ₦6.79 billion difference is unreconciled',
+  'Agora Policy\'s 2025 state-budget review covers 35 states',
+  'The ₦140 billion difference is unreconciled',
   'NGF Public Finance Database landing page showed unrelated injected third-party links',
   'The 2025 federal budget implementation period was extended to 31 December 2026',
 ]) assert.ok(prompt.toLowerCase().includes(required.toLowerCase()), 'missing evidence rule: ' + required);
