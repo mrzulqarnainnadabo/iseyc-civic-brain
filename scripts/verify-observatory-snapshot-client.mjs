@@ -3,199 +3,86 @@ import {
   fetchObservatorySnapshots,
   selectSnapshotRecords,
   formatObservatorySnapshotBlock,
+  DEFAULT_OBSERVATORY_SNAPSHOT_URL
 } from "../lib/observatory-snapshot-client.js";
 
-const records = [
+const observations = [
   {
-    id: "fme-annual-school-census-national-2024-25", title: "Federal Ministry of Education · Annual School Census 2024/2025",
-    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
-    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
-    geography: { level: "national", label: "Nigeria" },
-    evidenceType: "Government education management information system · annual school census administrative reporting",
-    metrics: [{ label: "School reporting rate", value: "53.7%", unit: "of listed schools", period: "2024/2025", measurementType: "administrative reporting" }],
-    limitations: ["Reported administrative records only; 53.7% school reporting rate means these are not complete national totals."],
-    interpretation: "National administrative baseline only; keep reporting completeness visible.",
+    id: "who-health-life-expectancy", title: "Life expectancy at birth", value: 61.4, unit: "years",
+    referencePeriod: "2023", measurementType: "WHO estimate", geoLevel: "national",
+    geographicCoverage: "Nigeria", sourceId: "who-afro-nigeria", sourcePublisher: "WHO Regional Office for Africa",
+    sourceUrl: "https://www.afro.who.int/node/992", sourceType: "official_source", departments: ["health"],
+    interpretation: "National estimate only.", limitations: ["National aggregate; not a state or facility measure."]
   },
   {
-    id: "fme-annual-school-census-kaduna-2024-25", title: "Federal Ministry of Education · Kaduna State school indicators",
-    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
-    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
-    geography: { level: "state", label: "Kaduna State" },
-    evidenceType: "Government education management information system · state-level administrative school census",
-    metrics: [{ label: "Learner–teacher ratio", value: "51.3", unit: "learners per teacher", period: "2024/2025" }],
-    limitations: ["Kaduna State is not Kaduna South; do not infer LGA or school conditions."],
-    interpretation: "State-level context only.",
+    id: "budgit-health-spending", title: "Combined state health expenditure", value: 621.34, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual expenditure reported in secondary analysis",
+    geoLevel: "varies", geographicCoverage: "34 of 36 states; Rivers and Osun excluded",
+    sourceId: "budgit-health-report", sourcePublisher: "BudgIT Foundation",
+    sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"],
+    interpretation: "Secondary report aggregate; discrepancy with earlier infographic remains under reconciliation.",
+    limitations: ["Not an independent audit.", "Does not establish service quality."]
   },
   {
-    id: "worldbank-ndu-2026-10", title: "World Bank · Nigeria Development Update",
-    publisher: "World Bank", sourceId: "worldbank-ndu-2026-10",
-    sourceUrl: "https://www.worldbank.org/en/news/press-release/2026/10/08/higher-revenues-better-lives-strengthening-state-spending-growth-jobs-services",
-    referencePeriod: "H1 2026 GDP; Q1 2026 current account; end-July 2026 reserves", retrievedAt: "2026-11-10",
-    geography: { level: "national", label: "Nigeria" },
-    evidenceType: "International development institution assessment · national macroeconomic indicators",
-    metrics: [{ label: "Real GDP growth", value: "4.2%", unit: "year-on-year growth", period: "H1 2026", measurementType: "reported estimate" }],
-    limitations: ["National aggregate only; not a state or LGA growth rate."], interpretation: "National context only.",
-  },
-  {
-    id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
-    publisher: "World Health Organization", sourceId: "who-gho-nigeria",
-    sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
-    referencePeriod: "Indicator-specific · 2021–2023", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "WHO country profile · indicator-specific estimates and reported series",
-    metrics: [{ label: "Under-five mortality", value: "108.1", unit: "per 1,000 live births", period: "2022", interval: "77.5–153.8", measurementType: "estimated" }],
-    limitations: ["WHO statistical estimates; preserve uncertainty intervals and reference periods."], interpretation: "National context only.",
-  },
-  {
-    id: "nimc-enrolment-2025-10", title: "NIMC · National identity enrolment",
-    publisher: "National Identity Management Commission", sourceId: "nimc-enrolment-oct-2025",
-    sourceUrl: "https://nimc.gov.ng/nin/enrolment-report/october-2025",
-    referencePeriod: "As at 31 October 2025", retrievedAt: "2026-11-09",
-    geography: { level: "national-and-state", label: "Nigeria · national and state records" },
-    evidenceType: "Official cumulative administrative enrolment snapshot",
-    metrics: [{ label: "Total enrolment records", value: "123,906,318", unit: "records", period: "31 Oct 2025" }],
-    limitations: ["Not a population census."], interpretation: "Administrative enrolment only.",
-  },
-  {
-    id: "nitda-dl4all-2026-10", title: "NITDA · Digital Literacy for All",
-    publisher: "National Information Technology Development Agency", sourceId: "nitda-dl4all-dashboard",
-    sourceUrl: "https://dashboard.digitalliteracy.nitda.gov.ng/",
-    referencePeriod: "Dashboard updated 24 October 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national-and-subnational", label: "Nigeria · 36 states + FCT, LGAs and communities" },
-    evidenceType: "Government programme dashboard · verified training records",
-    metrics: [{ label: "Progress against 50m programme target", value: "5.57%", unit: "of target", period: "Dashboard update" }],
-    limitations: ["Not national digital-literacy prevalence."], interpretation: "Programme reach only.",
-    departmentIds: ["software-technology", "education"],
-  },
-  {
-    id: "naseni-innovatenaija-2025", title: "NASENI · InnovateNaija challenge",
-    publisher: "NASENI Innovation Hub", sourceId: "naseni-innovation-hub",
-    sourceUrl: "https://innovation.naseni.gov.ng/naseni-launches-innovatenaija/",
-    referencePeriod: "Announcement · 3 September 2025", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "National programme" }, evidenceType: "Official programme announcement",
-    metrics: [{ label: "Announced prize pool", value: "₦250 million", unit: "programme terms", period: "3 Sep 2025" }],
-    limitations: ["Announcement is not evidence of disbursement."], interpretation: "Programme terms only.",
-  },
-  {
-    id: "isn-innovation-hub-assessment-2026", title: "ISN · Nigerian Innovation Hub Assessment",
-    publisher: "Innovation Support Network (ISN)", sourceId: "isn-hub-assessment-2026",
-    sourceUrl: "https://isnhubs.org.ng/nigerias-innovation-landmark-isn-launches-comprehensive-hub-assessment-report-and-unveils-2026-2030-strategic-outlook/",
-    referencePeriod: "Summary released 22 May 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "Industry ecosystem assessment summary",
-    metrics: [{ label: "Hubs offering structured training", value: "90%", unit: "of respondents", period: "2026 summary", measurementType: "survey respondent share" }],
-    limitations: ["Geographic percentages are respondent shares, not a national census."], interpretation: "Survey summary only.",
-  },
-  {
-    id: "ngf-state-budget-education-2026", title: "NGF · Education in 2026 original state budgets",
-    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
-    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
-    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
-    evidenceType: "NGF harmonised state-budget aggregate · original budget",
-    metrics: [
-      { label: "Share of aggregate 36-state original expenditure", value: "14.4", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" },
-      { label: "Aggregate education allocation", value: "5.19", unit: "₦ trillion", period: "2026 original budgets", measurementType: "budget allocation" },
-    ],
-    limitations: ["Original budget is planned expenditure, not actual expenditure or verified service delivery."],
-    interpretation: "NGF reports ₦5.19 trillion (14.4%) for education across the 36 states.",
-    departmentId: "education",
-  },
-  {
-    id: "ngf-state-budget-health-2026", title: "NGF · Health in 2026 original state budgets",
-    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
-    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
-    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
-    evidenceType: "NGF harmonised state-budget aggregate · original budget",
-    metrics: [
-      { label: "Share of aggregate 36-state original expenditure", value: "9.3", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" },
-      { label: "Aggregate health allocation", value: "3.34", unit: "₦ trillion", period: "2026 original budgets", measurementType: "budget allocation" },
-    ],
-    limitations: ["Original budget is planned expenditure, not actual expenditure or verified service delivery."],
-    interpretation: "NGF reports ₦3.34 trillion (9.3%) for health across the 36 states.",
-    departmentId: "health",
-  },
-  {
-    id: "ngf-state-budget-functional-profile-2026", title: "NGF · Functional distribution of 2026 original state budgets",
-    publisher: "Nigeria Governors' Forum (NGF) · Public Finance Database", sourceId: "ngf-public-finance-database",
-    sourceUrl: "https://publicfinance.ngf.org.ng/", referencePeriod: "2026 original state budgets", retrievedAt: "2026-11-12",
-    geography: { level: "national", label: "All 36 state governments; FCT excluded" },
-    evidenceType: "NGF harmonised state-budget aggregate · original budget",
-    metrics: [{ label: "Economic Affairs", value: "33.2", unit: "%", period: "2026 original budgets", measurementType: "budget allocation share" }],
-    limitations: ["Economic Affairs is a broad function, not a technology budget.", "Original budget is planned expenditure, not actual expenditure."],
-    interpretation: "The broad Economic Affairs function is not a standalone technology or digital-economy allocation.",
-    departmentId: "civic",
-  },
-  {
-    id: "nbs-gdp-q1-2026", title: "NBS · Real GDP growth",
-    publisher: "National Bureau of Statistics", sourceId: "nbs-gdp-quarterly",
-    sourceUrl: "https://microdata.nigerianstat.gov.ng/index.php/catalog/147/related-materials",
-    referencePeriod: "Q1 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "Official quarterly national-accounts estimate",
-    metrics: [{ label: "Real GDP growth, year-on-year", value: "3.89%", unit: "annual percentage change", period: "Q1 2026" }],
-    limitations: ["National estimate only."], interpretation: "National context only.",
-  },
+    id: "kaduna-education-budget", title: "Kaduna approved education budget share", value: 25, unit: "%",
+    referencePeriod: "2026 approved budget", measurementType: "Budget allocation share", geoLevel: "state",
+    geographicCoverage: "Kaduna State", sourceId: "kdsg-budget", sourcePublisher: "Kaduna State Government",
+    sourceUrl: "https://kdsg.gov.ng/budget", sourceType: "official_source", departments: ["education", "civic"],
+    interpretation: "Approved allocation, not actual expenditure.", limitations: ["Statewide only; not Kaduna South or an individual school."]
+  }
 ];
+const payload = {
+  contractVersion: "1.0.0", source: "iseyc-observatory-curated-source-snapshots-v1",
+  status: "curated", checkedAt: "2026-11-12", observations,
+  limitations: ["Curated dated transcriptions; not live publisher feeds."],
+  reconciliationNotes: [{ id: "health-total", severity: "high", title: "Health total discrepancy", detail: "Two publications report different totals." }]
+};
 
-assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
-assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25"]);
-assert.deepEqual(selectSnapshotRecords("Kaduna school conditions"), ["fme-annual-school-census-national-2024-25", "fme-annual-school-census-kaduna-2024-25"]);
-assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
-assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
-assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
-assert.deepEqual(selectSnapshotRecords("software ecosystem"), ["nitda-dl4all-2026-10", "isn-innovation-hub-assessment-2026"]);
-assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026", "worldbank-ndu-2026-10"]);
-assert.deepEqual(selectSnapshotRecords("foreign reserves Nigeria"), ["worldbank-ndu-2026-10"]);
-assert.deepEqual(selectSnapshotRecords("health budget 2026"), ["who-nigeria-health-2021-23", "ngf-state-budget-health-2026"]);
-assert.deepEqual(selectSnapshotRecords("education budget 2026"), ["fme-annual-school-census-national-2024-25", "ngf-state-budget-education-2026"]);
-assert.deepEqual(selectSnapshotRecords("state budget profile"), ["ngf-state-budget-functional-profile-2026"]);
-
-assert.equal(selectSnapshotRecords("unrelated question").length, 0);
+assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["health"]);
+assert.deepEqual(selectSnapshotRecords("health budget 2026"), ["health", "civic"]);
+assert.deepEqual(selectSnapshotRecords("education budget Kaduna"), ["education", "civic"]);
+assert.deepEqual(selectSnapshotRecords("unrelated question"), []);
+assert.equal(DEFAULT_OBSERVATORY_SNAPSHOT_URL.endsWith("/api/evidence/source-snapshots"), true);
 
 let requested = "";
 const fetchMock = async (url) => {
   requested = String(url);
-  return { ok: true, status: 200, text: async () => JSON.stringify({
-    contractVersion: "1.0.0", status: "ok",
-    source: "iseyc-observatory-national-snapshots-v1",
-    retrievedAt: "2026-11-09", recordCount: records.length, records,
-    limitations: ["Curated source transcriptions; not live publisher feeds."],
-  }) };
+  return { ok: true, status: 200, text: async () => JSON.stringify(payload) };
 };
-const bundle = await fetchObservatorySnapshots("health", fetchMock);
-assert.equal(bundle.status, "ready");
-assert.equal(bundle.records[0].id, "who-nigeria-health-2021-23");
-assert.match(requested, /api\/evidence\/snapshots/);
-assert.match(requested, /catalog=0/);
-assert.match(formatObservatorySnapshotBlock(bundle), /77.5–153.8/);
-assert.match(formatObservatorySnapshotBlock(bundle), /measurement type: estimated/);
-assert.match(formatObservatorySnapshotBlock(bundle), /not a live feed/);
-const budgetBundle = await fetchObservatorySnapshots("health budget 2026", fetchMock);
-assert.equal(budgetBundle.status, "ready");
-assert.deepEqual(budgetBundle.records.map((record) => record.id), ["who-nigeria-health-2021-23", "ngf-state-budget-health-2026"]);
-assert.match(formatObservatorySnapshotBlock(budgetBundle), /₦3.34 trillion/);
-assert.match(formatObservatorySnapshotBlock(budgetBundle), /planned expenditure/);
+const health = await fetchObservatorySnapshots("health in Nigeria", fetchMock);
+assert.equal(health.status, "ready");
+assert.equal(health.records.length, 2);
+assert.equal(health.records[1].metrics[0].value, "621.34");
+assert.match(requested, /api\/evidence\/source-snapshots/);
+assert.match(formatObservatorySnapshotBlock(health), /H1 2026/);
+assert.match(formatObservatorySnapshotBlock(health), /Health total discrepancy/);
+assert.match(formatObservatorySnapshotBlock(health), /not live feeds/i);
 
+const education = await fetchObservatorySnapshots("education budget Kaduna", fetchMock);
+assert.equal(education.status, "ready");
+assert.equal(education.records.length, 1);
+assert.match(formatObservatorySnapshotBlock(education), /Kaduna State/);
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
 assert.equal(skipped.status, "skipped");
 
-const untrusted = await fetchObservatorySnapshots("health", fetchMock, { url: "https://example.com/api/evidence/snapshots" });
+const untrusted = await fetchObservatorySnapshots("health", fetchMock, { url: "https://example.com/api/evidence/source-snapshots" });
 assert.equal(untrusted.status, "invalid");
 assert.equal(untrusted.errorCode, "UNTRUSTED_ENDPOINT");
 
-const bad = await fetchObservatorySnapshots("health", async () => ({
-  ok: true, status: 200, text: async () => JSON.stringify({ contractVersion: "9.9.9", status: "ok", source: "fake", records }),
+const badContract = await fetchObservatorySnapshots("health", async () => ({
+  ok: true, status: 200, text: async () => JSON.stringify({ ...payload, contractVersion: "9.9.9" })
 }));
-assert.equal(bad.status, "unavailable");
-assert.equal(bad.records.length, 0);
+assert.equal(badContract.status, "unavailable");
+assert.equal(badContract.records.length, 0);
 
-const badSource = structuredClone(records);
-badSource.find((record) => record.id === "who-nigeria-health-2021-23").sourceUrl = "https://example.com/fake";
+const badSource = structuredClone(payload);
+badSource.observations[0].sourceUrl = "https://example.com/fake";
 const rejected = await fetchObservatorySnapshots("health", async () => ({
-  ok: true, status: 200, text: async () => JSON.stringify({
-    contractVersion: "1.0.0", status: "ok", source: "iseyc-observatory-national-snapshots-v1",
-    records: badSource, retrievedAt: "2026-11-09",
-  }),
+  ok: true, status: 200, text: async () => JSON.stringify(badSource)
 }));
 assert.equal(rejected.status, "unavailable");
 assert.equal(rejected.records.length, 0);
 
-console.log("Observatory snapshot client contract checks passed.");
+console.log("Observatory source-snapshot client contract checks passed.");
