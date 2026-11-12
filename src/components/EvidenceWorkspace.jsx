@@ -9,6 +9,7 @@ const SUGGESTIONS = [
   { label: "Understand a community issue", prompt: "Explain what published community reports and official evidence show about health service gaps in Kaduna. Separate community reports, official facts, estimates and unknowns." },
   { label: "Check national evidence", prompt: "What official national indicators are available for Nigeria in health, education, employment and digital access? State reference years and distinguish measured, estimated and modelled values." },
   { label: "Find responsible institutions", prompt: "For a health service concern in Kaduna, explain which public institutions may have responsibilities and what evidence is needed to confirm jurisdiction. Do not claim a referral was sent." },
+  { label: "Read state budgets", prompt: "What do the NGF 2026 original state-budget records show for health and education? Give the share, naira amount, 36-state scope and key limitations. Distinguish planned allocations from actual expenditure and verified services." },
   { label: "Generate a structured Civic Brief", format: "civic_brief_v1", prompt: "Prepare a structured Civic Brief about public education conditions in Nigeria using only sources retrieved for this request and published community records. Keep national and subnational evidence separate. If evidence is insufficient, state the gaps." },
 ];
 
@@ -176,91 +177,98 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                 Civic Brief
               </div>
               {m.brief ? <CivicBriefCard brief={m.brief} /> : <Markdown text={m.content} />}
-              {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
-                <section
-                  aria-label="Evidence sources retrieved for this response"
-                  style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}
-                >
-                  <h3 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)" }}>
-                    Evidence sources retrieved · {m.evidence.sources.length}
-                  </h3>
-                  <p style={{ margin: "0 0 8px", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
-                    Retrieved source records available to the response. This list does not claim that every item was cited in the generated explanation.
-                  </p>
-                  <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
-                    {m.evidence.sources.map((source) => {
-                      const href = safeEvidenceHref(source.sourceUrl);
-                      return (
-                        <li key={source.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
-                          {href ? (
-                            <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline", textUnderlineOffset: 2 }}>
-                              {source.title}
-                            </a>
-                          ) : (
-                            <span style={{ color: "var(--iseyc-forest)", fontWeight: 650 }}>{source.title}</span>
-                          )}
-                          <p style={{ margin: "3px 0 0", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
-                            {[source.publisher, source.sourceType?.replaceAll("_", " "), source.referenceDate, source.geoCoverage, source.verificationStatus].filter(Boolean).join(" · ")}
-                          </p>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              )}
-              {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
-                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
-                    INEC public evidence · {m.evidence.nationalEvidence.status}
-                  </div>
-                  {m.evidence.nationalEvidence.datasets?.map((source) => (
-                    <div key={source.datasetId} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5 }}>
-                      <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
-                        {source.title}
-                      </a>
-                      <span>· {source.referenceDate || "reference date not stated"}</span>
+              {m.evidence ? (
+                <details style={{ marginTop: 12, borderTop: "1px solid var(--iseyc-border)", paddingTop: 10 }}>
+                  <summary style={{ cursor: "pointer", color: "var(--iseyc-forest)", fontSize: 12, fontWeight: 700 }}>
+                    Evidence and source notes · {m.evidence.sources?.length || 0} sources
+                  </summary>
+                {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
+                  <section
+                    aria-label="Evidence sources retrieved for this response"
+                    style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}
+                  >
+                    <h3 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)" }}>
+                      Evidence sources retrieved · {m.evidence.sources.length}
+                    </h3>
+                    <p style={{ margin: "0 0 8px", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
+                      Retrieved source records available to the response. This list does not claim that every item was cited in the generated explanation.
+                    </p>
+                    <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
+                      {m.evidence.sources.map((source) => {
+                        const href = safeEvidenceHref(source.sourceUrl);
+                        return (
+                          <li key={source.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                            {href ? (
+                              <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline", textUnderlineOffset: 2 }}>
+                                {source.title}
+                              </a>
+                            ) : (
+                              <span style={{ color: "var(--iseyc-forest)", fontWeight: 650 }}>{source.title}</span>
+                            )}
+                            <p style={{ margin: "3px 0 0", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
+                              {[source.publisher, source.sourceType?.replaceAll("_", " "), source.referenceDate, source.geoCoverage, source.verificationStatus].filter(Boolean).join(" · ")}
+                            </p>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                )}
+                {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
+                    <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", marginBottom: 6 }}>
+                      INEC public evidence · {m.evidence.nationalEvidence.status}
                     </div>
-                  ))}
-                  {m.evidence.nationalEvidence.status === "unavailable" && (
-                    <div>No official INEC dataset was available for this answer. No substitute figures were used.</div>
-                  )}
-                  {m.evidence.nationalEvidence.status === "partial" && (
-                    <div>Partial retrieval. Only the listed datasets were used.</div>
-                  )}
-                </div>
-              )}
-              {m.evidence?.observatoryIndicators && m.evidence.observatoryIndicators.status !== "skipped" && (
-                <section aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National indicators · {m.evidence.observatoryIndicators.status}</div>
-                  {m.evidence.observatoryIndicators.indicators?.length ? (
-                    <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
-                      {m.evidence.observatoryIndicators.indicators.map((item) => {
-                        const href = safeEvidenceHref(item.sourceUrl);
-                        return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
-                          {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
-                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.latestReferencePeriod, item.measurementType, "Nigeria national aggregate only"].filter(Boolean).join(" · ")}</p>
-                        </li>;
-                      })}
-                    </ul>
-                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national indicator was available for this question. No substitute values were used.</p>}
-                </section>
-              )}
-              {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
-                <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National source snapshots · {m.evidence.observatorySnapshots.status}</div>
-                  {m.evidence.observatorySnapshots.records?.length ? (
-                    <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
-                      {m.evidence.observatorySnapshots.records.map((item) => {
-                        const href = safeEvidenceHref(item.sourceUrl);
-                        return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
-                          {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
-                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.referencePeriod, item.geography?.label, item.evidenceType].filter(Boolean).join(" · ")}</p>
-                        </li>;
-                      })}
-                    </ul>
-                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No curated snapshot was available for this question. No substitute values were used.</p>}
-                </section>
-              )}
+                    {m.evidence.nationalEvidence.datasets?.map((source) => (
+                      <div key={source.datasetId} style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 5 }}>
+                        <a href={source.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+                          {source.title}
+                        </a>
+                        <span>· {source.referenceDate || "reference date not stated"}</span>
+                      </div>
+                    ))}
+                    {m.evidence.nationalEvidence.status === "unavailable" && (
+                      <div>No official INEC dataset was available for this answer. No substitute figures were used.</div>
+                    )}
+                    {m.evidence.nationalEvidence.status === "partial" && (
+                      <div>Partial retrieval. Only the listed datasets were used.</div>
+                    )}
+                  </div>
+                )}
+                {m.evidence?.observatoryIndicators && m.evidence.observatoryIndicators.status !== "skipped" && (
+                  <section aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                    <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National indicators · {m.evidence.observatoryIndicators.status}</div>
+                    {m.evidence.observatoryIndicators.indicators?.length ? (
+                      <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
+                        {m.evidence.observatoryIndicators.indicators.map((item) => {
+                          const href = safeEvidenceHref(item.sourceUrl);
+                          return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                            {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
+                            <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.latestReferencePeriod, item.measurementType, "Nigeria national aggregate only"].filter(Boolean).join(" · ")}</p>
+                          </li>;
+                        })}
+                      </ul>
+                    ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national indicator was available for this question. No substitute values were used.</p>}
+                  </section>
+                )}
+                {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
+                  <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                    <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National source snapshots · {m.evidence.observatorySnapshots.status}</div>
+                    {m.evidence.observatorySnapshots.records?.length ? (
+                      <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
+                        {m.evidence.observatorySnapshots.records.map((item) => {
+                          const href = safeEvidenceHref(item.sourceUrl);
+                          return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                            {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
+                            <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.referencePeriod, item.geography?.label, item.evidenceType].filter(Boolean).join(" · ")}</p>
+                          </li>;
+                        })}
+                      </ul>
+                    ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No curated snapshot was available for this question. No substitute values were used.</p>}
+                  </section>
+                )}
+                </details>
+              ) : null}
             </Card>
           )
         )}
