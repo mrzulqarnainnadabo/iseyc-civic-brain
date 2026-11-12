@@ -96,8 +96,8 @@ const agoraLagosIgr = {
   limitations: ['Secondary analysis of state BIRs.', 'Differs from BudgIT’s ₦1.71tn; unresolved.'],
 };
 const budgitLagosIgr = {
-  id: 'budgit-2025-lagos-igr-sos-2026', title: 'Lagos 2025 internally generated revenue',
-  value: 1.71, unit: '₦ trillion', referencePeriod: '2025 full year', measurementType: 'Internally generated revenue',
+  id: 'budgit-state-of-states-2025-lagos-igr', title: 'Lagos internally generated revenue',
+  value: 1.71, unit: '₦ trillion', referencePeriod: '2025', measurementType: 'State internally generated revenue',
   geoLevel: 'state', geographicCoverage: 'Lagos State', sourceId: 'budgit-state-of-states-2026',
   sourceType: 'published_research', sourcePublisher: 'BudgIT Foundation · 2026 State of States Report',
   sourceUrl: 'https://budgit.org/post_publications/from-allocation-to-impact-rethinking-state-spending-priorities-2026-state-of-states-report/',
