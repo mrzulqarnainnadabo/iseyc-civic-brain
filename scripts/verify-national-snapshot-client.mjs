@@ -109,6 +109,7 @@ assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
 assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
+assert.match(promptSource, /NGF state public-finance snapshots are a secondary compilation/);
 assert.match(fs.readFileSync('lib/national-snapshot-client.js', 'utf8'), /ngf-public-finance-database/);
 
 console.log('National snapshot client security and interpretation checks passed.');
