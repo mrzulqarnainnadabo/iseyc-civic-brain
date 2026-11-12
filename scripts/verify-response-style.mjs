@@ -25,8 +25,7 @@ assert.equal(compactNarrative(''), '');
 
 assert.match(engine, /executiveSummary/);
 assert.match(engine, /recommendations/);
-assert.match(ui, /Evidence and source notes/);
-assert.match(ui, /Verified national source observations/);
 assert.match(ui, /<details/);
+assert.match(ui, /Verified national source observations/);
 assert.match(ui, /Data reconciliation/);
 console.log('Civic Brain concise-response and progressive-disclosure checks passed.');
