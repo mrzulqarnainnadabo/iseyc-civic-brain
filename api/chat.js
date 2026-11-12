@@ -216,10 +216,15 @@ export default async function handler(req, res) {
   const nationalSnapshotsMeta = {
     available: ['ready', 'partial'].includes(nationalSnapshotsBundle.status),
     status: nationalSnapshotsBundle.status,
-    selectedCount: nationalSnapshotsBundle.observations?.length || 0,
+    selectedCount: nationalSnapshotsBundle.selectedCount ?? nationalSnapshotsBundle.observations?.length ?? 0,
+    availableObservationCount: nationalSnapshotsBundle.availableObservationCount ?? null,
+    sourceObservationCount: nationalSnapshotsBundle.sourceObservationCount ?? null,
+    departmentObservationCount: nationalSnapshotsBundle.departmentObservationCount ?? null,
     sourceCheckedAt: nationalSnapshotsBundle.checkedAt || null,
     sourceIds: [...new Set((nationalSnapshotsBundle.observations || []).map((item) => item.sourceId))],
-    catalogueOnly: (nationalSnapshotsBundle.catalogOnlySources || []).map((item) => ({ id: item.id, title: item.title, url: item.url })),
+    catalogueOnly: (nationalSnapshotsBundle.catalogOnlySources || []).map((item) => ({ id: item.id, title: item.title, status: item.status, url: item.url })),
+    reconciliationNoteCount: nationalSnapshotsBundle.reconciliationNotes?.length || 0,
+    stateBudgetCoverage: nationalSnapshotsBundle.stateBudgetCoverage || null,
     limitations: nationalSnapshotsBundle.limitations || [],
   };
   const observationMeta = {
