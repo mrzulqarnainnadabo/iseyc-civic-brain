@@ -65,11 +65,11 @@ async function withTimeout(operation, ms, label) {
 }
 
 function shouldFetchInecEvidence(query) {
-  return /\\b(inec|voter|pvc|election|cvr|registration|polling|turnout)\\b/i.test(String(query || ''));
+  return /\b(inec|voter|pvc|election|cvr|registration|polling|turnout)\b/i.test(String(query || ''));
 }
 
 function shouldFetchNationalEvidence(query) {
-  return /\\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities)\\b/i.test(String(query || ''));
+  return /\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities)\b/i.test(String(query || ''));
 }
 
 export const config = {
