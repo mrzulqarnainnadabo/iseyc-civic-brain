@@ -84,7 +84,7 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
     <div className="brain-overview">
       <section className="brain-hero">
         <div className="brain-hero__copy">
-          <span className="brain-kicker">ISEYC · Civic intelligence infrastructure</span>
+          <span className="brain-kicker">ISEYC · Intelligence systems</span>
           <div className="brain-hero__status"><span className={state === "ready" ? "brain-live-dot" : "brain-live-dot brain-live-dot--muted"} />{state === "ready" ? "Evidence systems checked" : state === "loading" ? "Checking connected evidence" : "Overview temporarily unavailable"}</div>
           <h1>Understand the issue.<br/><em>Interrogate the evidence.</em></h1>
           <p>Civic Brain connects published community concerns with public evidence, explains what can and cannot be concluded, and identifies the institution that may hold responsibility.</p>
@@ -97,7 +97,7 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
           <img src="/iseyc-seal.svg" alt="" width="62" height="62"/>
           <span>ISEYC</span>
           <strong>Evidence<br/>before<br/>conclusion</strong>
-          <small>National civic intelligence</small>
+          <small>National evidence and analysis</small>
         </div>
       </section>
 
@@ -129,7 +129,7 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
           <span className="brain-kicker">Connected systems</span>
           <h2>One evidence infrastructure</h2>
           <a href={MANDATE_URL} target="_blank" rel="noopener noreferrer"><span>01</span><strong>Civic Mandate Nigeria</strong><small>Citizen experience & published concerns ↗</small></a>
-          <a href={OBSERVATORY_URL} target="_blank" rel="noopener noreferrer"><span>02</span><strong>Civic Intelligence Observatory</strong><small>National data & evidence exploration ↗</small></a>
+          <a href={OBSERVATORY_URL} target="_blank" rel="noopener noreferrer"><span>02</span><strong>Intelligence Observatory</strong><small>National data & evidence exploration ↗</small></a>
           <button type="button" onClick={onRouting}><span>03</span><strong>Institutional routing</strong><small>Responsibility mapping & human review ↗</small></button>
         </aside>
       </section>
@@ -140,7 +140,7 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
           <a href={OBSERVATORY_URL + "/#/departments/education"} target="_blank" rel="noopener noreferrer">Education & Capacity <span>↗</span></a>
           <a href={OBSERVATORY_URL + "/#/departments/health"} target="_blank" rel="noopener noreferrer">Health & Well-being <span>↗</span></a>
           <a href={OBSERVATORY_URL + "/#/departments/software-technology"} target="_blank" rel="noopener noreferrer">Software & Technology <span>↗</span></a>
-          <a href={OBSERVATORY_URL + "/#/departments/civic"} target="_blank" rel="noopener noreferrer">Civic Affairs <span>↗</span></a>
+          <a href={OBSERVATORY_URL + "/#/departments/civic"} target="_blank" rel="noopener noreferrer">Civic Department <span>↗</span></a>
         </div>
       </section>
 
