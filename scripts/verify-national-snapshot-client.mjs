@@ -18,6 +18,17 @@ const civic = {
   sourceUrl: 'https://nimc.gov.ng/nin/enrolment-report/june-2025',
   departments: ['civic'],
 };
+const budget = {
+  id: 'ngf-state-budget-health-share-2026', title: 'Health share of 36-state original budgets',
+  value: 9.3, unit: '% of aggregate 36-state original expenditure', referencePeriod: '2026 original state budgets',
+  measurementType: 'NGF-published aggregate of state original budgets by NCOA function',
+  geoLevel: 'national', geographicCoverage: 'All 36 state governments; FCT excluded',
+  sourceId: 'ngf-public-finance-database', sourceType: 'published_research',
+  sourcePublisher: "Nigeria Governors' Forum (NGF) · Public Finance Database",
+  sourceUrl: 'https://publicfinance.ngf.org.ng/', departments: ['health', 'civic'],
+  interpretation: 'NGF reports ₦3.34 trillion (9.3%) for health in the 2026 original state budgets.',
+  limitations: ['Original budget is planned expenditure, not actual expenditure or verified service delivery.'],
+};
 const nbs = {
   id: 'nbs-cpi-catalog', title: 'NBS CPI catalogue', publisher: 'NBS',
   url: 'https://microdata.nigerianstat.gov.ng/index.php/catalog/154/related-materials',
@@ -65,6 +76,15 @@ assert.equal(educationResult.observations[0].id, education.id, 'Kaduna State evi
 assert.match(formatNationalSnapshotBlock(educationResult), /GEOGRAPHY: Kaduna State/);
 assert.match(formatNationalSnapshotBlock(educationResult), /SOURCE_UPDATE_DATE: 2026-07-18/);
 
+const budgetResult = await fetchNationalSnapshots('health state budget 2026', async () => response({
+  contractVersion: '1.0.0', status: 'ok', checkedAt: '2026-11-12',
+  observations: [budget], catalogOnlySources: [], limitations: ['Curated snapshot, not a live feed.'],
+}));
+assert.equal(budgetResult.status, 'ready');
+assert.equal(budgetResult.observations[0].id, budget.id);
+assert.match(formatNationalSnapshotBlock(budgetResult), /2026 original state budgets/);
+assert.match(formatNationalSnapshotBlock(budgetResult), /Original budget is planned expenditure/);
+
 const inflationResult = await fetchNationalSnapshots('inflation CPI', fetchMock);
 assert.equal(inflationResult.observations.length, 0);
 assert.equal(inflationResult.catalogOnlySources.length, 1);
@@ -89,5 +109,6 @@ assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
 assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
+assert.match(fs.readFileSync('../iseyc-civic-brain/lib/national-snapshot-client.js', 'utf8'), /ngf-public-finance-database/);
 
 console.log('National snapshot client security and interpretation checks passed.');
