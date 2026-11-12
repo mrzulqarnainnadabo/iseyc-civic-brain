@@ -113,15 +113,16 @@ export default async function handler(req, res) {
   };
 
   const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
+  const evidenceQuery = messages.filter((message) => message.role === 'user').slice(-3).map((message) => message.content).join('\\n');
   const [snapshotResult, communityRecordsResult, observationResult, inecResult, nationalSnapshotsResult] = await Promise.allSettled([
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
     withTimeout(fetchPublishedCommunityRecords(fetch), 8000, 'COMMUNITY_RECORDS'),
     withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
-    shouldFetchInecEvidence(latestUserMessage)
-      ? withTimeout(fetchInecEvidence(latestUserMessage), 8000, 'INEC_EVIDENCE')
+    shouldFetchInecEvidence(evidenceQuery)
+      ? withTimeout(fetchInecEvidence(evidenceQuery), 8000, 'INEC_EVIDENCE')
       : Promise.resolve({ status: 'skipped', datasets: [], limitations: [], errorCode: null }),
-    shouldFetchNationalEvidence(latestUserMessage)
-      ? withTimeout(fetchNationalSnapshots(latestUserMessage, fetch, { timeoutMs: 7000 }), 8000, 'NATIONAL_SNAPSHOTS')
+    shouldFetchNationalEvidence(evidenceQuery)
+      ? withTimeout(fetchNationalSnapshots(evidenceQuery, fetch, { timeoutMs: 7000 }), 8000, 'NATIONAL_SNAPSHOTS')
       : Promise.resolve({ status: 'skipped', observations: [], catalogOnlySources: [], reconciliationNotes: [], limitations: ['Not requested for this question.'] }),
   ]);
 
