@@ -249,6 +249,29 @@ assert.equal(worldBankSnapshotSource[0].id, 'src-observatory-snapshot:worldbank-
 assert.equal(worldBankSnapshotSource[0].sourceUrl, 'https://www.worldbank.org/en/publication/global-economic-prospects');
 assert.match(worldBankSnapshotSource[0].excerpt, /published estimate/);
 
+const nationalObservationSources = buildTrustedBriefSources({
+  observatorySnapshotsBundle: {
+    status: 'ready',
+    observations: [{
+      id: 'agora-state-budget-performance-2025-lagos-igr',
+      title: 'Lagos internally generated revenue',
+      value: 1.85, unit: '₦ trillion', referencePeriod: '2025',
+      measurementType: 'State internally generated revenue',
+      geoLevel: 'state', geographicCoverage: 'Lagos State',
+      sourceId: 'agora-state-budget-performance-2025',
+      sourceType: 'published_research', sourcePublisher: 'Agora Policy',
+      sourceUrl: 'https://agorapolicy.org/our-blogs/251-review-of-performance-of-states-budgets-in-2025.html',
+      departments: ['civic'], interpretation: 'Agora Policy cites this 2025 outturn.',
+      limitations: ['35-state secondary analysis; Rivers excluded.'],
+    }],
+  },
+});
+assert.equal(nationalObservationSources.length, 1);
+assert.equal(nationalObservationSources[0].id, 'src-national-snapshot:agora-state-budget-performance-2025-lagos-igr');
+assert.equal(nationalObservationSources[0].sourceType, 'published_research');
+assert.equal(nationalObservationSources[0].publisher, 'Agora Policy');
+assert.match(nationalObservationSources[0].excerpt, /1\.85 ₦ trillion/);
+
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
@@ -288,9 +311,9 @@ import { readFileSync } from 'node:fs';
 const chatSource = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf8');
 assert.ok(chatSource.includes('validateCivicBrief(parsed, trustedSources)'));
 assert.ok(chatSource.includes('buildTrustedBriefSources'));
-assert.ok(chatSource.includes('fetchObservatorySnapshots'));
+assert.ok(chatSource.includes('fetchNationalSnapshots'));
 assert.ok(chatSource.includes('observatorySnapshotsBundle'));
-assert.ok(chatSource.includes('CURATED NATIONAL SOURCE SNAPSHOTS'));
+assert.ok(chatSource.includes('formatNationalSnapshotBlock'));
 assert.ok(chatSource.includes('!briefMode || canonicalCommunityRecordsAvailable'));
 
 console.log('Trusted Civic Brief source allowlist checks passed.');
