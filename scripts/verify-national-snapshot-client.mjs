@@ -12,13 +12,13 @@ const who = {
   limitations: ['Not a Kaduna State or facility measure.'],
 };
 const healthSpend = {
-  id: 'budgit-h1-2026-health-total', title: 'Combined state health expenditure',
-  value: 614.55, unit: '₦ billion', referencePeriod: 'H1 2026 (through Q2)',
-  measurementType: 'Actual health expenditure by end of Q2', geoLevel: 'varies',
+  id: 'budgit-h1-2026-health-total-report', title: 'Combined state health expenditure · updated report',
+  value: 621.34, unit: '₦ billion', referencePeriod: 'H1 2026 (through Q2)',
+  measurementType: 'Actual health expenditure reported in detailed subnational review', geoLevel: 'varies',
   geographicCoverage: '34 of 36 states; Rivers and Osun excluded',
-  sourceId: 'budgit-state-health-h1-2026', sourceType: 'published_research',
-  sourcePublisher: 'BudgIT Foundation · H1 2026 Health Expenditure Performance by State',
-  sourceUrl: 'https://budgit.org/post_infographics/h1-2026-health-expenditure-performance-by-state/',
+  sourceId: 'budgit-subnational-health-h1-2026-report', sourceType: 'published_research',
+  sourcePublisher: 'BudgIT Foundation · Nigeria’s Subnational Health Expenditure Report, H1 2026',
+  sourceUrl: 'https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/',
   departments: ['health', 'civic'], interpretation: 'Combined state health outturn.',
   limitations: ['Rivers and Osun are excluded.', 'Spending is not proof of PHC functionality.'],
 };
@@ -35,8 +35,9 @@ const nbsCatalogue = {
   departments: ['civic'],
 };
 const stateNames = ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'];
+const portalStates = new Set(['Anambra','Bauchi','Borno','Ebonyi','Edo','Ekiti','Enugu','Imo','Kaduna','Kano','Kebbi','Osun','Sokoto','Jigawa','Kwara']);
 const jurisdictions = stateNames.map((name) => ({
-  name, type: 'state', status: 'not_reviewed', officialPortalUrl: null,
+  name, type: 'state', status: name === 'Abia' ? 'official_documents_located' : portalStates.has(name) ? 'official_portal_located' : 'not_reviewed', officialPortalUrl: null,
   fiscalTransparency: {
     quarter: 'Q2 2026', citizensBudget: { score: name === 'Rivers' ? 0 : 15, max: 15 },
     quarterlyBir: { score: name === 'Rivers' ? 0 : 16, max: 16 },
@@ -48,20 +49,32 @@ const jurisdictions = stateNames.map((name) => ({
 }));
 jurisdictions.push({ name: 'Federal Capital Territory', type: 'fct', status: 'official_law_not_confirmed', fiscalTransparency: null });
 const coverage = {
-  scope: { states: 36, fctTrackedSeparately: true, officialStatePortalsLocated: 13, fiscalTransparencyCoverage: 36, h1_2026SectorSpendingCoverage: 34 },
+  scope: { states: 36, fctTrackedSeparately: true, officialStatePortalsLocated: 15, officialStateDocumentsLocated: 1, stateBudgetSourceDiscoveryCompleted: 16, fiscalTransparencyCoverage: 36, h1_2026SectorSpendingCoverage: 34 },
   jurisdictions,
 };
 const sourceBody = {
   contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-12',
-  observations: [who, healthSpend], catalogOnlySources: [ngfCatalogue, nbsCatalogue],
+  observations: [who, healthSpend, abiaBudget], catalogOnlySources: [ngfCatalogue, nbsCatalogue],
   reconciliationNotes: [{
     id: 'who-underfive-series-conflict', severity: 'high',
     title: 'WHO under-five mortality values are not reconciled',
     detail: 'Different WHO pages show materially different years and values; 59.5 is excluded from the source snapshot.',
     action: 'Do not construct a trend until the series are reconciled.',
+  }, {
+    id: 'budgit-h1-health-total-revision', severity: 'high',
+    title: 'BudgIT H1 2026 health expenditure totals differ across publications',
+    detail: 'Earlier infographic reports ₦614.55bn; later detailed report reports ₦621.34bn for 34 states.',
+    action: 'Reconcile the state-level BIR extracts before treating the total as final.',
   }],
   stateBudgetCoverage: coverage,
   limitations: ['Curated transcriptions, not live feeds.'],
+};
+const abiaBudget = {
+  id: 'abia-2026-approved-budget-total', title: 'Abia State approved 2026 budget', value: 1016.22807265199,
+  unit: '₦ billion', referencePeriod: '2026 approved appropriation', measurementType: 'Official government-reported appropriation headline',
+  geoLevel: 'state', geographicCoverage: 'Abia State', sourceId: 'state-budget-abia', sourceType: 'official_source',
+  sourcePublisher: 'Abia State Government', sourceUrl: 'https://abiastate.gov.ng/gov-otti-signs-2026-appropriation-bill-into-law/',
+  departments: ['civic'], interpretation: 'Official appropriation headline only.', limitations: ['Detailed schedule not transcribed.'],
 };
 const legacyBody = {
   contractVersion: '1.0.0', status: 'ok', retrievedAt: '2026-11-12',
@@ -97,7 +110,11 @@ assert.ok(healthResult.observations.some((item) => item.id === healthSpend.id));
 assert.ok(!healthResult.observations.some((item) => item.value === 59.5), 'unreconciled WHO value must never be surfaced');
 assert.equal(healthResult.stateBudgetCoverage.fiscalTransparencyCoverage, 36);
 assert.match(formatNationalSnapshotBlock(healthResult), /curated, dated source transcriptions/i);
-assert.match(formatNationalSnapshotBlock(healthResult), /13\/36 official state portals located/i);
+assert.match(formatNationalSnapshotBlock(healthResult), /15\/36 official state portals located/i);
+assert.match(formatNationalSnapshotBlock(healthResult), /1 additional official appropriation source located/i);
+assert.equal(healthResult.stateBudgetCoverage.officialDocumentsLocated, 1);
+assert.equal(healthResult.stateBudgetCoverage.statesNotReviewed, 20);
+assert.ok(healthResult.reconciliationNotes.some((note) => note.id === 'budgit-h1-health-total-revision'));
 assert.match(formatNationalSnapshotBlock(healthResult), /WHO under-five mortality values are not reconciled/i);
 
 const educationResult = await fetchNationalSnapshots('education school Kaduna', mock);
@@ -113,6 +130,8 @@ assert.match(formatNationalSnapshotBlock(fiscalResult), /citizens' budget 0\/15/
 const budgetResult = await fetchNationalSnapshots('health state budget 2026', mock);
 assert.equal(budgetResult.status, 'ready');
 assert.ok(budgetResult.observations.some((item) => item.id === healthSpend.id));
+const abiaResult = await fetchNationalSnapshots('state budget Abia', mock);
+assert.ok(abiaResult.observations.some((item) => item.id === abiaBudget.id));
 assert.ok(budgetResult.catalogOnlySources.some((item) => item.id === 'ngf-state-public-finance-db' && item.status === 'under_review'));
 assert.ok(!budgetResult.observations.some((item) => item.sourceId === 'ngf-state-public-finance-db'), 'NGF under-review portal must not supply numeric observations');
 
