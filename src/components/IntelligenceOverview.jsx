@@ -75,7 +75,6 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
   const records = c.publishedCommunityRecords || {};
   const observations = c.communityObservations || {};
   const inec = c.officialElectoralEvidence || {};
-  const indicators = c.nationalIndicators || {};
   const nationalEvidence = c.nationalEvidence || {};
   const budgetCoverage = nationalEvidence.stateBudgetCoverage || {};
   const snapshot = c.mandateSnapshot || {};
