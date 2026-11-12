@@ -220,9 +220,8 @@ const nationalSources = buildTrustedBriefSources({
       title: 'Kaduna State learner–teacher ratio',
       value: 51.3,
       unit: 'learners per teacher',
-      referencePeriod: '2024/2025',
-      sourceUpdateDate: '2026-09-22',
-      measurementType: 'Annual School Census administrative ratio',
+      referencePeriod: '2024/2025 school year · portal generated 22 September 2026',
+          measurementType: 'Annual School Census administrative ratio',
       geographicCoverage: 'Kaduna State',
       sourceId: 'fme-annual-school-census',
       sourceType: 'official_source',
@@ -242,7 +241,7 @@ assert.ok(whoSource.excerpt.includes('117.46 deaths per 1,000 live births'));
 const fmeSource = nationalSources.find((source) => source.id === 'src-national-snapshot:fme-asc-kaduna-learner-teacher-ratio-2024-25');
 assert.ok(fmeSource);
 assert.equal(fmeSource.referenceDate, '2024/2025');
-assert.equal(fmeSource.sourceUpdateDate, '2026-09-22');
+assert.ok(fmeSource.referenceDate.includes('22 September 2026'));
 const nationalBrief = validateCivicBrief(brief({
   communityReports: [],
   sources: [{ id: whoSource.id, title: 'Model-authored title', sourceType: 'fake' }],
