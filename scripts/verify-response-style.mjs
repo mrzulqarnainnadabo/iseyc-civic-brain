@@ -20,7 +20,7 @@ const compactResponse = compactNarrative(longResponse);
 assert.ok(compactResponse.trim().split(/\s+/).length <= 120, 'narrative response must stay within 120 words');
 assert.ok(compactResponse.endsWith('.'), 'length guard must stop at a complete sentence when possible');
 assert.ok(compactResponse.includes('Finding 1') && !compactResponse.includes('Finding 40'));
-assert.match(api, /const MAX_BRIEF_TOKENS = 1024;/);
+assert.match(api, /const MAX_BRIEF_TOKENS = 512;/);
 assert.match(api, /briefMode \? MAX_BRIEF_TOKENS : MAX_NARRATIVE_TOKENS/);
 assert.match(api, /const PROVIDER_TIMEOUT_MS = 20000;/);
 assert.match(engine, /\*\*Answer\*\*/);
