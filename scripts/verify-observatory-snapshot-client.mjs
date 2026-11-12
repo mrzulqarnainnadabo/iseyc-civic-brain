@@ -21,7 +21,7 @@ const observations = [
     sourceId: "budgit-health-report", sourcePublisher: "BudgIT Foundation",
     sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
     sourceType: "published_research", departments: ["health", "civic"],
-    interpretation: "Secondary report aggregate; discrepancy with earlier infographic remains under reconciliation.",
+    interpretation: "Secondary report aggregate; discrepancy with earlier infographic remains under reconciliation.", verificationStatus: "reconciliation_required",
     limitations: ["Not an independent audit.", "Does not establish service quality."]
   },
   {
@@ -32,11 +32,32 @@ const observations = [
     interpretation: "Approved allocation, not actual expenditure.", limitations: ["Statewide only; not Kaduna South or an individual school."]
   }
 ];
+observations.push(
+  {
+    id: "budgit-health-actual-spend-kaduna-h1-2026", title: "H1 2026 health actual expenditure — Kaduna State", value: 18.68, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual health expenditure transcribed from state BIRs",
+    geoLevel: "state", geographicCoverage: "Kaduna State", sourceId: "budgit-health-report",
+    sourcePublisher: "BudgIT Foundation", sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"], verificationStatus: "published_secondary_report",
+    interpretation: "BudgIT Table 5 reports ₦18.68bn for Kaduna State; secondary report data, not independently reconciled.",
+    limitations: ["Secondary report; check original Q1/Q2 BIRs.", "Statewide only; not Kaduna South."]
+  },
+  {
+    id: "budgit-health-actual-spend-kano-h1-2026", title: "H1 2026 health actual expenditure — Kano State", value: 79.17, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual health expenditure transcribed from state BIRs",
+    geoLevel: "state", geographicCoverage: "Kano State", sourceId: "budgit-health-report",
+    sourcePublisher: "BudgIT Foundation", sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"], verificationStatus: "published_secondary_report",
+    interpretation: "BudgIT Table 5 reports ₦79.17bn for Kano State; secondary report data, not independently reconciled.",
+    limitations: ["Secondary report; check original Q1/Q2 BIRs."]
+  }
+);
 const payload = {
   contractVersion: "1.0.0", source: "iseyc-observatory-curated-source-snapshots-v1",
   status: "curated", checkedAt: "2026-11-12", observations,
   limitations: ["Curated dated transcriptions; not live publisher feeds."],
-  reconciliationNotes: [{ id: "health-total", severity: "high", title: "Health total discrepancy", detail: "Two publications report different totals." }]
+  reconciliationNotes: [{ id: "health-total", severity: "high", title: "Health total discrepancy", detail: "Two publications report different totals." }],
+  stateBudgetCoverage: { officialStateSourceRoutesLocated: 19, totalStates: 36, budgitHealthActualExpenditureStates: 34, budgitHealthActualExpenditureMissingStates: ["Osun", "Rivers"] }
 };
 
 assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["health"]);
@@ -58,6 +79,13 @@ assert.match(requested, /api\/evidence\/source-snapshots/);
 assert.match(formatObservatorySnapshotBlock(health), /H1 2026/);
 assert.match(formatObservatorySnapshotBlock(health), /Health total discrepancy/);
 assert.match(formatObservatorySnapshotBlock(health), /not live feeds/i);
+assert.match(formatObservatorySnapshotBlock(health), /reconciliation_required/);
+assert.match(formatObservatorySnapshotBlock(health), /STATE_BUDGET_COVERAGE/);
+const stateHealth = await fetchObservatorySnapshots("health actual expenditure by state H1 2026", fetchMock);
+assert.equal(stateHealth.records.filter((record) => record.geography.level === "state").length, 2);
+const kadunaHealth = await fetchObservatorySnapshots("Kaduna health actual expenditure H1 2026", fetchMock);
+assert.equal(kadunaHealth.records.length, 1);
+assert.equal(kadunaHealth.records[0].id, "budgit-health-actual-spend-kaduna-h1-2026");
 const budgetHealth = await fetchObservatorySnapshots("health budget 2026", fetchMock);
 assert.equal(budgetHealth.status, "ready");
 assert.equal(budgetHealth.records.length, 1, "budget questions should not be diluted by unrelated health indicators");
