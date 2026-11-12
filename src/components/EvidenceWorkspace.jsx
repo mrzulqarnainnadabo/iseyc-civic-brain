@@ -246,10 +246,10 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                 </section>
               )}
               {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
-                <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
-                  <div style={{ fontWeight: 700, color: "var(--iseyc-forest)", fontSize: 11, marginBottom: 6 }}>National source snapshots · {m.evidence.observatorySnapshots.status}</div>
+                <details aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <summary style={{ cursor: "pointer", color: "var(--iseyc-forest)", fontSize: 11, fontWeight: 700 }}>Earlier national snapshots · {m.evidence.observatorySnapshots.status} · {m.evidence.observatorySnapshots.records?.length || 0}</summary>
                   {m.evidence.observatorySnapshots.records?.length ? (
-                    <ul style={{ display: "grid", gap: 7, margin: 0, padding: 0, listStyle: "none" }}>
+                    <ul style={{ display: "grid", gap: 7, margin: "10px 0 0", padding: 0, listStyle: "none" }}>
                       {m.evidence.observatorySnapshots.records.map((item) => {
                         const href = safeEvidenceHref(item.sourceUrl);
                         return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
@@ -258,8 +258,49 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                         </li>;
                       })}
                     </ul>
-                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No curated snapshot was available for this question. No substitute values were used.</p>}
-                </section>
+                  ) : <p style={{ margin: "8px 0 0", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No earlier national snapshot was available for this question.</p>}
+                </details>
+              )}
+              {m.evidence?.nationalSnapshots && m.evidence.nationalSnapshots.status !== "skipped" && (
+                <details aria-label="Verified national source observations" style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
+                  <summary style={{ cursor: "pointer", color: "var(--iseyc-forest)", fontSize: 11, fontWeight: 700 }}>National evidence · {m.evidence.nationalSnapshots.status} · {m.evidence.nationalSnapshots.observations?.length || 0} relevant observations</summary>
+                  {m.evidence.nationalSnapshots.stateBudgetCoverage && (
+                    <p style={{ margin: "8px 0", fontSize: 10, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
+                      State budget discovery: {m.evidence.nationalSnapshots.stateBudgetCoverage.officialPortalsLocated}/36 official portals; {m.evidence.nationalSnapshots.stateBudgetCoverage.officialDocumentsLocated} additional official state budget documents; {m.evidence.nationalSnapshots.stateBudgetCoverage.statesNotReviewed} states not yet reviewed. Fiscal-information scores cover {m.evidence.nationalSnapshots.stateBudgetCoverage.fiscalTransparencyCoverage} states; H1 2026 sector spending covers {m.evidence.nationalSnapshots.stateBudgetCoverage.h1_2026SectorSpendingCoverage}; 2025 state fiscal outturns cover {m.evidence.nationalSnapshots.stateBudgetCoverage.agora2025Coverage} states, with Rivers excluded. FCT tracked separately.
+                    </p>
+                  )}
+                  {m.evidence.nationalSnapshots.observations?.length ? (
+                    <ul style={{ display: "grid", gap: 8, margin: "8px 0 0", padding: 0, listStyle: "none" }}>
+                      {m.evidence.nationalSnapshots.observations.map((item) => {
+                        const href = safeEvidenceHref(item.sourceUrl);
+                        return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "baseline" }}>
+                            <strong style={{ color: "var(--iseyc-forest)", fontSize: 11 }}>{item.value} {item.unit}</strong>
+                            <span style={{ color: "var(--iseyc-ink-secondary)", fontSize: 10 }}>{item.referencePeriod} · {item.geography}</span>
+                          </div>
+                          <div style={{ marginTop: 3, fontSize: 11, fontWeight: 650 }}>{href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline" }}>{item.title}</a> : item.title}</div>
+                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{item.publisher} · {item.sourceType}</p>
+                          {item.limitations?.length > 0 && <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-muted)" }}>{String(item.limitations[0]).slice(0, 180)}</p>}
+                        </li>;
+                      })}
+                    </ul>
+                  ) : <p style={{ margin: "8px 0 0", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No relevant source observation was available. No substitute values were used.</p>}
+                  {m.evidence.nationalSnapshots.reconciliationNotes?.length > 0 && (
+                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--iseyc-border)" }}>
+                      <strong style={{ fontSize: 10, color: "var(--iseyc-forest)" }}>Data reconciliation</strong>
+                      {m.evidence.nationalSnapshots.reconciliationNotes.map((note) => <p key={note.id} style={{ margin: "5px 0", fontSize: 10, lineHeight: 1.45, color: "var(--iseyc-ink-secondary)" }}>{note.title}: {String(note.detail).slice(0, 200)}</p>)}
+                    </div>
+                  )}
+                  {m.evidence.nationalSnapshots.catalogOnlySources?.length > 0 && (
+                    <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--iseyc-border)" }}>
+                      <strong style={{ fontSize: 10, color: "var(--iseyc-forest)" }}>Research leads · not numeric evidence</strong>
+                      {m.evidence.nationalSnapshots.catalogOnlySources.map((item) => {
+                        const href = safeEvidenceHref(item.url);
+                        return <p key={item.id} style={{ margin: "5px 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", textDecoration: "underline" }}>{item.title}</a> : item.title} · {item.status}</p>;
+                      })}
+                    </div>
+                  )}
+                </details>
               )}
             </Card>
           )

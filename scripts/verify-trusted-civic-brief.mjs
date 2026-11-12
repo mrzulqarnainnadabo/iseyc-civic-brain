@@ -249,6 +249,95 @@ assert.equal(worldBankSnapshotSource[0].id, 'src-observatory-snapshot:worldbank-
 assert.equal(worldBankSnapshotSource[0].sourceUrl, 'https://www.worldbank.org/en/publication/global-economic-prospects');
 assert.match(worldBankSnapshotSource[0].excerpt, /published estimate/);
 
+const nationalObservationSources = buildTrustedBriefSources({
+  nationalSnapshotsBundle: {
+    status: 'ready',
+    observations: [{
+      id: 'budgit-h1-2026-health-total-report',
+      title: 'Combined state health expenditure · updated report',
+      value: 621.34,
+      unit: '₦ billion',
+      referencePeriod: 'H1 2026 (through Q2)',
+      measurementType: 'Actual health expenditure reported in detailed subnational review',
+      geographicCoverage: '34 of 36 states; Rivers and Osun excluded',
+      sourceId: 'budgit-subnational-health-h1-2026-report',
+      sourceType: 'published_research',
+      sourcePublisher: 'BudgIT Foundation · Nigeria’s Subnational Health Expenditure Report, H1 2026',
+      sourceUrl: 'https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/',
+      departments: ['health', 'civic'],
+      interpretation: 'Combined state health outturn.',
+      limitations: ['Rivers and Osun are excluded.', 'Spending is not proof of PHC functionality.'],
+    }, {
+      id: 'abia-2026-approved-budget-total',
+      title: 'Abia State approved 2026 budget',
+      value: 1016.22807265199,
+      unit: '₦ billion',
+      referencePeriod: '2026 approved appropriation',
+      measurementType: 'Official government-reported appropriation headline',
+      geographicCoverage: 'Abia State',
+      sourceId: 'state-budget-abia',
+      sourceType: 'official_source',
+      sourcePublisher: 'Abia State Government',
+      sourceUrl: 'https://abiastate.gov.ng/gov-otti-signs-2026-appropriation-bill-into-law/',
+      departments: ['civic'],
+      interpretation: 'Official appropriation headline only.',
+      limitations: ['Detailed schedule not transcribed.'],
+    }, {
+      id: 'anambra-2026-q3-total-revenue',
+      title: 'Anambra total revenue including opening balance · Q3 2026',
+      value: 300.80226147912,
+      unit: '₦ billion',
+      referencePeriod: '1 Jan–30 Sep 2026',
+      measurementType: 'Actual revenue including opening balance',
+      geographicCoverage: 'Anambra State',
+      sourceId: 'state-budget-anambra',
+      sourceType: 'official_source',
+      sourcePublisher: 'Anambra State Government — Office of the Accountant General / Open Finance',
+      sourceUrl: 'https://smart.anambrastate.gov.ng/open-finance',
+      departments: ['civic'],
+      interpretation: 'Official state BIR summary.',
+      limitations: ['Revenue receipt does not establish service delivery.'],
+    }, {
+      id: 'ncc-broadband-subscriptions-sep-2026',
+      title: 'Active broadband subscriptions',
+      value: 128020463,
+      unit: 'subscriptions',
+      referencePeriod: 'September 2026',
+      measurementType: 'NCC operator-reported active broadband subscriptions',
+      geographicCoverage: 'Nigeria',
+      sourceId: 'ncc-industry-statistics-2026',
+      sourceType: 'official_source',
+      sourcePublisher: 'Nigerian Communications Commission',
+      sourceUrl: 'https://ncc.gov.ng/market-data-reports/industry-statistics',
+      departments: ['software-technology', 'civic'],
+      interpretation: 'Subscriptions are not unique people or households.',
+      limitations: ['Multiple subscriptions may belong to one person.'],
+    }, {
+      id: 'world-bank-nigeria-internet-use-2024',
+      title: 'Individuals using the Internet',
+      value: 41.21,
+      unit: '% of population',
+      referencePeriod: '2024',
+      measurementType: 'Individuals using the Internet in the previous three months',
+      geographicCoverage: 'Nigeria',
+      sourceId: 'world-bank-wdi-internet-use-nigeria',
+      sourceType: 'published_research',
+      sourcePublisher: 'World Bank / ITU',
+      sourceUrl: 'https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=NG',
+      departments: ['software-technology', 'civic'],
+      interpretation: 'Latest observed year in the series reviewed.',
+      limitations: ['National average hides state and community differences.'],
+    }],
+  },
+});
+assert.equal(nationalObservationSources.length, 5);
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:budgit-h1-2026-health-total-report' && source.sourceType === 'published_research'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:abia-2026-approved-budget-total' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:anambra-2026-q3-total-revenue' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:ncc-broadband-subscriptions-sep-2026' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:world-bank-nigeria-internet-use-2024' && source.sourceType === 'published_research'));
+assert.match(nationalObservationSources[0].excerpt, /621.34 ₦ billion/);
+
 const untrustedSnapshotSource = buildTrustedBriefSources({
   observatorySnapshotsBundle: {
     status: 'ready',
@@ -289,6 +378,8 @@ const chatSource = readFileSync(new URL('../api/chat.js', import.meta.url), 'utf
 assert.ok(chatSource.includes('validateCivicBrief(parsed, trustedSources)'));
 assert.ok(chatSource.includes('buildTrustedBriefSources'));
 assert.ok(chatSource.includes('fetchObservatorySnapshots'));
+assert.ok(chatSource.includes('fetchNationalSnapshots'));
+assert.ok(chatSource.includes('nationalSnapshotsBundle'));
 assert.ok(chatSource.includes('observatorySnapshotsBundle'));
 assert.ok(chatSource.includes('CURATED NATIONAL SOURCE SNAPSHOTS'));
 assert.ok(chatSource.includes('!briefMode || canonicalCommunityRecordsAvailable'));

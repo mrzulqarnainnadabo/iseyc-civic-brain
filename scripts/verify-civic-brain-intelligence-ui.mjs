@@ -30,6 +30,8 @@ assert(briefCard.includes("What remains unknown"), "structured brief exposes evi
 const api = read("api/chat.js");
 assert(api.includes("fetchObservatoryIndicators"), "chat retrieves Observatory national indicators");
 assert(api.includes("fetchObservatorySnapshots"), "chat retrieves curated national snapshots");
+assert(api.includes("fetchNationalSnapshots"), "chat retrieves query-relevant national source observations");
+assert(api.includes("nationalSnapshots: nationalSnapshotsMeta"), "chat exposes source observation provenance");
 assert(api.includes("observatoryIndicatorsBundle"), "retrieved indicator bundle is passed to source validation");
 assert(api.includes("observatoryIndicators: observatoryIndicatorsMeta"), "chat response exposes indicator provenance");
 assert(api.includes("MAX_BRIEF_OUTPUT_TOKENS = 2600"), "structured brief has a larger output budget");
@@ -38,6 +40,10 @@ assert(api.includes("briefMode ? MAX_BRIEF_OUTPUT_TOKENS : MAX_OUTPUT_TOKENS"), 
 const prompt = read("lib/system-prompt.js");
 assert(prompt.includes("OBSERVATORY NATIONAL INDICATOR RULES"), "server prompt includes indicator interpretation rules");
 assert(prompt.includes("OBSERVATORY CURATED NATIONAL SNAPSHOT RULES"), "server prompt includes curated snapshot interpretation rules");
+assert(prompt.includes("OBSERVATORY NATIONAL SOURCE OBSERVATION RULES"), "server prompt includes source observation and state-budget boundaries");
+assert(prompt.includes("18 states remain unreviewed"), "server prompt preserves incomplete state source discovery");
+assert(prompt.includes("128.02 million active broadband subscriptions"), "server prompt includes NCC national broadband evidence");
+assert(prompt.includes("41.21% of Nigeria's population"), "server prompt preserves World Bank internet-use period");
 assert(prompt.includes("ISN hub-assessment percentages are survey respondent shares"), "server prompt preserves ISN survey-sample limits");
 assert(prompt.includes("Never infer state, LGA, ward, facility, community or household values"), "national-only geography boundary is explicit");
 assert(prompt.includes("modelled"), "measurement types must be preserved");
