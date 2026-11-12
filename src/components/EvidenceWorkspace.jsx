@@ -27,6 +27,11 @@ const SUGGESTIONS = [
       "What is known about the 2025–2026 Continuous Voter Registration exercise? Explain the official phase-one counts, the two-voter discrepancy, and whether a final validated national register is available.",
   },
   {
+    label: "State health and education budgets",
+    prompt:
+      "What do the NGF 2026 original state-budget aggregates show for education and health? Give the share, naira amount, 36-state scope and key limitations. Distinguish planned allocations from actual spending and verified services.",
+  },
+  {
     label: "Health-related demands",
     prompt:
       "What do published Civic Mandate records show about Health? Separate facts from unknowns. Do not invent official responses or claim referrals were sent.",
