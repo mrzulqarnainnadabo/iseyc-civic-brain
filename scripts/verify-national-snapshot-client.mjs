@@ -145,7 +145,7 @@ assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
 assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
-assert.match(promptSource, /NGF public finance portal is under integrity review/);
+assert.match(promptSource, /NGF Public Finance Database landing page showed unrelated injected third-party links/);
 assert.match(clientSource, /api\/evidence\/source-snapshots/);
 assert.match(clientSource, /MAX_OBSERVATIONS = 6/);
 assert.match(clientSource, /stateBudgetCoverage/);
