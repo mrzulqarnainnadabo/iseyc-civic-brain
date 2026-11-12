@@ -25,7 +25,7 @@ import { compactNarrative } from '../lib/response-length.js';
 
 const PROVIDER_TIMEOUT_MS = 20000;
 const MAX_NARRATIVE_TOKENS = 256;
-const MAX_BRIEF_TOKENS = 1024;
+const MAX_BRIEF_TOKENS = 512;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
 
@@ -64,6 +64,14 @@ async function withTimeout(operation, ms, label) {
   }
 }
 
+function shouldFetchInecEvidence(query) {
+  return /\\b(inec|voter|pvc|election|cvr|registration|polling|turnout)\\b/i.test(String(query || ''));
+}
+
+function shouldFetchNationalEvidence(query) {
+  return /\\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities)\\b/i.test(String(query || ''));
+}
+
 export const config = {
   api: { bodyParser: { sizeLimit: '128kb' } },
 };
@@ -95,7 +103,7 @@ export default async function handler(req, res) {
   let communityRecordsBundle = null;
   let communityRecordsMeta = { available: false, status: 'not_attempted', source: null, fallbackReason: null, contractVersion: null, total: null, returned: 0, limitations: ['Published CommunityRecord retrieval was not completed.'] };
   let inecBundle = { status: 'skipped', datasets: [], limitations: [], errorCode: null };
-  let nationalSnapshotsBundle = { status: 'unavailable', observations: [], catalogOnlySources: [], limitations: ['National source snapshot retrieval was not completed.'] };
+  let nationalSnapshotsBundle = { status: 'skipped', observations: [], catalogOnlySources: [], reconciliationNotes: [], limitations: ['National evidence retrieval was not needed for this question.'] };
   let observationBundle = {
     status: 'unavailable',
     records: [],
@@ -109,8 +117,12 @@ export default async function handler(req, res) {
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
     withTimeout(fetchPublishedCommunityRecords(fetch), 8000, 'COMMUNITY_RECORDS'),
     withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
-    withTimeout(fetchInecEvidence(latestUserMessage), 8000, 'INEC_EVIDENCE'),
-    withTimeout(fetchNationalSnapshots(latestUserMessage, fetch, { timeoutMs: 7000 }), 8000, 'NATIONAL_SNAPSHOTS'),
+    shouldFetchInecEvidence(latestUserMessage)
+      ? withTimeout(fetchInecEvidence(latestUserMessage), 8000, 'INEC_EVIDENCE')
+      : Promise.resolve({ status: 'skipped', datasets: [], limitations: [], errorCode: null }),
+    shouldFetchNationalEvidence(latestUserMessage)
+      ? withTimeout(fetchNationalSnapshots(latestUserMessage, fetch, { timeoutMs: 7000 }), 8000, 'NATIONAL_SNAPSHOTS')
+      : Promise.resolve({ status: 'skipped', observations: [], catalogOnlySources: [], reconciliationNotes: [], limitations: ['Not requested for this question.'] }),
   ]);
 
   if (snapshotResult.status === 'fulfilled' && snapshotResult.value && !snapshotResult.value.error) {
