@@ -297,13 +297,45 @@ const nationalObservationSources = buildTrustedBriefSources({
       departments: ['civic'],
       interpretation: 'Official state BIR summary.',
       limitations: ['Revenue receipt does not establish service delivery.'],
+    }, {
+      id: 'ncc-broadband-subscriptions-sep-2026',
+      title: 'Active broadband subscriptions',
+      value: 128020463,
+      unit: 'subscriptions',
+      referencePeriod: 'September 2026',
+      measurementType: 'NCC operator-reported active broadband subscriptions',
+      geographicCoverage: 'Nigeria',
+      sourceId: 'ncc-industry-statistics-2026',
+      sourceType: 'official_source',
+      sourcePublisher: 'Nigerian Communications Commission',
+      sourceUrl: 'https://ncc.gov.ng/market-data-reports/industry-statistics',
+      departments: ['software-technology', 'civic'],
+      interpretation: 'Subscriptions are not unique people or households.',
+      limitations: ['Multiple subscriptions may belong to one person.'],
+    }, {
+      id: 'world-bank-nigeria-internet-use-2024',
+      title: 'Individuals using the Internet',
+      value: 41.21,
+      unit: '% of population',
+      referencePeriod: '2024',
+      measurementType: 'Individuals using the Internet in the previous three months',
+      geographicCoverage: 'Nigeria',
+      sourceId: 'world-bank-wdi-internet-use-nigeria',
+      sourceType: 'published_research',
+      sourcePublisher: 'World Bank / ITU',
+      sourceUrl: 'https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=NG',
+      departments: ['software-technology', 'civic'],
+      interpretation: 'Latest observed year in the series reviewed.',
+      limitations: ['National average hides state and community differences.'],
     }],
   },
 });
-assert.equal(nationalObservationSources.length, 3);
+assert.equal(nationalObservationSources.length, 5);
 assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:budgit-h1-2026-health-total-report' && source.sourceType === 'published_research'));
 assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:abia-2026-approved-budget-total' && source.sourceType === 'official_source'));
 assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:anambra-2026-q3-total-revenue' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:ncc-broadband-subscriptions-sep-2026' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:world-bank-nigeria-internet-use-2024' && source.sourceType === 'published_research'));
 assert.match(nationalObservationSources[0].excerpt, /621.34 ₦ billion/);
 
 const untrustedSnapshotSource = buildTrustedBriefSources({
