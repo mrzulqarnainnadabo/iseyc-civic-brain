@@ -12,28 +12,34 @@ function read(path) { return readFileSync(join(root, path), "utf8"); }
 
 const workspace = read("src/components/EvidenceWorkspace.jsx");
 const expectedStarters = [
-  "Understand a community issue",
-  "Check national evidence",
-  "Find responsible institutions",
-  "Generate a structured Civic Brief",
+  "What is published so far?",
+  "National health evidence",
+  "State budget execution",
+  "Education spending",
+  "All-state fiscal disclosure",
+  "Prepare an evidence brief",
 ];
 for (const label of expectedStarters) {
   assert(workspace.includes(label), `chat includes current evidence-led starter: ${label}`);
 }
 assert(!workspace.includes("What is Civic Mandate?"), "obsolete generic starter prompts are not required");
+assert(workspace.includes("Ask about a published record or public evidence"), "chat introduction is concise");
+assert(workspace.includes("<details") && workspace.includes("Evidence brief"), "evidence provenance is collapsed behind a short brief label");
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
 assert(briefCard.includes("Structural validation is not independent verification"), "brief UI distinguishes validation from verification");
 assert(briefCard.includes("Source register"), "structured brief exposes source register");
 assert(briefCard.includes("What remains unknown"), "structured brief exposes evidence gaps");
+assert(briefCard.includes("brief.findings.slice(0, 3)"), "structured brief shows at most three findings");
+assert(briefCard.includes("brief.institutionalResponsibilities.slice(0, 2)"), "structured brief shows at most two responsibilities");
 
 const api = read("api/chat.js");
 assert(api.includes("fetchObservatoryIndicators"), "chat retrieves Observatory national indicators");
-assert(api.includes("fetchObservatorySnapshots"), "chat retrieves curated national snapshots");
+assert(api.includes("fetchNationalSnapshots"), "chat retrieves curated national source snapshots");
 assert(api.includes("observatoryIndicatorsBundle"), "retrieved indicator bundle is passed to source validation");
 assert(api.includes("observatoryIndicators: observatoryIndicatorsMeta"), "chat response exposes indicator provenance");
-assert(api.includes("MAX_BRIEF_OUTPUT_TOKENS = 2600"), "structured brief has a larger output budget");
-assert(api.includes("briefMode ? MAX_BRIEF_OUTPUT_TOKENS : MAX_OUTPUT_TOKENS"), "all providers receive format-specific output budget");
+assert(api.includes("MAX_BRIEF_TOKENS = 512"), "structured brief has a bounded output budget");
+assert(api.includes("briefMode ? MAX_BRIEF_TOKENS : MAX_NARRATIVE_TOKENS"), "all providers receive format-specific output budget");
 
 const prompt = read("lib/system-prompt.js");
 assert(prompt.includes("OBSERVATORY NATIONAL INDICATOR RULES"), "server prompt includes indicator interpretation rules");
