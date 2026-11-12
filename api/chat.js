@@ -113,7 +113,7 @@ export default async function handler(req, res) {
   };
 
   const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
-  const evidenceQuery = messages.filter((message) => message.role === 'user').slice(-3).map((message) => message.content).join('\\n');
+  const evidenceQuery = messages.filter((message) => message.role === 'user').slice(-3).map((message) => message.content).join('\n');
   const [snapshotResult, communityRecordsResult, observationResult, inecResult, nationalSnapshotsResult] = await Promise.allSettled([
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
     withTimeout(fetchPublishedCommunityRecords(fetch), 8000, 'COMMUNITY_RECORDS'),
