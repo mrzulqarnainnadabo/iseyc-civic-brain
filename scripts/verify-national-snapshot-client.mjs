@@ -54,7 +54,7 @@ const coverage = {
 };
 const sourceBody = {
   contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-12',
-  observations: [who, healthSpend, abiaBudget], catalogOnlySources: [ngfCatalogue, nbsCatalogue],
+  observations: [who, healthSpend], catalogOnlySources: [ngfCatalogue, nbsCatalogue],
   reconciliationNotes: [{
     id: 'who-underfive-series-conflict', severity: 'high',
     title: 'WHO under-five mortality values are not reconciled',
@@ -76,6 +76,7 @@ const abiaBudget = {
   sourcePublisher: 'Abia State Government', sourceUrl: 'https://abiastate.gov.ng/gov-otti-signs-2026-appropriation-bill-into-law/',
   departments: ['civic'], interpretation: 'Official appropriation headline only.', limitations: ['Detailed schedule not transcribed.'],
 };
+sourceBody.observations.push(abiaBudget);
 const legacyBody = {
   contractVersion: '1.0.0', status: 'ok', retrievedAt: '2026-11-12',
   recordCount: 1,
