@@ -58,6 +58,11 @@ assert.match(requested, /api\/evidence\/source-snapshots/);
 assert.match(formatObservatorySnapshotBlock(health), /H1 2026/);
 assert.match(formatObservatorySnapshotBlock(health), /Health total discrepancy/);
 assert.match(formatObservatorySnapshotBlock(health), /not live feeds/i);
+const budgetHealth = await fetchObservatorySnapshots("health budget 2026", fetchMock);
+assert.equal(budgetHealth.status, "ready");
+assert.equal(budgetHealth.records.length, 1, "budget questions should not be diluted by unrelated health indicators");
+assert.equal(budgetHealth.records[0].id, "budgit-health-spending");
+
 
 const education = await fetchObservatorySnapshots("education budget Kaduna", fetchMock);
 assert.equal(education.status, "ready");
