@@ -14,6 +14,7 @@ assert.doesNotMatch(prompt, /Always use the four required CIVIC BRIEF headings/)
 assert.match(api, /const MAX_OUTPUT_TOKENS = 256;/);
 assert.match(api, /compactNarrative\(result\.text\)/);
 assert.match(api, /const MAX_BRIEF_OUTPUT_TOKENS = 2600;/);
+assert.match(api, /const PROVIDER_TIMEOUT_MS = 20000;/);
 
 const longResponse = Array.from({ length: 40 }, (_, index) => 'Finding ' + (index + 1) + ' is supported by the published source.').join(' ');
 const compactResponse = compactNarrative(longResponse);
