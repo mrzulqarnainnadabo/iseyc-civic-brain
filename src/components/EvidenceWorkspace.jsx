@@ -6,10 +6,12 @@ import CivicBriefCard from "./CivicBriefCard.jsx";
 import { buildBoundedChatHistory } from "../../lib/chat-history.js";
 
 const SUGGESTIONS = [
-  { label: "Understand a community issue", prompt: "Explain what published community reports and official evidence show about health service gaps in Kaduna. Separate community reports, official facts, estimates and unknowns." },
-  { label: "Check national evidence", prompt: "What official national indicators are available for Nigeria in health, education, employment and digital access? State reference years and distinguish measured, estimated and modelled values." },
-  { label: "Find responsible institutions", prompt: "For a health service concern in Kaduna, explain which public institutions may have responsibilities and what evidence is needed to confirm jurisdiction. Do not claim a referral was sent." },
-  { label: "Generate a structured Civic Brief", format: "civic_brief_v1", prompt: "Prepare a structured Civic Brief about public education conditions in Nigeria using only sources retrieved for this request and published community records. Keep national and subnational evidence separate. If evidence is insufficient, state the gaps." },
+  { label: "What is published so far?", prompt: "Summarise published Civic Mandate records in three short points. Separate community reports from independently verified outcomes; state geography and limits." },
+  { label: "National health evidence", prompt: "What do current official and published sources say about Nigeria's health system? Use up to three values with period and geography. State what remains unknown." },
+  { label: "State budget execution", prompt: "Summarise H1 2026 state budget execution using the BudgIT 34-state sample. Distinguish 2025 BIR outturns from 2026 spending and do not infer service delivery." },
+  { label: "Education spending", prompt: "What do H1 2026 state education expenditure figures show? Give the 34-state total, selected state figures and what spending cannot prove." },
+  { label: "All-state fiscal disclosure", prompt: "Explain the Q2 2026 fiscal-information availability scores across all 36 states. Explain what is measured and why it is not a service-delivery ranking." },
+  { label: "Prepare an evidence brief", format: "civic_brief_v1", prompt: "Prepare a concise evidence brief about a public-service issue using only sources retrieved for this request. Separate facts, community reports, analysis and unknowns. Keep it short." },
 ];
 
 function safeEvidenceHref(value) {
@@ -32,7 +34,7 @@ function friendlyError(errMsg, status) {
   return `Request failed${status ? ` (${status})` : ""}. Please try again.`;
 }
 
-const INTRO = `I connect published community records with available official evidence. I separate facts, community reports, estimates, analysis and unknowns. I can explain possible institutional responsibilities, but I cannot contact officials or declare an issue resolved.`;
+const INTRO = `Ask about a published record or public evidence. I will give you the finding, source and key limitation. I cannot contact officials or confirm resolution.`;
 
 export default function EvidenceWorkspace({ initialPrompt = "" }) {
   const [msgs, setMsgs] = useState([{ role: "assistant", content: INTRO }]);
@@ -173,7 +175,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   marginBottom: 6,
                 }}
               >
-                Civic Brief
+                Evidence brief
               </div>
               {m.brief ? <CivicBriefCard brief={m.brief} /> : <Markdown text={m.content} />}
               {Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0 && (
@@ -206,7 +208,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                       );
                     })}
                   </ul>
-                </section>
+                </details>
               )}
               {m.evidence?.nationalEvidence && m.evidence.nationalEvidence.status !== "skipped" && (
                 <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)", fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>
@@ -227,7 +229,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   {m.evidence.nationalEvidence.status === "partial" && (
                     <div>Partial retrieval. Only the listed datasets were used.</div>
                   )}
-                </div>
+                </details>
               )}
               {m.evidence?.observatoryIndicators && m.evidence.observatoryIndicators.status !== "skipped" && (
                 <section aria-label="Observatory national indicator evidence" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
@@ -243,7 +245,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                       })}
                     </ul>
                   ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national indicator was available for this question. No substitute values were used.</p>}
-                </section>
+                </details>
               )}
               {m.evidence?.observatorySnapshots && m.evidence.observatorySnapshots.status !== "skipped" && (
                 <section aria-label="Curated national source snapshots" style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}>
@@ -254,12 +256,12 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                         const href = safeEvidenceHref(item.sourceUrl);
                         return <li key={item.id} style={{ borderLeft: "2px solid var(--iseyc-gold)", paddingLeft: 10 }}>
                           {href ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "var(--iseyc-forest)", fontWeight: 650, textDecoration: "underline" }}>{item.title}</a> : <strong>{item.title}</strong>}
-                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.referencePeriod, item.geography?.label, item.evidenceType].filter(Boolean).join(" · ")}</p>
+                          <p style={{ margin: "3px 0 0", fontSize: 10, color: "var(--iseyc-ink-secondary)" }}>{[item.publisher, item.referencePeriod, item.geography, item.sourceType?.replaceAll('_', ' ')].filter(Boolean).join(" · ") + (item.value != null ? ' · ' + item.value + ' ' + (item.unit || '') : '')}</p>
                         </li>;
                       })}
                     </ul>
-                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No curated snapshot was available for this question. No substitute values were used.</p>}
-                </section>
+                  ) : <p style={{ margin: 0, fontSize: 11, color: "var(--iseyc-ink-secondary)" }}>No national source evidence was available for this question. No substitute values were used.</p>}
+                </details>
               )}
             </Card>
           )
