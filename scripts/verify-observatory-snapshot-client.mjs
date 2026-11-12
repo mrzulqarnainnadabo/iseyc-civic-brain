@@ -3,150 +3,165 @@ import {
   fetchObservatorySnapshots,
   selectSnapshotRecords,
   formatObservatorySnapshotBlock,
+  DEFAULT_OBSERVATORY_SNAPSHOT_URL
 } from "../lib/observatory-snapshot-client.js";
 
-const records = [
+const observations = [
   {
-    id: "fme-annual-school-census-national-2024-25", title: "Federal Ministry of Education · Annual School Census 2024/2025",
-    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
-    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
-    geography: { level: "national", label: "Nigeria" },
-    evidenceType: "Government education management information system · annual school census administrative reporting",
-    metrics: [{ label: "School reporting rate", value: "53.7%", unit: "of listed schools", period: "2024/2025", measurementType: "administrative reporting" }],
-    limitations: ["Reported administrative records only; 53.7% school reporting rate means these are not complete national totals."],
-    interpretation: "National administrative baseline only; keep reporting completeness visible.",
+    id: "who-health-life-expectancy", title: "Life expectancy at birth", value: 61.4, unit: "years",
+    referencePeriod: "2023", measurementType: "WHO estimate", geoLevel: "national",
+    geographicCoverage: "Nigeria", sourceId: "who-afro-nigeria", sourcePublisher: "WHO Regional Office for Africa",
+    sourceUrl: "https://www.afro.who.int/node/992", sourceType: "official_source", departments: ["health"],
+    interpretation: "National estimate only.", limitations: ["National aggregate; not a state or facility measure."]
   },
   {
-    id: "fme-annual-school-census-kaduna-2024-25", title: "Federal Ministry of Education · Kaduna State school indicators",
-    publisher: "Federal Ministry of Education", sourceId: "fme-annual-school-census",
-    sourceUrl: "https://emis.education.gov.ng/portal/", referencePeriod: "School year 2024/2025", retrievedAt: "2026-11-10",
-    geography: { level: "state", label: "Kaduna State" },
-    evidenceType: "Government education management information system · state-level administrative school census",
-    metrics: [{ label: "Learner–teacher ratio", value: "51.3", unit: "learners per teacher", period: "2024/2025" }],
-    limitations: ["Kaduna State is not Kaduna South; do not infer LGA or school conditions."],
-    interpretation: "State-level context only.",
+    id: "budgit-health-spending", title: "Combined state health expenditure", value: 621.34, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual expenditure reported in secondary analysis",
+    geoLevel: "varies", geographicCoverage: "34 of 36 states; Rivers and Osun excluded",
+    sourceId: "budgit-health-report", sourcePublisher: "BudgIT Foundation",
+    sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"],
+    interpretation: "Secondary report aggregate; discrepancy with earlier infographic remains under reconciliation.", verificationStatus: "reconciliation_required",
+    limitations: ["Not an independent audit.", "Does not establish service quality."]
   },
   {
-    id: "worldbank-ndu-2026-10", title: "World Bank · Nigeria Development Update",
-    publisher: "World Bank", sourceId: "worldbank-ndu-2026-10",
-    sourceUrl: "https://www.worldbank.org/en/news/press-release/2026/10/08/higher-revenues-better-lives-strengthening-state-spending-growth-jobs-services",
-    referencePeriod: "H1 2026 GDP; Q1 2026 current account; end-July 2026 reserves", retrievedAt: "2026-11-10",
-    geography: { level: "national", label: "Nigeria" },
-    evidenceType: "International development institution assessment · national macroeconomic indicators",
-    metrics: [{ label: "Real GDP growth", value: "4.2%", unit: "year-on-year growth", period: "H1 2026", measurementType: "reported estimate" }],
-    limitations: ["National aggregate only; not a state or LGA growth rate."], interpretation: "National context only.",
+    id: "budgit-h1-2026-health-total", title: "Combined state health expenditure · earlier infographic total (superseded)",
+    value: 614.55, unit: "₦ billion", referencePeriod: "H1 2026 (through Q2)",
+    measurementType: "Actual health expenditure reported in earlier published infographic",
+    geoLevel: "varies", geographicCoverage: "34 of 36 states; Rivers and Osun excluded",
+    sourceId: "budgit-state-health-h1-2026", sourcePublisher: "BudgIT Foundation",
+    sourceUrl: "https://budgit.org/post_infographics/h1-2026-health-expenditure-performance-by-state/",
+    sourceType: "published_research", departments: ["health", "civic"], recordStatus: "superseded",
+    supersededBy: "budgit-health-spending",
+    interpretation: "Earlier 21 October infographic total; retained only for explicit reconciliation.",
+    limitations: ["Superseded by later detailed report total; do not use as current aggregate."]
   },
   {
-    id: "who-nigeria-health-2021-23", title: "WHO · Nigeria health indicators",
-    publisher: "World Health Organization", sourceId: "who-gho-nigeria",
-    sourceUrl: "https://www.who.int/data/gho/data/countries/country-details/GHO/nigeria",
-    referencePeriod: "Indicator-specific · 2021–2023", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "WHO country profile · indicator-specific estimates and reported series",
-    metrics: [{ label: "Under-five mortality", value: "108.1", unit: "per 1,000 live births", period: "2022", interval: "77.5–153.8", measurementType: "estimated" }],
-    limitations: ["WHO statistical estimates; preserve uncertainty intervals and reference periods."], interpretation: "National context only.",
-  },
-  {
-    id: "nimc-enrolment-2025-10", title: "NIMC · National identity enrolment",
-    publisher: "National Identity Management Commission", sourceId: "nimc-enrolment-oct-2025",
-    sourceUrl: "https://nimc.gov.ng/nin/enrolment-report/october-2025",
-    referencePeriod: "As at 31 October 2025", retrievedAt: "2026-11-09",
-    geography: { level: "national-and-state", label: "Nigeria · national and state records" },
-    evidenceType: "Official cumulative administrative enrolment snapshot",
-    metrics: [{ label: "Total enrolment records", value: "123,906,318", unit: "records", period: "31 Oct 2025" }],
-    limitations: ["Not a population census."], interpretation: "Administrative enrolment only.",
-  },
-  {
-    id: "nitda-dl4all-2026-10", title: "NITDA · Digital Literacy for All",
-    publisher: "National Information Technology Development Agency", sourceId: "nitda-dl4all-dashboard",
-    sourceUrl: "https://dashboard.digitalliteracy.nitda.gov.ng/",
-    referencePeriod: "Dashboard updated 24 October 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national-and-subnational", label: "Nigeria · 36 states + FCT, LGAs and communities" },
-    evidenceType: "Government programme dashboard · verified training records",
-    metrics: [{ label: "Progress against 50m programme target", value: "5.57%", unit: "of target", period: "Dashboard update" }],
-    limitations: ["Not national digital-literacy prevalence."], interpretation: "Programme reach only.",
-    departmentIds: ["software-technology", "education"],
-  },
-  {
-    id: "naseni-innovatenaija-2025", title: "NASENI · InnovateNaija challenge",
-    publisher: "NASENI Innovation Hub", sourceId: "naseni-innovation-hub",
-    sourceUrl: "https://innovation.naseni.gov.ng/naseni-launches-innovatenaija/",
-    referencePeriod: "Announcement · 3 September 2025", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "National programme" }, evidenceType: "Official programme announcement",
-    metrics: [{ label: "Announced prize pool", value: "₦250 million", unit: "programme terms", period: "3 Sep 2025" }],
-    limitations: ["Announcement is not evidence of disbursement."], interpretation: "Programme terms only.",
-  },
-  {
-    id: "isn-innovation-hub-assessment-2026", title: "ISN · Nigerian Innovation Hub Assessment",
-    publisher: "Innovation Support Network (ISN)", sourceId: "isn-hub-assessment-2026",
-    sourceUrl: "https://isnhubs.org.ng/nigerias-innovation-landmark-isn-launches-comprehensive-hub-assessment-report-and-unveils-2026-2030-strategic-outlook/",
-    referencePeriod: "Summary released 22 May 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "Industry ecosystem assessment summary",
-    metrics: [{ label: "Hubs offering structured training", value: "90%", unit: "of respondents", period: "2026 summary", measurementType: "survey respondent share" }],
-    limitations: ["Geographic percentages are respondent shares, not a national census."], interpretation: "Survey summary only.",
-  },
-  {
-    id: "nbs-gdp-q1-2026", title: "NBS · Real GDP growth",
-    publisher: "National Bureau of Statistics", sourceId: "nbs-gdp-quarterly",
-    sourceUrl: "https://microdata.nigerianstat.gov.ng/index.php/catalog/147/related-materials",
-    referencePeriod: "Q1 2026", retrievedAt: "2026-11-09",
-    geography: { level: "national", label: "Nigeria" }, evidenceType: "Official quarterly national-accounts estimate",
-    metrics: [{ label: "Real GDP growth, year-on-year", value: "3.89%", unit: "annual percentage change", period: "Q1 2026" }],
-    limitations: ["National estimate only."], interpretation: "National context only.",
-  },
+    id: "kaduna-education-budget", title: "Kaduna approved education budget share", value: 25, unit: "%",
+    referencePeriod: "2026 approved budget", measurementType: "Budget allocation share", geoLevel: "state",
+    geographicCoverage: "Kaduna State", sourceId: "kdsg-budget", sourcePublisher: "Kaduna State Government",
+    sourceUrl: "https://kdsg.gov.ng/budget", sourceType: "official_source", departments: ["education", "civic"],
+    interpretation: "Approved allocation, not actual expenditure.", limitations: ["Statewide only; not Kaduna South or an individual school."]
+  }
 ];
+observations.push(
+  {
+    id: "budgit-health-actual-spend-kaduna-h1-2026", title: "H1 2026 health actual expenditure — Kaduna State", value: 18.68, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual health expenditure transcribed from state BIRs",
+    geoLevel: "state", geographicCoverage: "Kaduna State", sourceId: "budgit-health-report",
+    sourcePublisher: "BudgIT Foundation", sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"], verificationStatus: "published_secondary_report",
+    interpretation: "BudgIT Table 5 reports ₦18.68bn for Kaduna State; secondary report data, not independently reconciled.",
+    limitations: ["Secondary report; check original Q1/Q2 BIRs.", "Statewide only; not Kaduna South."]
+  },
+  {
+    id: "budgit-health-actual-spend-kano-h1-2026", title: "H1 2026 health actual expenditure — Kano State", value: 79.17, unit: "₦ billion",
+    referencePeriod: "H1 2026", measurementType: "Actual health expenditure transcribed from state BIRs",
+    geoLevel: "state", geographicCoverage: "Kano State", sourceId: "budgit-health-report",
+    sourcePublisher: "BudgIT Foundation", sourceUrl: "https://budgit.org/post_publications/nigerias-subnational-health-expenditure-report-h1-2026/",
+    sourceType: "published_research", departments: ["health", "civic"], verificationStatus: "published_secondary_report",
+    interpretation: "BudgIT Table 5 reports ₦79.17bn for Kano State; secondary report data, not independently reconciled.",
+    limitations: ["Secondary report; check original Q1/Q2 BIRs."]
+  }
+);
+observations.push(
+  {
+    id: "ncc-broadband-penetration-sep-2026", title: "Broadband penetration", value: 59.05,
+    unit: "% subscription-based penetration", referencePeriod: "September 2026",
+    measurementType: "Active broadband subscriptions as a percentage of estimated population",
+    geoLevel: "national", geographicCoverage: "Nigeria", sourceId: "ncc-industry-statistics-2026",
+    sourcePublisher: "Nigerian Communications Commission (NCC)",
+    sourceUrl: "https://ncc.gov.ng/market-data-reports/industry-statistics",
+    sourceType: "official_source", departments: ["software-technology", "civic"],
+    interpretation: "Subscription-based penetration; not unique individuals using the internet.",
+    limitations: ["Multiple subscriptions per person are possible.", "Do not equate with population internet-use rate."]
+  },
+  {
+    id: "world-bank-nigeria-internet-use-2024", title: "Individuals using the Internet", value: 41.21,
+    unit: "% of population", referencePeriod: "2024",
+    measurementType: "Individuals who used the Internet from any location in the previous three months",
+    geoLevel: "national", geographicCoverage: "Nigeria", sourceId: "world-bank-wdi-internet-use-nigeria",
+    sourcePublisher: "World Bank World Development Indicators (underlying source: ITU)",
+    sourceUrl: "https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=NG",
+    sourceType: "official_source", departments: ["software-technology", "civic"],
+    interpretation: "People-based internet-use indicator; not the same as broadband subscription penetration.",
+    limitations: ["Latest observed period is 2024.", "National average hides state and household access gaps."]
+  }
+);
+const payload = {
+  contractVersion: "1.0.0", source: "iseyc-observatory-curated-source-snapshots-v1",
+  status: "curated", checkedAt: "2026-11-12", observations,
+  limitations: ["Curated dated transcriptions; not live publisher feeds."],
+  reconciliationNotes: [{ id: "health-total", severity: "high", title: "Health total discrepancy", detail: "Two publications report different totals." }],
+  stateBudgetCoverage: { officialStateSourceRoutesLocated: 19, totalStates: 36, budgitHealthActualExpenditureStates: 34, budgitHealthActualExpenditureMissingStates: ["Osun", "Rivers"] }
+};
 
-assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["who-nigeria-health-2021-23"]);
-assert.deepEqual(selectSnapshotRecords("education access"), ["fme-annual-school-census-national-2024-25"]);
-assert.deepEqual(selectSnapshotRecords("Kaduna school conditions"), ["fme-annual-school-census-national-2024-25", "fme-annual-school-census-kaduna-2024-25"]);
-assert.deepEqual(selectSnapshotRecords("NIN identity registration"), ["nimc-enrolment-2025-10"]);
-assert.deepEqual(selectSnapshotRecords("NASENI innovation challenge"), ["naseni-innovatenaija-2025"]);
-assert.deepEqual(selectSnapshotRecords("innovation hub assessment"), ["naseni-innovatenaija-2025", "isn-innovation-hub-assessment-2026"]);
-assert.deepEqual(selectSnapshotRecords("software ecosystem"), ["nitda-dl4all-2026-10", "isn-innovation-hub-assessment-2026"]);
-assert.deepEqual(selectSnapshotRecords("Q1 2026 GDP growth"), ["nbs-gdp-q1-2026", "worldbank-ndu-2026-10"]);
-assert.deepEqual(selectSnapshotRecords("foreign reserves Nigeria"), ["worldbank-ndu-2026-10"]);
-assert.equal(selectSnapshotRecords("unrelated question").length, 0);
+assert.deepEqual(selectSnapshotRecords("health in Nigeria"), ["health"]);
+assert.deepEqual(selectSnapshotRecords("health budget 2026"), ["health", "civic"]);
+assert.deepEqual(selectSnapshotRecords("education budget Kaduna"), ["education", "civic"]);
+assert.deepEqual(selectSnapshotRecords("unrelated question"), []);
+assert.equal(DEFAULT_OBSERVATORY_SNAPSHOT_URL.endsWith("/api/evidence/source-snapshots"), true);
 
 let requested = "";
 const fetchMock = async (url) => {
   requested = String(url);
-  return { ok: true, status: 200, text: async () => JSON.stringify({
-    contractVersion: "1.0.0", status: "ok",
-    source: "iseyc-observatory-national-snapshots-v1",
-    retrievedAt: "2026-11-09", recordCount: records.length, records,
-    limitations: ["Curated source transcriptions; not live publisher feeds."],
-  }) };
+  return { ok: true, status: 200, text: async () => JSON.stringify(payload) };
 };
-const bundle = await fetchObservatorySnapshots("health", fetchMock);
-assert.equal(bundle.status, "ready");
-assert.equal(bundle.records[0].id, "who-nigeria-health-2021-23");
-assert.match(requested, /api\/evidence\/snapshots/);
-assert.match(requested, /catalog=0/);
-assert.match(formatObservatorySnapshotBlock(bundle), /77.5–153.8/);
-assert.match(formatObservatorySnapshotBlock(bundle), /measurement type: estimated/);
-assert.match(formatObservatorySnapshotBlock(bundle), /not a live feed/);
+const health = await fetchObservatorySnapshots("health in Nigeria", fetchMock);
+assert.equal(health.status, "ready");
+assert.equal(health.records.length, 2);
+assert.ok(!health.records.some((record) => record.recordStatus === "superseded"), "superseded totals stay out of normal answers");
+assert.equal(health.records[1].metrics[0].value, "621.34");
+assert.match(requested, /api\/evidence\/source-snapshots/);
+assert.match(formatObservatorySnapshotBlock(health), /H1 2026/);
+assert.match(formatObservatorySnapshotBlock(health), /Health total discrepancy/);
+assert.match(formatObservatorySnapshotBlock(health), /not live feeds/i);
+assert.match(formatObservatorySnapshotBlock(health), /reconciliation_required/);
+assert.match(formatObservatorySnapshotBlock(health), /STATE_BUDGET_COVERAGE/);
+const stateHealth = await fetchObservatorySnapshots("health actual expenditure by state H1 2026", fetchMock);
+assert.equal(stateHealth.records.filter((record) => record.geography.level === "state").length, 2);
+const kadunaHealth = await fetchObservatorySnapshots("Kaduna health actual expenditure H1 2026", fetchMock);
+assert.equal(kadunaHealth.records.length, 1);
+assert.equal(kadunaHealth.records[0].id, "budgit-health-actual-spend-kaduna-h1-2026");
+const budgetHealth = await fetchObservatorySnapshots("health budget 2026", fetchMock);
+assert.equal(budgetHealth.status, "ready");
+assert.equal(budgetHealth.records.length, 1, "budget questions should not be diluted by unrelated health indicators");
+assert.equal(budgetHealth.records[0].id, "budgit-health-spending");
+const reconciliation = await fetchObservatorySnapshots("health expenditure discrepancy compare sources", fetchMock);
+assert.ok(reconciliation.records.some((record) => record.recordStatus === "superseded" && record.metrics[0].value === "614.55"));
+assert.match(formatObservatorySnapshotBlock(reconciliation), /RECORD_STATUS: superseded/);
+
+
+const education = await fetchObservatorySnapshots("education budget Kaduna", fetchMock);
+assert.equal(education.status, "ready");
+assert.equal(education.records.length, 1);
+assert.match(formatObservatorySnapshotBlock(education), /Kaduna State/);
+const digital = await fetchObservatorySnapshots("digital technology broadband internet", fetchMock);
+assert.equal(digital.status, "ready");
+assert.ok(digital.records.some((record) => record.id === "ncc-broadband-penetration-sep-2026"));
+assert.ok(digital.records.some((record) => record.id === "world-bank-nigeria-internet-use-2024"));
+assert.match(formatObservatorySnapshotBlock(digital), /subscription-based penetration/);
+
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
 assert.equal(skipped.status, "skipped");
 
-const untrusted = await fetchObservatorySnapshots("health", fetchMock, { url: "https://example.com/api/evidence/snapshots" });
+const untrusted = await fetchObservatorySnapshots("health", fetchMock, { url: "https://example.com/api/evidence/source-snapshots" });
 assert.equal(untrusted.status, "invalid");
 assert.equal(untrusted.errorCode, "UNTRUSTED_ENDPOINT");
 
-const bad = await fetchObservatorySnapshots("health", async () => ({
-  ok: true, status: 200, text: async () => JSON.stringify({ contractVersion: "9.9.9", status: "ok", source: "fake", records }),
+const badContract = await fetchObservatorySnapshots("health", async () => ({
+  ok: true, status: 200, text: async () => JSON.stringify({ ...payload, contractVersion: "9.9.9" })
 }));
-assert.equal(bad.status, "unavailable");
-assert.equal(bad.records.length, 0);
+assert.equal(badContract.status, "unavailable");
+assert.equal(badContract.records.length, 0);
 
-const badSource = structuredClone(records);
-badSource.find((record) => record.id === "who-nigeria-health-2021-23").sourceUrl = "https://example.com/fake";
+const badSource = structuredClone(payload);
+badSource.observations[0].sourceUrl = "https://example.com/fake";
 const rejected = await fetchObservatorySnapshots("health", async () => ({
-  ok: true, status: 200, text: async () => JSON.stringify({
-    contractVersion: "1.0.0", status: "ok", source: "iseyc-observatory-national-snapshots-v1",
-    records: badSource, retrievedAt: "2026-11-09",
-  }),
+  ok: true, status: 200, text: async () => JSON.stringify(badSource)
 }));
 assert.equal(rejected.status, "unavailable");
 assert.equal(rejected.records.length, 0);
 
-console.log("Observatory snapshot client contract checks passed.");
+console.log("Observatory source-snapshot client contract checks passed.");

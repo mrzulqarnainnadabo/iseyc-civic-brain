@@ -39,10 +39,22 @@ for (const required of [
     console.log("OK: guardrail:", required);
   }
 }
-if (!MODE_HINTS.civic.includes("four required CIVIC BRIEF headings")) {
-  console.error("FAIL: civic mode does not enforce Civic Brief");
+if (!MODE_HINTS.civic.includes("45–90 words") || MODE_HINTS.civic.includes("four required CIVIC BRIEF headings")) {
+  console.error("FAIL: ordinary civic mode must be concise and must not force the structured brief");
   failed++;
-}
+} else console.log("OK: civic mode defaults to concise narrative");
+if (!prompt.includes("BudgIT's H1 2026 subnational health report covers 34 states") || !prompt.includes("Rivers and Osun are missing, not zero")) {
+  console.error("FAIL: health expenditure reconciliation caveats missing");
+  failed++;
+} else console.log("OK: secondary health expenditure caveats preserved");
+if (!prompt.includes("Kaduna's 2026 approved budget announcement reports")) {
+  console.error("FAIL: Kaduna state-budget scope and allocation caveat missing");
+  failed++;
+} else console.log("OK: Kaduna statewide budget caveat preserved");
+if (!prompt.includes("STRUCTURED CIVIC BRIEF — OPT-IN ONLY") || !prompt.includes("format=civic_brief_v1")) {
+  console.error("FAIL: structured Civic Brief must remain explicit and opt-in");
+  failed++;
+} else console.log("OK: structured Civic Brief remains opt-in");
 const header = readFileSync(new URL("../src/components/ui/Header.jsx", import.meta.url), "utf8");
 const workspace = readFileSync(new URL("../src/components/EvidenceWorkspace.jsx", import.meta.url), "utf8");
 if (!header.includes('src="/iseyc-wordmark.svg"') || !header.includes('ISEYC — Initiative for Sustainable Evolution for Youth and Community')) {
@@ -52,7 +64,7 @@ if (!header.includes('src="/iseyc-wordmark.svg"') || !header.includes('ISEYC —
 for (const label of ["Civic Mandate", "Civic Intelligence", "Civic Brain", "Education", "Health", "Software", "Civic Department", "Digital Operations Centre"]) {
   if (!architecture.includes(label)) throw new Error(`ISEYC system map is missing ${label}`);
 }
-for (const label of ["Understand a community issue", "Check national evidence", "Find responsible institutions", "Generate a structured Civic Brief"]) {
+for (const label of ["Understand a community issue", "Check national evidence", "Find responsible institutions", "Generate a structured Civic Brief", "Read state budgets"]) {
   if (!workspace.includes(label)) {
     console.error("FAIL: missing starter:", label);
     failed++;

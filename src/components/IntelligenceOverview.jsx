@@ -13,6 +13,10 @@ const QUESTIONS = [
     prompt: "Explain the strongest available official evidence about Nigeria's health system. Distinguish source facts, reference periods, national estimates and local unknowns. Do not infer Kaduna or facility conditions from national data.",
   },
   {
+    label: "What do state budgets prioritise?",
+    prompt: "Summarise the NGF 2026 original-budget allocations for education and health across the 36 states. Keep the figures short and distinguish planned budgets from actual spending and service delivery.",
+  },
+  {
     label: "Who is responsible?",
     prompt: "Explain which institution may have responsibility for a documented public-service issue. Show the legal or administrative basis, jurisdiction uncertainty and what a human reviewer must confirm before any referral.",
   },
