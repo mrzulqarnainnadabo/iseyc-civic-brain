@@ -187,12 +187,6 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                     aria-label="Evidence sources retrieved for this response"
                     style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--iseyc-border)" }}
                   >
-                    <h3 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "var(--iseyc-forest)" }}>
-                      Evidence sources retrieved · {m.evidence.sources.length}
-                    </h3>
-                    <p style={{ margin: "0 0 8px", fontSize: 11, lineHeight: 1.5, color: "var(--iseyc-ink-secondary)" }}>
-                      Retrieved source records available to the response. This list does not claim that every item was cited in the generated explanation.
-                    </p>
                     <ul style={{ display: "grid", gap: 8, margin: 0, padding: 0, listStyle: "none" }}>
                       {m.evidence.sources.map((source) => {
                         const href = safeEvidenceHref(source.sourceUrl);
