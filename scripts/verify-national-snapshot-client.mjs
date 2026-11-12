@@ -123,6 +123,9 @@ assert.equal(educationResult.status, 'ready');
 assert.ok(educationResult.observations.some((item) => item.title.includes('Learner–teacher ratio')));
 assert.ok(educationResult.observations.find((item) => item.title.includes('Learner–teacher ratio')).geographicCoverage === 'Kaduna State');
 
+const kadunaBudget = await fetchNationalSnapshots('Kaduna state revenue 2025', mock);
+assert.ok(kadunaBudget.observations.some((item) => item.title === 'Kaduna actual revenue' && item.value === 357.9 && item.unit === '₦ billion'));
+
 const fiscalResult = await fetchNationalSnapshots('fiscal transparency Rivers', mock);
 assert.equal(fiscalResult.status, 'ready');
 assert.ok(fiscalResult.observations.some((item) => item.id === 'sftl-q2-2026-rivers' && item.value === 15));
