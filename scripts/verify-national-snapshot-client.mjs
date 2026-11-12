@@ -104,6 +104,39 @@ const budgitLagosIgr = {
   departments: ['civic'], interpretation: 'BudgIT reports ₦1.71tn Lagos IGR in 2025.',
   limitations: ['Secondary fiscal analysis.', 'Differs from Agora Policy’s ₦1.85tn; unresolved.'],
 };
+const nccBroadbandSubs = {
+  id: 'ncc-broadband-subscriptions-sep-2026', title: 'Active broadband subscriptions',
+  value: 128020463, unit: 'subscriptions', referencePeriod: 'September 2026',
+  measurementType: 'NCC operator-reported active broadband subscriptions',
+  geoLevel: 'national', geographicCoverage: 'Nigeria', sourceId: 'ncc-industry-statistics-2026',
+  sourceType: 'official_source', sourcePublisher: 'Nigerian Communications Commission',
+  sourceUrl: 'https://ncc.gov.ng/market-data-reports/industry-statistics',
+  departments: ['software-technology', 'civic'],
+  interpretation: 'Active broadband subscriptions, not unique people or households.',
+  limitations: ['Multiple subscriptions may belong to one person.', 'National aggregate does not show state, LGA or household distribution.'],
+};
+const nccPenetration = {
+  id: 'ncc-broadband-penetration-sep-2026', title: 'Broadband penetration',
+  value: 59.05, unit: '% subscription-based penetration', referencePeriod: 'September 2026',
+  measurementType: 'NCC subscription-based broadband penetration',
+  geoLevel: 'national', geographicCoverage: 'Nigeria', sourceId: 'ncc-industry-statistics-2026',
+  sourceType: 'official_source', sourcePublisher: 'Nigerian Communications Commission',
+  sourceUrl: 'https://ncc.gov.ng/market-data-reports/industry-statistics',
+  departments: ['software-technology', 'civic'],
+  interpretation: 'Subscription-based penetration, not unique-user internet use.',
+  limitations: ['Do not compare directly with World Bank/ITU individuals-using-the-internet without explaining the different definitions.'],
+};
+const wdiInternetUse = {
+  id: 'world-bank-nigeria-internet-use-2024', title: 'Individuals using the Internet',
+  value: 41.21, unit: '% of population', referencePeriod: '2024',
+  measurementType: 'Individuals using the Internet from any location in the previous three months',
+  geoLevel: 'national', geographicCoverage: 'Nigeria', sourceId: 'world-bank-wdi-internet-use-nigeria',
+  sourceType: 'published_research', sourcePublisher: 'World Bank / ITU World Development Indicators',
+  sourceUrl: 'https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=NG',
+  departments: ['software-technology', 'civic'],
+  interpretation: 'Latest observed year in the series reviewed; not a 2026 measure.',
+  limitations: ['National average hides state, rural/urban, gender, age and income gaps.'],
+};
 const ngfCatalogue = {
   id: 'ngf-state-public-finance-db', title: 'NGF Public Finance Database',
   publisher: "Nigeria Governors' Forum", url: 'https://publicfinance.ngf.org.ng/',
@@ -121,7 +154,7 @@ const sourceBody = {
   source: 'iseyc-observatory-curated-source-snapshots-v1',
   status: 'curated',
   checkedAt: '2026-11-12',
-  observations: [who, healthSpend, abiaBudget, kadunaSchool, anambraRevenue, agoraLagosIgr, budgitLagosIgr],
+  observations: [who, healthSpend, abiaBudget, kadunaSchool, anambraRevenue, agoraLagosIgr, budgitLagosIgr, nccBroadbandSubs, nccPenetration, wdiInternetUse],
   catalogOnlySources: [ngfCatalogue, nbsCatalogue],
   reconciliationNotes: [
     { id: 'who-underfive-series-conflict', severity: 'high', title: 'WHO under-five mortality values are not reconciled', detail: 'Different WHO pages show materially different years and values; 59.5 is excluded.', action: 'Do not construct a trend until series are reconciled.' },
@@ -189,6 +222,17 @@ assert.ok(lagosIgrResult.observations.some((item) => item.id === budgitLagosIgr.
 assert.ok(lagosIgrResult.reconciliationNotes.some((note) => note.id === 'lagos-igr-2025-source-difference'));
 assert.ok(!lagosIgrResult.observations.some((item) => item.id === 'agora-2025-lagos-igrSharePct'), 'IGR amount query must not be confused with IGR share');
 
+const broadbandResult = await fetchNationalSnapshots('broadband subscriptions Nigeria', mock);
+assert.equal(broadbandResult.status, 'ready');
+assert.ok(broadbandResult.observations.some((item) => item.id === nccBroadbandSubs.id && item.value === 128020463));
+assert.ok(broadbandResult.observations.some((item) => item.id === nccPenetration.id && item.value === 59.05));
+assert.ok(!broadbandResult.observations.some((item) => item.unit === '% of population'), 'subscription penetration must not be conflated with people using the internet');
+
+const internetUseResult = await fetchNationalSnapshots('internet use Nigeria', mock);
+assert.equal(internetUseResult.status, 'ready');
+assert.ok(internetUseResult.observations.some((item) => item.id === wdiInternetUse.id && item.value === 41.21));
+assert.equal(internetUseResult.observations.find((item) => item.id === wdiInternetUse.id).referencePeriod, '2024');
+
 const inflationResult = await fetchNationalSnapshots('inflation CPI', mock);
 assert.equal(inflationResult.status, 'ready');
 assert.equal(inflationResult.observations.length, 0);
@@ -224,6 +268,8 @@ assert.match(promptSource, /₦621\.34bn/);
 assert.match(promptSource, /18 states remain unreviewed/);
 assert.match(promptSource, /Agora cites ₦1.85tn/);
 assert.match(promptSource, /Anambra's official Q3 2026 BIR/);
+assert.match(promptSource, /128.02 million active broadband subscriptions/);
+assert.match(promptSource, /41.21% of Nigeria's population/);
 assert.match(clientSource, /api\/evidence\/source-snapshots/);
 assert.match(clientSource, /MAX_OBSERVATIONS = 6/);
 assert.match(clientSource, /stateBudgetCoverage/);
