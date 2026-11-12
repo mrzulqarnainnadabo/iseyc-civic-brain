@@ -1,115 +1,152 @@
 import assert from 'node:assert/strict';
-import { fetchNationalSnapshots, formatNationalSnapshotBlock } from '../lib/national-snapshot-client.js';
 import fs from 'node:fs';
+import { fetchNationalSnapshots, formatNationalSnapshotBlock, DEFAULT_NATIONAL_SNAPSHOTS_URL } from '../lib/national-snapshot-client.js';
 
-const health = {
-  id: 'who-nga-under5-mortality-2024', title: 'Under-five mortality rate',
-  value: 59.5, unit: 'deaths per 1,000 live births', referencePeriod: '2024',
+const who = {
+  id: 'who-nga-life-expectancy-male-2023', title: 'Life expectancy at birth, male',
+  value: 61.4, unit: 'years', referencePeriod: '2023',
   measurementType: 'WHO estimate', geoLevel: 'national', geographicCoverage: 'Nigeria',
-  sourceId: 'who-gho-nigeria', sourceType: 'official_source',
+  sourceId: 'who-afro-nigeria', sourceType: 'official_source',
   sourcePublisher: 'WHO Regional Office for Africa', sourceUrl: 'https://www.afro.who.int/node/992',
   departments: ['health'], interpretation: 'National estimate only.',
-  limitations: ['Not a Kaduna South or facility measure.'],
+  limitations: ['Not a Kaduna State or facility measure.'],
 };
-const civic = {
-  ...health, id: 'nimc-nin-enrolment-2025-06-30', title: 'NIN enrolment',
-  value: 121404601, unit: 'records', referencePeriod: '2025-06-30',
-  sourceId: 'nimc-nin-enrolment-2025', sourcePublisher: 'NIMC',
-  sourceUrl: 'https://nimc.gov.ng/nin/enrolment-report/june-2025',
+const healthSpend = {
+  id: 'budgit-h1-2026-health-total', title: 'Combined state health expenditure',
+  value: 614.55, unit: '₦ billion', referencePeriod: 'H1 2026 (through Q2)',
+  measurementType: 'Actual health expenditure by end of Q2', geoLevel: 'varies',
+  geographicCoverage: '34 of 36 states; Rivers and Osun excluded',
+  sourceId: 'budgit-state-health-h1-2026', sourceType: 'published_research',
+  sourcePublisher: 'BudgIT Foundation · H1 2026 Health Expenditure Performance by State',
+  sourceUrl: 'https://budgit.org/post_infographics/h1-2026-health-expenditure-performance-by-state/',
+  departments: ['health', 'civic'], interpretation: 'Combined state health outturn.',
+  limitations: ['Rivers and Osun are excluded.', 'Spending is not proof of PHC functionality.'],
+};
+const ngfCatalogue = {
+  id: 'ngf-state-public-finance-db', title: 'NGF Public Finance Database',
+  publisher: "Nigeria Governors' Forum", url: 'https://publicfinance.ngf.org.ng/',
+  status: 'under_review', note: 'Portal integrity requires review; no numeric observations ingested.',
   departments: ['civic'],
 };
-const budget = {
-  id: 'ngf-state-budget-health-share-2026', title: 'Health share of 36-state original budgets',
-  value: 9.3, unit: '% of aggregate 36-state original expenditure', referencePeriod: '2026 original state budgets',
-  measurementType: 'NGF-published aggregate of state original budgets by NCOA function',
-  geoLevel: 'national', geographicCoverage: 'All 36 state governments; FCT excluded',
-  sourceId: 'ngf-public-finance-database', sourceType: 'published_research',
-  sourcePublisher: "Nigeria Governors' Forum (NGF) · Public Finance Database",
-  sourceUrl: 'https://publicfinance.ngf.org.ng/', departments: ['health', 'civic'],
-  interpretation: 'NGF reports ₦3.34 trillion (9.3%) for health in the 2026 original state budgets.',
-  limitations: ['Original budget is planned expenditure, not actual expenditure or verified service delivery.'],
-};
-const nbs = {
-  id: 'nbs-cpi-catalog', title: 'NBS CPI catalogue', publisher: 'NBS',
+const nbsCatalogue = {
+  id: 'nbs-cpi-monthly', title: 'NBS CPI catalogue', publisher: 'National Bureau of Statistics',
   url: 'https://microdata.nigerianstat.gov.ng/index.php/catalog/154/related-materials',
-  note: 'Catalogue only; no current numeric observation integrated.',
+  status: 'catalogue', note: 'Catalogue only; no current CPI observation integrated.',
+  departments: ['civic'],
 };
-const education = {
-  id: 'fme-asc-kaduna-learner-teacher-ratio-2024-25',
-  title: 'Kaduna State learner–teacher ratio',
-  value: 51.3, unit: 'learners per teacher', referencePeriod: '2024/2025',
-  sourceUpdateDate: '2026-07-18', measurementType: 'Annual School Census administrative ratio',
-  geoLevel: 'state', geographicCoverage: 'Kaduna State',
-  sourceId: 'fme-education-emis-asc-2024-25', sourceType: 'official_source',
-  sourcePublisher: 'Federal Ministry of Education — Digital Nigeria EMIS',
-  sourceUrl: 'https://emis.education.gov.ng/portal/',
-  departments: ['education'],
-  interpretation: 'State-level administrative data only; not Kaduna South or an individual school.',
-  limitations: ['The national school reporting rate is 57.9%.'],
+const stateNames = ['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara'];
+const jurisdictions = stateNames.map((name) => ({
+  name, type: 'state', status: 'not_reviewed', officialPortalUrl: null,
+  fiscalTransparency: {
+    quarter: 'Q2 2026', citizensBudget: { score: name === 'Rivers' ? 0 : 15, max: 15 },
+    quarterlyBir: { score: name === 'Rivers' ? 0 : 16, max: 16 },
+    eProcurement: { score: name === 'Rivers' ? 0 : 11, max: 11 },
+    fiscalWebsite: { score: name === 'Rivers' ? 8 : 12, max: 12 },
+    totalScore: name === 'Rivers' ? 15 : 100,
+    sourceId: 'budgit-state-fiscal-transparency-league-q2-2026',
+  },
+}));
+jurisdictions.push({ name: 'Federal Capital Territory', type: 'fct', status: 'official_law_not_confirmed', fiscalTransparency: null });
+const coverage = {
+  scope: { states: 36, fctTrackedSeparately: true, officialStatePortalsLocated: 13, fiscalTransparencyCoverage: 36, h1_2026SectorSpendingCoverage: 34 },
+  jurisdictions,
 };
-const educationNational = {
-  ...education, id: 'fme-asc-schools-reported-2024-25',
-  title: 'Schools reported in Annual School Census', value: 124543,
-  unit: 'schools', geoLevel: 'national', geographicCoverage: 'Nigeria',
-  interpretation: 'National school census count with incomplete reporting.',
+const sourceBody = {
+  contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-12',
+  observations: [who, healthSpend], catalogOnlySources: [ngfCatalogue, nbsCatalogue],
+  reconciliationNotes: [{
+    id: 'who-underfive-series-conflict', severity: 'high',
+    title: 'WHO under-five mortality values are not reconciled',
+    detail: 'Different WHO pages show materially different years and values; 59.5 is excluded from the source snapshot.',
+    action: 'Do not construct a trend until the series are reconciled.',
+  }],
+  stateBudgetCoverage: coverage,
+  limitations: ['Curated transcriptions, not live feeds.'],
+};
+const legacyBody = {
+  contractVersion: '1.0.0', status: 'ok', retrievedAt: '2026-11-12',
+  recordCount: 1,
+  records: [{
+    id: 'fme-kaduna-asc-2024-25', title: 'Kaduna State Annual School Census 2024/25',
+    publisher: 'Federal Ministry of Education', sourceId: 'fme-annual-school-census',
+    sourceUrl: 'https://emis.education.gov.ng/portal/',
+    referencePeriod: '2024/2025 school year',
+    evidenceType: 'Official administrative school-census dashboard',
+    geography: { level: 'state', label: 'Kaduna State' },
+    departmentId: 'education',
+    limitations: ['The national school reporting rate is incomplete.'],
+    metrics: [{
+      label: 'Learner–teacher ratio', value: '51.3', unit: 'learners per teacher',
+      period: '2024/2025', measurementType: 'Annual School Census administrative ratio',
+    }],
+  }],
+  limitations: ['Legacy department snapshots are curated and dated.'],
 };
 function response(body, ok = true) {
   return { ok, status: ok ? 200 : 503, text: async () => JSON.stringify(body) };
 }
+const mock = async (url) => String(url).includes('/source-snapshots')
+  ? response(sourceBody)
+  : response(legacyBody);
 
-const fetchMock = async () => response({
-  contractVersion: '1.0.0', status: 'curated', checkedAt: '2026-11-09',
-  observations: [health, civic, educationNational, education], catalogOnlySources: [nbs], limitations: ['Manual snapshots, not live feeds.'],
-});
-const healthResult = await fetchNationalSnapshots('health', fetchMock);
+assert.match(DEFAULT_NATIONAL_SNAPSHOTS_URL, /\/api\/evidence\/source-snapshots$/);
+const healthResult = await fetchNationalSnapshots('health', mock);
 assert.equal(healthResult.status, 'ready');
-assert.equal(healthResult.observations.length, 1);
-assert.equal(healthResult.observations[0].id, health.id);
-assert.match(formatNationalSnapshotBlock(healthResult), /not live feeds/i);
-assert.match(formatNationalSnapshotBlock(healthResult), /REFERENCE_PERIOD: 2024/);
-assert.match(formatNationalSnapshotBlock(healthResult), /59.5 deaths per 1,000 live births/);
+assert.ok(healthResult.observations.some((item) => item.id === who.id));
+assert.ok(healthResult.observations.some((item) => item.id === healthSpend.id));
+assert.ok(!healthResult.observations.some((item) => item.value === 59.5), 'unreconciled WHO value must never be surfaced');
+assert.equal(healthResult.stateBudgetCoverage.fiscalTransparencyCoverage, 36);
+assert.match(formatNationalSnapshotBlock(healthResult), /curated, dated source transcriptions/i);
+assert.match(formatNationalSnapshotBlock(healthResult), /13\/36 official state portals located/i);
+assert.match(formatNationalSnapshotBlock(healthResult), /WHO under-five mortality values are not reconciled/i);
 
-const educationResult = await fetchNationalSnapshots('education school Kaduna', fetchMock);
+const educationResult = await fetchNationalSnapshots('education school Kaduna', mock);
 assert.equal(educationResult.status, 'ready');
-assert.equal(educationResult.observations.length, 2);
-assert.equal(educationResult.observations[0].id, education.id, 'Kaduna State evidence must rank ahead of national context when Kaduna is requested');
-assert.match(formatNationalSnapshotBlock(educationResult), /GEOGRAPHY: Kaduna State/);
-assert.match(formatNationalSnapshotBlock(educationResult), /SOURCE_UPDATE_DATE: 2026-07-18/);
+assert.ok(educationResult.observations.some((item) => item.title.includes('Learner–teacher ratio')));
+assert.ok(educationResult.observations.find((item) => item.title.includes('Learner–teacher ratio')).geographicCoverage === 'Kaduna State');
 
-const budgetResult = await fetchNationalSnapshots('health state budget 2026', async () => response({
-  contractVersion: '1.0.0', status: 'ok', checkedAt: '2026-11-12',
-  observations: [budget], catalogOnlySources: [], limitations: ['Curated snapshot, not a live feed.'],
-}));
+const fiscalResult = await fetchNationalSnapshots('fiscal transparency Rivers', mock);
+assert.equal(fiscalResult.status, 'ready');
+assert.ok(fiscalResult.observations.some((item) => item.id === 'sftl-q2-2026-rivers' && item.value === 15));
+assert.match(formatNationalSnapshotBlock(fiscalResult), /citizens' budget 0\/15/i);
+
+const budgetResult = await fetchNationalSnapshots('health state budget 2026', mock);
 assert.equal(budgetResult.status, 'ready');
-assert.equal(budgetResult.observations[0].id, budget.id);
-assert.match(formatNationalSnapshotBlock(budgetResult), /2026 original state budgets/);
-assert.match(formatNationalSnapshotBlock(budgetResult), /Original budget is planned expenditure/);
+assert.ok(budgetResult.observations.some((item) => item.id === healthSpend.id));
+assert.ok(budgetResult.catalogOnlySources.some((item) => item.id === 'ngf-state-public-finance-db' && item.status === 'under_review'));
+assert.ok(!budgetResult.observations.some((item) => item.sourceId === 'ngf-state-public-finance-db'), 'NGF under-review portal must not supply numeric observations');
 
-const inflationResult = await fetchNationalSnapshots('inflation CPI', fetchMock);
+const inflationResult = await fetchNationalSnapshots('inflation CPI', mock);
 assert.equal(inflationResult.observations.length, 0);
-assert.equal(inflationResult.catalogOnlySources.length, 1);
-assert.match(formatNationalSnapshotBlock(inflationResult), /No observation has been integrated/);
+assert.ok(inflationResult.catalogOnlySources.some((item) => item.id === 'nbs-cpi-monthly'));
+assert.match(formatNationalSnapshotBlock(inflationResult), /no relevant curated observation selected/i);
+
+const partial = await fetchNationalSnapshots('education school Kaduna', async (url) =>
+  String(url).includes('/source-snapshots') ? response({}, false) : response(legacyBody));
+assert.equal(partial.status, 'partial');
+assert.ok(partial.observations.some((item) => item.title.includes('Learner–teacher ratio')));
 
 let called = false;
 const blocked = await fetchNationalSnapshots('health', async () => { called = true; }, { url: 'https://evil.example/snapshots' });
 assert.equal(blocked.status, 'invalid');
 assert.equal(called, false);
 
-const malicious = await fetchNationalSnapshots('health', async () => response({
-  contractVersion: '1.0.0', status: 'curated', observations: [{ ...health, sourceUrl: 'https://evil.example/fake' }],
-}));
+const maliciousBody = { ...sourceBody, observations: [{ ...who, sourceUrl: 'https://evil.example/fake' }] };
+const malicious = await fetchNationalSnapshots('health', async (url) =>
+  String(url).includes('/source-snapshots') ? response(maliciousBody) : response(legacyBody));
 assert.equal(malicious.status, 'invalid');
 assert.equal(malicious.observations.length, 0);
 
-
 const chatSource = fs.readFileSync('api/chat.js', 'utf8');
 const promptSource = fs.readFileSync('lib/system-prompt.js', 'utf8');
+const clientSource = fs.readFileSync('lib/national-snapshot-client.js', 'utf8');
 assert.match(chatSource, /fetchNationalSnapshots/);
 assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
 assert.match(promptSource, /NIMC NIN enrolment records are administrative identity records/);
-assert.match(promptSource, /NGF state public-finance snapshots are a secondary compilation/);
-assert.match(fs.readFileSync('lib/national-snapshot-client.js', 'utf8'), /ngf-public-finance-database/);
-
-console.log('National snapshot client security and interpretation checks passed.');
+assert.match(promptSource, /NGF public finance portal is under integrity review/);
+assert.match(clientSource, /api\/evidence\/source-snapshots/);
+assert.match(clientSource, /MAX_OBSERVATIONS = 6/);
+assert.match(clientSource, /stateBudgetCoverage/);
+console.log('National snapshot client security, source boundaries and relevance checks passed.');
