@@ -14,7 +14,7 @@ import { fetchPublishedCommunityRecords, formatCommunityRecordsBlock } from '../
 import { fetchPublishedCommunityObservations, formatCommunityObservationBlock } from '../lib/community-observation-client.js';
 import { fetchInecEvidence, formatInecEvidenceBlock } from '../lib/inec-evidence-client.js';
 import { fetchObservatoryIndicators, formatObservatoryIndicatorBlock } from '../lib/observatory-indicator-client.js';
-import { fetchObservatorySnapshots, formatObservatorySnapshotBlock } from '../lib/observatory-snapshot-client.js';
+import { fetchNationalSnapshots, formatNationalSnapshotBlock } from '../lib/national-snapshot-client.js';
 import {
   briefModeSystemAppendix,
   extractJsonBrief,
@@ -24,8 +24,8 @@ import {
 import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trusted-brief-sources.js';
 
 const PROVIDER_TIMEOUT_MS = 25000;
-const MAX_OUTPUT_TOKENS = 1024;
-const MAX_BRIEF_OUTPUT_TOKENS = 2600;
+const MAX_OUTPUT_TOKENS = 256;
+const MAX_BRIEF_OUTPUT_TOKENS = 512;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
 const GROQ_MODELS = ['openai/gpt-oss-120b', 'llama-3.1-8b-instant', 'llama-3.3-70b-versatile'];
 
@@ -62,6 +62,14 @@ async function withTimeout(operation, ms, label) {
   } finally {
     clearTimeout(t);
   }
+}
+
+function shouldFetchInecEvidence(query) {
+  return /\\b(inec|voter|pvc|election|cvr|registration|polling|turnout)\\b/i.test(String(query || ''));
+}
+
+function shouldFetchNationalEvidence(query) {
+  return /\\b(nigeria|national|state|budget|health|education|school|teacher|phc|medicine|technology|digital|revenue|expenditure|fiscal|population|nin|identity|mortality|gdp|inflation|internet|connectivity|hospital|facility|facilities|kaduna|kano|lagos|abuja|fct|jos|plateau|rivers|oyo|ekiti|bauchi|enugu|nasarawa|niger|kwara|ogun|ondo|osun|sokoto|kebbi|jigawa|adamawa|taraba|yobe|zamfara|borno|gombe|benue|ebonyi|anambra|imo|abia|delta|bayelsa|cross river|akwa ibom|katsina|kogi)\\b/i.test(String(query || ''));
 }
 
 export const config = {
@@ -103,13 +111,18 @@ export default async function handler(req, res) {
   };
 
   const latestUserMessage = [...messages].reverse().find((message) => message.role === 'user')?.content || '';
+  const evidenceQuery = messages.filter((message) => message.role === 'user').slice(-3).map((message) => message.content).join('\\n');
   const [snapshotResult, communityRecordsResult, observationResult, inecResult, observatoryIndicatorsResult, observatorySnapshotsResult] = await Promise.allSettled([
     withTimeout(fetchCivicIntelligence(), 8000, 'CIVIC_INTELLIGENCE'),
     withTimeout(fetchPublishedCommunityRecords(fetch), 8000, 'COMMUNITY_RECORDS'),
-    withTimeout(fetchPublishedCommunityObservations(fetch, { query: latestUserMessage, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
-    withTimeout(fetchInecEvidence(latestUserMessage), 8000, 'INEC_EVIDENCE'),
-    withTimeout(fetchObservatoryIndicators(latestUserMessage), 8000, 'OBSERVATORY_INDICATORS'),
-    withTimeout(fetchObservatorySnapshots(latestUserMessage), 8000, 'OBSERVATORY_SNAPSHOTS'),
+    withTimeout(fetchPublishedCommunityObservations(fetch, { query: evidenceQuery, timeoutMs: 7000 }), 8000, 'COMMUNITY_OBSERVATIONS'),
+    shouldFetchInecEvidence(evidenceQuery)
+      ? withTimeout(fetchInecEvidence(evidenceQuery), 8000, 'INEC_EVIDENCE')
+      : Promise.resolve({ status: 'skipped', datasets: [], limitations: [], errorCode: null }),
+    withTimeout(fetchObservatoryIndicators(evidenceQuery), 8000, 'OBSERVATORY_INDICATORS'),
+    shouldFetchNationalEvidence(evidenceQuery)
+      ? withTimeout(fetchNationalSnapshots(evidenceQuery, fetch, { timeoutMs: 7000 }), 8000, 'NATIONAL_SNAPSHOTS')
+      : Promise.resolve({ status: 'skipped', observations: [], catalogOnlySources: [], reconciliationNotes: [], limitations: ['Not requested for this question.'] }),
   ]);
 
   if (snapshotResult.status === 'fulfilled' && snapshotResult.value && !snapshotResult.value.error) {
@@ -186,24 +199,27 @@ export default async function handler(req, res) {
   if (observatoryIndicatorsResult.status === 'fulfilled' && observatoryIndicatorsResult.value) {
     observatoryIndicatorsBundle = observatoryIndicatorsResult.value;
   }
-  let observatorySnapshotsBundle = { status: 'unavailable', records: [], limitations: ['Curated Observatory national snapshots were not retrieved.'], errorCode: 'OBSERVATORY_SNAPSHOTS_RETRIEVAL_FAILED' };
+  let observatorySnapshotsBundle = { status: 'skipped', observations: [], catalogOnlySources: [], reconciliationNotes: [], limitations: ['National evidence retrieval was not needed for this question.'] };
   if (observatorySnapshotsResult.status === 'fulfilled' && observatorySnapshotsResult.value) {
     observatorySnapshotsBundle = observatorySnapshotsResult.value;
   }
-  const observatorySnapshotsBlock = formatObservatorySnapshotBlock(observatorySnapshotsBundle);
+  const observatorySnapshotsBlock = formatNationalSnapshotBlock(observatorySnapshotsBundle);
   const observatorySnapshotsMeta = {
     status: observatorySnapshotsBundle.status,
-    recordIds: (observatorySnapshotsBundle.records || []).map((item) => item.id),
-    records: (observatorySnapshotsBundle.records || []).map((item) => ({
-      id: item.id,
-      title: item.title,
-      publisher: item.publisher,
-      sourceUrl: item.sourceUrl,
-      referencePeriod: item.referencePeriod,
-      geography: item.geography,
-      evidenceType: item.evidenceType,
+    selectedCount: observatorySnapshotsBundle.selectedCount ?? observatorySnapshotsBundle.observations?.length ?? 0,
+    availableObservationCount: observatorySnapshotsBundle.availableObservationCount ?? null,
+    sourceObservationCount: observatorySnapshotsBundle.sourceObservationCount ?? null,
+    departmentObservationCount: observatorySnapshotsBundle.departmentObservationCount ?? null,
+    sourceIds: [...new Set((observatorySnapshotsBundle.observations || []).map((item) => item.sourceId))],
+    observations: (observatorySnapshotsBundle.observations || []).slice(0, 6).map((item) => ({
+      id: item.id, title: item.title, publisher: item.sourcePublisher, sourceUrl: item.sourceUrl,
+      referencePeriod: item.referencePeriod, geography: item.geographicCoverage, sourceType: item.sourceType,
+      value: item.value, unit: item.unit,
     })),
-    fetchedAt: observatorySnapshotsBundle.fetchedAt || new Date().toISOString(),
+    catalogueOnly: (observatorySnapshotsBundle.catalogOnlySources || []).map((item) => ({ id: item.id, title: item.title, status: item.status, url: item.url })),
+    reconciliationNoteCount: observatorySnapshotsBundle.reconciliationNotes?.length || 0,
+    stateBudgetCoverage: observatorySnapshotsBundle.stateBudgetCoverage || null,
+    fetchedAt: observatorySnapshotsBundle.checkedAt || new Date().toISOString(),
     errorCode: observatorySnapshotsBundle.errorCode || null,
     limitations: observatorySnapshotsBundle.limitations || [],
   };
