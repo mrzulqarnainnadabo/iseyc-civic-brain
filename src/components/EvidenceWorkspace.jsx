@@ -223,7 +223,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   marginBottom: 6,
                 }}
               >
-                Civic Brief
+                Evidence brief
               </div>
               <Markdown text={m.content} />
               {(Array.isArray(m.evidence?.sources) && m.evidence.sources.length > 0) || m.evidence?.nationalEvidence || m.evidence?.nationalSnapshots ? (
