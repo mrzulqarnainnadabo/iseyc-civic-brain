@@ -12,8 +12,8 @@ function Pill({ children }) {
 export default function CivicBriefCard({ brief }) {
   const sources = useMemo(() => new Map((brief?.sources || []).map((source) => [source.id, source])), [brief]);
   if (!brief) return null;
-  const findings = Array.isArray(brief.findings) ? brief.findings.slice(0, 8) : [];
-  const responsibilities = Array.isArray(brief.institutionalResponsibilities) ? brief.institutionalResponsibilities.slice(0, 5) : [];
+  const findings = Array.isArray(brief.findings) ? brief.findings.slice(0, 3) : [];
+  const responsibilities = Array.isArray(brief.institutionalResponsibilities) ? brief.institutionalResponsibilities.slice(0, 2) : [];
   const gaps = Array.isArray(brief.evidenceGaps) ? brief.evidenceGaps : [];
   const recommendations = Array.isArray(brief.recommendations) ? brief.recommendations : [];
   const official = Array.isArray(brief.officialEvidence) ? brief.officialEvidence : [];
