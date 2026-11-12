@@ -64,6 +64,30 @@ observations.push(
     limitations: ["Secondary report; check original Q1/Q2 BIRs."]
   }
 );
+observations.push(
+  {
+    id: "ncc-broadband-penetration-sep-2026", title: "Broadband penetration", value: 59.05,
+    unit: "% subscription-based penetration", referencePeriod: "September 2026",
+    measurementType: "Active broadband subscriptions as a percentage of estimated population",
+    geoLevel: "national", geographicCoverage: "Nigeria", sourceId: "ncc-industry-statistics-2026",
+    sourcePublisher: "Nigerian Communications Commission (NCC)",
+    sourceUrl: "https://ncc.gov.ng/market-data-reports/industry-statistics",
+    sourceType: "official_source", departments: ["software-technology", "civic"],
+    interpretation: "Subscription-based penetration; not unique individuals using the internet.",
+    limitations: ["Multiple subscriptions per person are possible.", "Do not equate with population internet-use rate."]
+  },
+  {
+    id: "world-bank-nigeria-internet-use-2024", title: "Individuals using the Internet", value: 41.21,
+    unit: "% of population", referencePeriod: "2024",
+    measurementType: "Individuals who used the Internet from any location in the previous three months",
+    geoLevel: "national", geographicCoverage: "Nigeria", sourceId: "world-bank-wdi-internet-use-nigeria",
+    sourcePublisher: "World Bank World Development Indicators (underlying source: ITU)",
+    sourceUrl: "https://data.worldbank.org/indicator/IT.NET.USER.ZS?locations=NG",
+    sourceType: "official_source", departments: ["software-technology", "civic"],
+    interpretation: "People-based internet-use indicator; not the same as broadband subscription penetration.",
+    limitations: ["Latest observed period is 2024.", "National average hides state and household access gaps."]
+  }
+);
 const payload = {
   contractVersion: "1.0.0", source: "iseyc-observatory-curated-source-snapshots-v1",
   status: "curated", checkedAt: "2026-11-12", observations,
@@ -112,6 +136,12 @@ const education = await fetchObservatorySnapshots("education budget Kaduna", fet
 assert.equal(education.status, "ready");
 assert.equal(education.records.length, 1);
 assert.match(formatObservatorySnapshotBlock(education), /Kaduna State/);
+const digital = await fetchObservatorySnapshots("digital technology broadband internet", fetchMock);
+assert.equal(digital.status, "ready");
+assert.ok(digital.records.some((record) => record.id === "ncc-broadband-penetration-sep-2026"));
+assert.ok(digital.records.some((record) => record.id === "world-bank-nigeria-internet-use-2024"));
+assert.match(formatObservatorySnapshotBlock(digital), /subscription-based penetration/);
+
 
 const skipped = await fetchObservatorySnapshots("unrelated question", async () => { throw new Error("must not fetch"); });
 assert.equal(skipped.status, "skipped");
