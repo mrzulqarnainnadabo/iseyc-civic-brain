@@ -200,17 +200,17 @@ const nationalSources = buildTrustedBriefSources({
   nationalSnapshotsBundle: {
     status: 'ready',
     observations: [{
-      id: 'who-nga-under5-mortality-2024',
+      id: 'who-nga-under5-mortality-2022',
       title: 'Under-five mortality rate',
-      value: 59.5,
+      value: 117.46,
       unit: 'deaths per 1,000 live births',
-      referencePeriod: '2024',
+      referencePeriod: '2022',
       measurementType: 'WHO estimate',
       geographicCoverage: 'Nigeria',
       sourceId: 'who-gho-nigeria',
       sourceType: 'official_source',
       sourcePublisher: 'WHO Regional Office for Africa',
-      sourceUrl: 'https://www.afro.who.int/node/992',
+      sourceUrl: 'https://data.who.int/countries/566',
       departments: ['health'],
       interpretation: 'National estimate only.',
       limitations: ['Not a Kaduna South or facility measure.'],
@@ -221,10 +221,10 @@ const nationalSources = buildTrustedBriefSources({
       value: 51.3,
       unit: 'learners per teacher',
       referencePeriod: '2024/2025',
-      sourceUpdateDate: '2026-07-18',
+      sourceUpdateDate: '2026-09-22',
       measurementType: 'Annual School Census administrative ratio',
       geographicCoverage: 'Kaduna State',
-      sourceId: 'fme-education-emis-asc-2024-25',
+      sourceId: 'fme-annual-school-census',
       sourceType: 'official_source',
       sourcePublisher: 'Federal Ministry of Education — Digital Nigeria EMIS',
       sourceUrl: 'https://emis.education.gov.ng/portal/',
@@ -238,17 +238,17 @@ const whoSource = nationalSources.find((source) => source.id === 'src-national-s
 assert.ok(whoSource, 'national snapshot must enter the server-owned source allowlist');
 assert.equal(whoSource.sourceType, 'official_source');
 assert.equal(whoSource.referenceDate, '2024');
-assert.ok(whoSource.excerpt.includes('59.5 deaths per 1,000 live births'));
+assert.ok(whoSource.excerpt.includes('117.46 deaths per 1,000 live births'));
 const fmeSource = nationalSources.find((source) => source.id === 'src-national-snapshot:fme-asc-kaduna-learner-teacher-ratio-2024-25');
 assert.ok(fmeSource);
 assert.equal(fmeSource.referenceDate, '2024/2025');
-assert.equal(fmeSource.sourceUpdateDate, '2026-07-18');
+assert.equal(fmeSource.sourceUpdateDate, '2026-09-22');
 const nationalBrief = validateCivicBrief(brief({
   communityReports: [],
   sources: [{ id: whoSource.id, title: 'Model-authored title', sourceType: 'fake' }],
   officialEvidence: [{ sourceId: whoSource.id, title: 'Model-authored evidence' }],
   findings: [{
-    text: 'WHO reports a national under-five mortality estimate for 2024.',
+    text: 'WHO reports a national under-five mortality estimate for 2022.',
     classification: 'FACT',
     citations: [whoSource.id],
   }],
