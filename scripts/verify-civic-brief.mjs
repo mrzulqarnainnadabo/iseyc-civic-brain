@@ -43,6 +43,14 @@ if (!MODE_HINTS.civic.includes("45–90 words") || MODE_HINTS.civic.includes("fo
   console.error("FAIL: ordinary civic mode must be concise and must not force the structured brief");
   failed++;
 } else console.log("OK: civic mode defaults to concise narrative");
+if (!prompt.includes("BudgIT's H1 2026 subnational health report covers 34 states") || !prompt.includes("Rivers and Osun are missing, not zero")) {
+  console.error("FAIL: health expenditure reconciliation caveats missing");
+  failed++;
+} else console.log("OK: secondary health expenditure caveats preserved");
+if (!prompt.includes("Kaduna's 2026 approved budget announcement reports")) {
+  console.error("FAIL: Kaduna state-budget scope and allocation caveat missing");
+  failed++;
+} else console.log("OK: Kaduna statewide budget caveat preserved");
 if (!prompt.includes("STRUCTURED CIVIC BRIEF — OPT-IN ONLY") || !prompt.includes("format=civic_brief_v1")) {
   console.error("FAIL: structured Civic Brief must remain explicit and opt-in");
   failed++;
