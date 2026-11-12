@@ -161,6 +161,8 @@ const chatSource = fs.readFileSync('api/chat.js', 'utf8');
 const promptSource = fs.readFileSync('lib/system-prompt.js', 'utf8');
 const clientSource = fs.readFileSync('lib/national-snapshot-client.js', 'utf8');
 assert.match(chatSource, /fetchNationalSnapshots/);
+assert.match(chatSource, /const evidenceQuery = messages\.filter/);
+assert.match(chatSource, /shouldFetchNationalEvidence\(evidenceQuery\)/);
 assert.match(chatSource, /=== NATIONAL SOURCE SNAPSHOTS/);
 assert.match(chatSource, /nationalSnapshots: nationalSnapshotsMeta/);
 assert.match(promptSource, /NITDA DL4ALL dashboard counts are programme reporting/);
