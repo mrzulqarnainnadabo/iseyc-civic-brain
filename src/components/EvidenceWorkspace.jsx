@@ -174,7 +174,7 @@ export default function EvidenceWorkspace({ initialPrompt = "" }) {
                   marginBottom: 6,
                 }}
               >
-                Civic Brief
+                Civic Brain
               </div>
               {m.brief ? <CivicBriefCard brief={m.brief} /> : <Markdown text={m.content} />}
               {m.evidence ? (
