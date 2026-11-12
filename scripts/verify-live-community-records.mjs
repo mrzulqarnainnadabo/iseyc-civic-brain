@@ -60,7 +60,9 @@ assert(new Set(mandateIds).size === mandateIds.length, 'Mandate returned duplica
 assert(first.total === mandateRecords.length, `Mandate total mismatch: metadata ${first.total}, fetched ${mandateRecords.length}`);
 
 const brain = await getJson(BRAIN);
-assert(brain.version === '1.1.0', 'Civic Brain public-records API version mismatch');
+assert(brain.version === '1.2.0', 'Civic Brain public-records API version mismatch');
+assert(Object.prototype.hasOwnProperty.call(brain, 'fallbackReason'), 'Civic Brain must expose fallbackReason');
+assert(brain.fallbackReason === null, 'Civic Brain is on the Pulse compatibility path; primary CommunityRecord path expected');
 assert(brain.source === 'civic-mandate-community-records-v0.1', 'Civic Brain is not consuming CommunityRecord v0.1 (possible legacy fallback)');
 assert(brain.contractVersion === '0.1.0', 'Civic Brain contractVersion mismatch');
 assert(Array.isArray(brain.records), 'Civic Brain records must be an array');
@@ -81,6 +83,7 @@ console.log(JSON.stringify({
   brainTotal: brain.records.length,
   recordIdsMatch: true,
   source: brain.source,
+  fallbackReason: brain.fallbackReason,
   upstreamTruncated: first.truncatedUpstream,
   limitations: brain.limitations ?? [],
 }, null, 2));
