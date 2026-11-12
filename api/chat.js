@@ -25,7 +25,7 @@ import { buildTrustedBriefSources, formatTrustedBriefSources } from '../lib/trus
 import { fetchNationalSnapshots, formatNationalSnapshotBlock } from '../lib/national-snapshot-client.js';
 import { compactNarrative } from '../lib/response-length.js';
 
-const PROVIDER_TIMEOUT_MS = 25000;
+const PROVIDER_TIMEOUT_MS = 20000;
 const MAX_OUTPUT_TOKENS = 256;
 const MAX_BRIEF_OUTPUT_TOKENS = 2600;
 const DEFAULT_EVIDENCE_URL = 'https://2027-street-mandate.vercel.app/api/civic-intelligence';
