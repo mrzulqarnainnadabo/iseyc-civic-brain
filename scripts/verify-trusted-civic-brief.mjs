@@ -282,12 +282,28 @@ const nationalObservationSources = buildTrustedBriefSources({
       departments: ['civic'],
       interpretation: 'Official appropriation headline only.',
       limitations: ['Detailed schedule not transcribed.'],
+    }, {
+      id: 'anambra-2026-q3-total-revenue',
+      title: 'Anambra total revenue including opening balance · Q3 2026',
+      value: 300.80226147912,
+      unit: '₦ billion',
+      referencePeriod: '1 Jan–30 Sep 2026',
+      measurementType: 'Actual revenue including opening balance',
+      geographicCoverage: 'Anambra State',
+      sourceId: 'state-budget-anambra',
+      sourceType: 'official_source',
+      sourcePublisher: 'Anambra State Government — Office of the Accountant General / Open Finance',
+      sourceUrl: 'https://smart.anambrastate.gov.ng/open-finance',
+      departments: ['civic'],
+      interpretation: 'Official state BIR summary.',
+      limitations: ['Revenue receipt does not establish service delivery.'],
     }],
   },
 });
-assert.equal(nationalObservationSources.length, 2);
+assert.equal(nationalObservationSources.length, 3);
 assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:budgit-h1-2026-health-total-report' && source.sourceType === 'published_research'));
 assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:abia-2026-approved-budget-total' && source.sourceType === 'official_source'));
+assert.ok(nationalObservationSources.some((source) => source.id === 'src-observatory-national-observation:anambra-2026-q3-total-revenue' && source.sourceType === 'official_source'));
 assert.match(nationalObservationSources[0].excerpt, /621.34 ₦ billion/);
 
 const untrustedSnapshotSource = buildTrustedBriefSources({
