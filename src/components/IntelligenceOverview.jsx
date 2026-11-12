@@ -105,7 +105,7 @@ export default function IntelligenceOverview({ onAsk, onRouting }) {
         <Metric label="Published civic records" value={count(records.total)} note={records.fallback ? "Legacy feed fallback in use" : "Human-reviewed public submissions"} status={records.status}/>
         <Metric label="Community observations" value={count(observations.total)} note="Published reports · not prevalence" status={observations.status}/>
         <Metric label="INEC evidence datasets" value={count(inec.datasets?.length)} note="Official-source transcriptions" status={inec.status}/>
-        <Metric label="National evidence" value={count(nationalEvidence.observationCount)} note={count(indicators.count) + " indicator definitions · " + count(budgetCoverage.officialPortalsLocated) + "/36 official portals"} status={nationalEvidence.status}/>
+        <Metric label="National evidence" value={count(nationalEvidence.observationCount)} note={count(indicators.count) + " indicators · " + count(budgetCoverage.officialPortalsLocated) + "/36 portals · " + count(budgetCoverage.agora2025Coverage) + "-state 2025 data"} status={nationalEvidence.status}/>
       </section>
 
       <section className="brain-section">
