@@ -5,15 +5,23 @@ const OBSERVATORY_URL = "https://iseyc-civic-intelligence-observatory.vercel.app
 
 const QUESTIONS = [
   {
-    label: "What do citizens report?",
-    prompt: "Summarise the published Civic Mandate records. Separate what citizens reported from what is independently verified. Show geographic and duty coverage, and state what the record cannot tell us.",
+    label: "What do communities report?",
+    prompt: "Summarise the published Civic Mandate records. Separate what communities reported from what is independently verified. Show geographic and duty coverage, and state what the record cannot tell us.",
   },
   {
-    label: "What does the evidence say about health?",
-    prompt: "Explain the strongest available official evidence about Nigeria's health system. Distinguish source facts, reference periods, national estimates and local unknowns. Do not infer Kaduna or facility conditions from national data.",
+    label: "What does education evidence show?",
+    prompt: "Using the National Intelligence Observatory as the primary evidence source, explain the credible evidence available about education in Nigeria. State the source, reference period, geographic level and reporting limitations. Do not infer state or school conditions from national data.",
   },
   {
-    label: "Who is responsible?",
+    label: "What does health evidence show?",
+    prompt: "Using the National Intelligence Observatory as the primary evidence source, explain the strongest available official evidence about Nigeria's health system. Distinguish source facts, reference periods, national estimates and local unknowns. Do not infer Kaduna or facility conditions from national data.",
+  },
+  {
+    label: "What does public finance evidence show?",
+    prompt: "Using the National Intelligence Observatory as the primary evidence source, explain what credible public-finance evidence is available for Nigerian states. Distinguish budget, revenue, actual expenditure and verified service delivery. Identify source dates, geographic coverage, reconciliation issues and missing state data.",
+  },
+  {
+    label: "Who may be responsible?",
     prompt: "Explain which institution may have responsibility for a documented public-service issue. Show the legal or administrative basis, jurisdiction uncertainty and what a human reviewer must confirm before any referral.",
   },
   {
