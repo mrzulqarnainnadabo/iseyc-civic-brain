@@ -60,7 +60,7 @@ assert(new Set(mandateIds).size === mandateIds.length, 'Mandate returned duplica
 assert(first.total === mandateRecords.length, `Mandate total mismatch: metadata ${first.total}, fetched ${mandateRecords.length}`);
 
 const brain = await getJson(BRAIN);
-assert(brain.version === '1.1.0', 'Civic Brain public-records API version mismatch');
+assert(brain.version === '1.2.0', 'Civic Brain public-records API version mismatch');
 assert(brain.source === 'civic-mandate-community-records-v0.1', 'Civic Brain is not consuming CommunityRecord v0.1 (possible legacy fallback)');
 assert(brain.contractVersion === '0.1.0', 'Civic Brain contractVersion mismatch');
 assert(Array.isArray(brain.records), 'Civic Brain records must be an array');

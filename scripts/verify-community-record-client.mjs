@@ -1,5 +1,6 @@
 /** Verify CommunityRecord client maps and does not invent verification. */
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   fromCommunityRecord,
   fromPulseVoice,
@@ -155,5 +156,11 @@ const networkFallback = await fetchPublishedCommunityRecords(async (url) => {
   return { ok: true, json: async () => ({ voices: [], total: 0, truncated: false }) };
 });
 assert.equal(networkFallback.fallbackReason, 'community_record_network_error');
+
+// Keep the live contract check aligned with the version emitted by the API, without calling production.
+const publicRecordsApi = readFileSync(new URL('../api/public-records.js', import.meta.url), 'utf8');
+const liveVerifier = readFileSync(new URL('./verify-live-community-records.mjs', import.meta.url), 'utf8');
+assert.match(publicRecordsApi, /version:\s*'1\.2\.0'/);
+assert.match(liveVerifier, /brain\.version === '1\.2\.0'/);
 
 console.log('verify-community-record-client: PASS');

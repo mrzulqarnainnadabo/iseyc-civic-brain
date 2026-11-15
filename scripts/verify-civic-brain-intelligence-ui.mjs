@@ -51,5 +51,16 @@ assert(routing.includes("Potential responsible institution"), "routing output av
 const header = read("src/components/ui/Header.jsx");
 assert(header.includes("Ask Civic Brain") && header.includes("Institutional routing"), "Brain modes have clear user-facing names");
 
+const designSystem = read("docs/DESIGN-SYSTEM.md");
+const brandSystem = read("docs/ISEYC-BRAND-SYSTEM.md");
+const tokens = read("src/styles/tokens.css").toLowerCase();
+assert(designSystem.includes("Empowering Youth, Shaping Communities"), "design system uses the approved institutional tagline");
+assert(designSystem.includes("public/iseyc-seal.svg") && designSystem.includes("public/iseyc-wordmark.svg"), "design system references supplied institutional marks");
+for (const color of ["#071f18", "#0b2d22", "#123b2f", "#194b3b", "#e8f0ea", "#faf9f5", "#a7833f", "#80621f", "#202923", "#4e5d54", "#e4e6df"]) {
+  assert(designSystem.toLowerCase().includes(color), `design guide includes canonical palette token ${color}`);
+  assert(brandSystem.toLowerCase().includes(color), `brand source includes canonical palette token ${color}`);
+  assert(tokens.includes(color), `Civic Brain CSS tokens include canonical palette token ${color}`);
+}
+
 if (failed) { console.error(failed + " Civic Brain UI checks failed"); process.exit(1); }
 console.log("\nverify-civic-brain-intelligence-ui: PASS");
