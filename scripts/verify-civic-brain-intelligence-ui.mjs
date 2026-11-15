@@ -21,6 +21,19 @@ for (const label of expectedStarters) {
   assert(workspace.includes(label), `chat includes current evidence-led starter: ${label}`);
 }
 assert(!workspace.includes("What is Civic Mandate?"), "obsolete generic starter prompts are not required");
+const overview = read("src/components/IntelligenceOverview.jsx");
+for (const label of [
+  "What do communities report?",
+  "What does education evidence show?",
+  "What does health evidence show?",
+  "What does public finance evidence show?",
+  "Who may be responsible?",
+  "What remains unknown?",
+]) {
+  assert(overview.includes(label), `overview exposes a department-relevant evidence question: ${label}`);
+}
+assert(overview.includes("National Intelligence Observatory as the primary evidence source"), "department questions anchor analysis in the Observatory");
+assert(overview.includes("budget, revenue, actual expenditure and verified service delivery"), "public-finance question distinguishes financial stages from delivery");
 const briefCard = read("src/components/CivicBriefCard.jsx");
 assert(briefCard.includes("Draft · Human review"), "structured brief is visibly a human-review draft");
 assert(briefCard.includes("Structural validation is not independent verification"), "brief UI distinguishes validation from verification");
